@@ -14,9 +14,19 @@ const app = express();
 
 app.use(express.json());
 
+// --- ENVIRONMENT CHECK ---
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_API_KEY; // MUST BE SERVICE ROLE KEY
+// Support either variable name just in case
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ MISSING ENV VARS: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not set in Vercel.');
+  throw new Error('Missing Supabase credentials. Please check Vercel Environment Variables.');
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
+// ... rest of the code ...
+
 
 const upload = multer({
   storage: multer.memoryStorage(),
