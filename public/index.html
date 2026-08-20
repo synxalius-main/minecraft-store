@@ -1223,7 +1223,10 @@
     let currentUser = null;
     let isSignUp = false;
     let cart = [];
+    
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+    
     function showToast(message, type = 'success') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
@@ -1302,21 +1305,22 @@
           card.className = 'card';
           card.style.animationDelay = `${i * 0.05}s`;
           card.innerHTML = `
-            <div class="card-image-wrap">
-              <img class="thumb" src="${p.thumbnail_url || 'https://via.placeholder.com/400x250?text=No+Thumbnail'}" alt="${p.name}" onload="this.classList.add('loaded')">
-              <div class="card-badge">฿${parseFloat(p.price).toFixed(2)}</div>
-            </div>
-            <div class="card-body">
-              <div>
-                <h3>${p.name}</h3>
-                <p>${p.description || 'No description available'}</p>
-              </div>
-              <div class="card-footer">
-                <span class="price">฿${parseFloat(p.price).toFixed(2)}</span>
-                <button class="btn-primary" onclick="addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})">Add</button>
-              </div>
-            </div>
-          `;
+  <div class="card-image-wrap">
+    <img class="thumb" src="${p.thumbnail_url || 'https://via.placeholder.com/400x250?text=No+Thumbnail'}" alt="${esc(p.name)}" onload="this.classList.add('loaded')">
+    <div class="card-badge">฿${parseFloat(p.price).toFixed(2)}</div>
+  </div>
+  <div class="card-body">
+    <div>
+      <h3>${esc(p.name)}</h3>
+      <p>${esc(p.description || 'No description available')}</p>
+    </div>
+    <div class="card-footer">
+      <span class="price">฿${parseFloat(p.price).toFixed(2)}</span>
+      <button class="btn-primary" onclick="addToCart('${p.id}', '${esc(p.name).replace(/'/g, "\\'")}', ${p.price})">Add</button>
+    </div>
+  </div>
+`;
+
           grid.appendChild(card);
         });
       } catch (err) {
