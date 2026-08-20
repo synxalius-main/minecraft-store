@@ -15,17 +15,13 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please select a slip image.' });
     }
 
-    // Create a form-data payload to send the file buffer to SlipOK
+    // SlipOK requires the file to be passed under the 'files' field using multipart/form-data
     const slipFormData = new FormData();
     slipFormData.append('files', req.file.buffer, {
       filename: req.file.originalname || 'slip.jpg',
       contentType: req.file.mimetype
     });
     slipFormData.append('log', 'true');
-    
-    // Optional: include expected amount to let SlipOK validate it directly
-    const expectedPrice = parseFloat(process.env.EXPECTED_PRICE || '0.10');
-    slipFormData.append('amount', expectedPrice.toString());
 
     const response = await fetch(`https://api.slipok.com/api/line/apikey/${process.env.SLIPOK_BRANCH_ID}`, {
       method: 'POST',
@@ -53,6 +49,7 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
     }
 
     // 2. Validate Price Paid
+    const expectedPrice = parseFloat(process.env.EXPECTED_PRICE || '0.10');
     if (parseFloat(slipData.amount) < expectedPrice) {
       return res.status(400).json({ 
         success: false, 
