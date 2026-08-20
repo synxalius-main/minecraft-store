@@ -19,30 +19,10 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// --- MULTER MEMORY STORAGE ---
+// --- MULTER: NO FILTER, ACCEPT EVERYTHING ---
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
-    const ext = path.extname(file.originalname || '').toLowerCase();
-    const name = (file.originalname || '').toLowerCase();
-    
-    // Debug log - check Vercel logs to see what filename actually arrives
-    console.log('Upload received:', {
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      ext: ext
-    });
-    
-    const isAllowed = allowed.includes(ext) || allowed.some(a => name.endsWith(a));
-    
-    if (isAllowed) {
-      cb(null, true);
-    } else {
-      cb(new Error(`Only .mcaddon, .mcpack, .mcworld, .zip files are allowed (got: ${ext || 'none'})`), false);
-    }
-  }
+  limits: { fileSize: 50 * 1024 * 1024 }
 });
 
 // --- AUTH MIDDLEWARE ---
@@ -76,60 +56,107 @@ async function optionalAuth(req, res, next) {
 }
 
 // ==========================================
-// 1. PUBLIC STORE ROUTES
+// ROUTES
 // ==========================================
+
 app.get('/api/products', async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false });
-
+    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
   } catch (error) {
-    console.error('GET /api/products error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// ==========================================
-// 2. CREATOR DASHBOARD & PRODUCT CRUD
-// ==========================================
 app.get('/api/creator/products', requireAuth, async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('creator_id', req.user.id)
-      .order('created_at', { ascending: false });
-
+    const { data, error } = await supabase.from('products').select('*').eq('creator_id', req.user.id).order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
   } catch (error) {
-    console.error('GET creator products error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+// ADD NEW PRODUCT — validation done inside, NOT in multer
 app.post('/api/creator/products', requireAuth, upload.fields([
   { name: 'productFile', maxCount: 1 },
   { name: 'thumbnail', maxCount: 1 }
 ]), async (req, res) => {
   try {
-    console.log('--- UPLOAD START ---');
-    console.log('User:', req.user.id);
+    const { name, description, price } = req.body;
+    const productFile = req.files?.productFile?.[0];
+    const thumbnailFile = req.files?.thumbnail?.[0];
+
+    console.log('=== UPLOAD DEBUG ===');
     console.log('Body:', req.body);
-    console.log('Files received:', req.files ? Object.keys(req.files) : 'NO FILES');
-    
-    // Log each file's details
-    if (req.files?.productFile?.[0]) {
-      console.log('Product file:', {
-        name: req.files.productFile[0].originalname,
-        size: req.files.productFile[0].size,
-        mimetype: req.files.productFile[0].mimetype
+    console.log('Files keys:', req.files ? Object.keys(req.files) : 'NONE');
+    console.log('Product file:', productFile ? {
+      originalname: productFile.originalname,
+      mimetype: productFile.mimetype,
+      size: productFile.size
+    } : 'MISSING');
+
+    if (!name || price === undefined || price === '') {
+      return res.status(400).json({ success: false, message: 'Name and price are required.' });
+    }
+    if (!productFile) {
+      return res.status(400).json({ success: false, message: 'Addon file is required.' });
+    }
+
+    // Manual extension check
+    const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
+    const ext = path.extname(productFile.originalname || '').toLowerCase();
+    console.log('Extension detected:', ext);
+
+    if (!allowed.includes(ext)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid file type "${ext}". Only ${allowed.join(', ')} allowed.`
       });
     }
+
+    // Upload to Supabase
+    const addonFileName = `${Date.now()}-${productFile.originalname.replace(/\s+/g, '_')}`;
+    const { error: fileErr } = await supabase.storage
+      .from('addons')
+      .upload(addonFileName, productFile.buffer, {
+        contentType: productFile.mimetype || 'application/octet-stream'
+      });
+    if (fileErr) {
+      console.error('Addon storage error:', fileErr);
+      return res.status(500).json({ success: false, message: 'Failed to upload addon file: ' + fileErr.message });
+    }
+    const fileUrl = supabase.storage.from('addons').getPublicUrl(addonFileName).data.publicUrl;
+
+    let thumbnailUrl = '';
+    if (thumbnailFile) {
+      const thumbName = `${Date.now()}-${thumbnailFile.originalname.replace(/\s+/g, '_')}`;
+      const { error: thumbErr } = await supabase.storage
+        .from('thumbnails')
+        .upload(thumbName, thumbnailFile.buffer, { contentType: thumbnailFile.mimetype });
+      if (!thumbErr) {
+        thumbnailUrl = supabase.storage.from('thumbnails').getPublicUrl(thumbName).data.publicUrl;
+      }
+    }
+
+    const { data, error } = await supabase.from('products').insert([{
+      creator_id: req.user.id,
+      name: name.trim(),
+      description: (description || '').trim(),
+      price: parseFloat(price),
+      thumbnail_url: thumbnailUrl,
+      file_url: fileUrl
+    }]).select();
+
+    if (error) throw error;
+    res.json({ success: true, product: data[0] });
+  } catch (error) {
+    console.error('POST product error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Server error during upload.' });
+  }
+});
 
 app.put('/api/creator/products/:id', requireAuth, upload.fields([
   { name: 'productFile', maxCount: 1 },
@@ -141,13 +168,7 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
     const productFile = req.files?.productFile?.[0];
     const thumbnailFile = req.files?.thumbnail?.[0];
 
-    const { data: existing, error: findErr } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .eq('creator_id', req.user.id)
-      .single();
-
+    const { data: existing, error: findErr } = await supabase.from('products').select('*').eq('id', id).eq('creator_id', req.user.id).single();
     if (findErr || !existing) {
       return res.status(403).json({ success: false, message: 'You do not own this product.' });
     }
@@ -159,6 +180,11 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
     };
 
     if (productFile) {
+      const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
+      const ext = path.extname(productFile.originalname || '').toLowerCase();
+      if (!allowed.includes(ext)) {
+        return res.status(400).json({ success: false, message: `Invalid file type "${ext}"` });
+      }
       const addonFileName = `${Date.now()}-${productFile.originalname.replace(/\s+/g, '_')}`;
       await supabase.storage.from('addons').upload(addonFileName, productFile.buffer, { contentType: productFile.mimetype });
       updates.file_url = supabase.storage.from('addons').getPublicUrl(addonFileName).data.publicUrl;
@@ -172,22 +198,15 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
 
     const { data, error } = await supabase.from('products').update(updates).eq('id', id).select();
     if (error) throw error;
-
     res.json({ success: true, product: data[0] });
   } catch (error) {
-    console.error('PUT product error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
 app.delete('/api/creator/products/:id', requireAuth, async (req, res) => {
   try {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', req.params.id)
-      .eq('creator_id', req.user.id);
-
+    const { error } = await supabase.from('products').delete().eq('id', req.params.id).eq('creator_id', req.user.id);
     if (error) throw error;
     res.json({ success: true, message: 'Product deleted.' });
   } catch (error) {
@@ -195,30 +214,16 @@ app.delete('/api/creator/products/:id', requireAuth, async (req, res) => {
   }
 });
 
-// ==========================================
-// 3. CART & PAYMENT
-// ==========================================
 app.post('/api/verify-cart-payment', optionalAuth, upload.single('slip'), async (req, res) => {
   try {
     const productIds = JSON.parse(req.body.productIds || '[]');
-    if (!productIds.length) {
-      return res.status(400).json({ success: false, message: 'Cart is empty.' });
-    }
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Please upload a payment slip.' });
-    }
+    if (!productIds.length) return res.status(400).json({ success: false, message: 'Cart is empty.' });
+    if (!req.file) return res.status(400).json({ success: false, message: 'Please upload a payment slip.' });
 
-    const { data: cartItems, error: dbErr } = await supabase
-      .from('products')
-      .select('*')
-      .in('id', productIds);
-
-    if (dbErr || !cartItems.length) {
-      return res.status(400).json({ success: false, message: 'Invalid cart items.' });
-    }
+    const { data: cartItems, error: dbErr } = await supabase.from('products').select('*').in('id', productIds);
+    if (dbErr || !cartItems.length) return res.status(400).json({ success: false, message: 'Invalid cart items.' });
 
     const totalPrice = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
-
     const branchId = process.env.SLIPOK_BRANCH_ID;
     const apiKey = process.env.SLIPOK_API_KEY;
 
@@ -260,9 +265,6 @@ app.post('/api/verify-cart-payment', optionalAuth, upload.single('slip'), async 
   }
 });
 
-// ==========================================
-// 4. USER LIBRARY
-// ==========================================
 app.get('/api/user/library', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -270,7 +272,6 @@ app.get('/api/user/library', requireAuth, async (req, res) => {
       .select('created_at, products(id, name, thumbnail_url, file_url, price)')
       .eq('user_id', req.user.id)
       .order('created_at', { ascending: false });
-
     if (error) throw error;
     res.json(data);
   } catch (error) {
@@ -278,10 +279,9 @@ app.get('/api/user/library', requireAuth, async (req, res) => {
   }
 });
 
-// ==========================================
-// 5. ERROR HANDLER (MUST BE LAST!)
-// ==========================================
+// Error handler
 app.use((err, req, res, next) => {
+  console.error('Express error:', err);
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ success: false, message: 'File too large (max 50MB)' });
@@ -294,7 +294,4 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// ==========================================
-// 6. EXPORT FOR VERCEL
-// ==========================================
 export default app;
