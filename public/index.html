@@ -1,1704 +1,897 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Minecraft Marketplace</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --bg-elevated: #12121a;
-      --card: #181822;
-      --card-hover: #1e1e2d;
-      --primary: #00e676;
-      --primary-dim: rgba(0, 230, 118, 0.15);
-      --accent: #448aff;
-      --accent-dim: rgba(68, 138, 255, 0.15);
-      --danger: #ff5252;
-      --danger-dim: rgba(255, 82, 82, 0.15);
-      --text: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --text-muted: #64748b;
-      --border: rgba(255, 255, 255, 0.06);
-      --border-hover: rgba(255, 255, 255, 0.12);
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-      --shadow-glow: 0 0 40px rgba(0, 230, 118, 0.1);
-      --radius: 20px;
-      --radius-sm: 12px;
-      --radius-xs: 8px;
-      --safe-top: env(safe-area-inset-top);
-      --safe-bottom: env(safe-area-inset-bottom);
-    }
-
-    * { 
-      box-sizing: border-box; 
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html { 
-      scroll-behavior: smooth; 
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      line-height: 1.6;
-      padding-top: calc(64px + var(--safe-top));
-      padding-bottom: var(--safe-bottom);
-    }
-
-    /* Animated mesh gradient background */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(0, 230, 118, 0.04) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(68, 138, 255, 0.04) 0%, transparent 50%),
-        radial-gradient(ellipse 50% 50% at 50% 0%, rgba(0, 230, 118, 0.02) 0%, transparent 50%);
-      animation: bgShift 20s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    @keyframes bgShift {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(3%, -2%) scale(1.05); }
-      66% { transform: translate(-2%, 1%) scale(0.98); }
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-    /* ===== HEADER ===== */
-    header {
-      background: rgba(10, 10, 15, 0.85);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      padding: 0 20px;
-      height: 64px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes slideDown {
-      from { transform: translateY(-100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      white-space: nowrap;
-    }
-
-    .logo-icon {
-      font-size: 1.5rem;
-      -webkit-text-fill-color: initial;
-      filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.4));
-    }
-
-    /* Desktop nav */
-    .desktop-nav {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .desktop-nav button {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 0.875rem;
-      transition: all 0.2s ease;
-      position: relative;
-      font-family: inherit;
-      white-space: nowrap;
-    }
-
-    .desktop-nav button:hover {
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .desktop-nav button.active {
-      color: var(--primary);
-      background: var(--primary-dim);
-      border-color: rgba(0, 230, 118, 0.2);
-    }
-
-    .desktop-nav button .badge {
-      background: var(--danger);
-      color: white;
-      border-radius: 50%;
-      padding: 1px 6px;
-      font-size: 10px;
-      font-weight: 700;
-      margin-left: 4px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 18px;
-      height: 18px;
-      animation: badgePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-
-    @keyframes badgePop {
-      0% { transform: scale(0); }
-      70% { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
-
-    /* Mobile hamburger */
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px;
-      z-index: 110;
-    }
-
-    .hamburger span {
-      display: block;
-      width: 24px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 2px;
-      transition: all 0.3s ease;
-      transform-origin: center;
-    }
-
-    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-    /* Mobile menu overlay */
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 10, 15, 0.98);
-      backdrop-filter: blur(30px);
-      z-index: 90;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .mobile-menu.active {
-      display: flex;
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .mobile-menu button {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 16px 32px;
-      border-radius: var(--radius-sm);
-      font-size: 1.1rem;
-      font-weight: 600;
-      font-family: inherit;
-      width: 80%;
-      max-width: 300px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .mobile-menu button:active {
-      transform: scale(0.96);
-      background: var(--primary-dim);
-      border-color: var(--primary);
-    }
-
-    /* ===== VIEWS ===== */
-    .view {
-      display: none;
-      padding: 24px 16px;
-      max-width: 1200px;
-      margin: auto;
-      position: relative;
-      z-index: 1;
-      animation: viewEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .view.active { display: block; }
-
-    @keyframes viewEnter {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .view-header {
-      margin-bottom: 24px;
-    }
-
-    .view-header h2 {
-      font-size: clamp(1.5rem, 4vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin: 0;
-      line-height: 1.2;
-    }
-
-    .view-header p {
-      color: var(--text-muted);
-      margin: 8px 0 0;
-      font-size: 0.95rem;
-    }
-
-    .view-header .accent-line {
-      width: 48px;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      border-radius: 2px;
-      margin-top: 12px;
-      animation: expandWidth 0.6s 0.2s ease forwards;
-      transform-origin: left;
-      transform: scaleX(0);
-    }
-
-    @keyframes expandWidth { to { transform: scaleX(1); } }
-
-    /* ===== GRID ===== */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    @media (max-width: 640px) {
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* ===== CARDS ===== */
-    .card {
-      background: var(--card);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-    }
-
-    .card:nth-child(1) { animation-delay: 0.04s; }
-    .card:nth-child(2) { animation-delay: 0.08s; }
-    .card:nth-child(3) { animation-delay: 0.12s; }
-    .card:nth-child(4) { animation-delay: 0.16s; }
-    .card:nth-child(5) { animation-delay: 0.20s; }
-    .card:nth-child(6) { animation-delay: 0.24s; }
-
-    @keyframes cardEnter {
-      from { opacity: 0; transform: translateY(30px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      border: 1px solid transparent;
-      transition: border-color 0.3s ease;
-      pointer-events: none;
-    }
-
-    .card:hover::after {
-      border-color: rgba(0, 230, 118, 0.3);
-    }
-
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: var(--shadow-lg), var(--shadow-glow);
-      background: var(--card-hover);
-    }
-
-    .card-image-wrap {
-      position: relative;
-      overflow: hidden;
-      aspect-ratio: 16 / 10;
-    }
-
-    .card img.thumb {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      background: linear-gradient(110deg, #181822 8%, #222233 18%, #181822 33%);
-      background-size: 200% 100%;
-      animation: shimmerLoad 1.5s infinite;
-      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .card:hover img.thumb { transform: scale(1.08); }
-    .card img.thumb.loaded { animation: none; }
-
-    @keyframes shimmerLoad {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    .card-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--primary);
-      border: 1px solid rgba(0, 230, 118, 0.25);
-      text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
-    }
-
-    .card-body {
-      padding: 16px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .card-body h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin: 0;
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .card-body p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin: 0;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: auto;
-      padding-top: 8px;
-    }
-
-    .price {
-      font-size: 1.15rem;
-      color: var(--primary);
-      font-weight: 800;
-      text-shadow: 0 0 20px rgba(0, 230, 118, 0.2);
-    }
-
-    /* ===== BUTTONS ===== */
-    button {
-      font-family: inherit;
-      touch-action: manipulation;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), #00c853);
-      color: #000;
-      border: none;
-      padding: 10px 16px;
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.875rem;
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 230, 118, 0.25);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 230, 118, 0.35);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0) scale(0.97);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    .btn-secondary {
-      background: var(--primary-dim);
-      color: var(--primary);
-      border: 1px solid rgba(0, 230, 118, 0.2);
-      padding: 10px 16px;
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.875rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(0, 230, 118, 0.25);
-    }
-
-    .btn-danger {
-      background: var(--danger-dim);
-      color: var(--danger);
-      border: 1px solid rgba(255, 82, 82, 0.2);
-      padding: 8px 14px;
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.8rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-danger:hover {
-      background: rgba(255, 82, 82, 0.25);
-    }
-
-    .btn-edit {
-      background: var(--accent-dim);
-      color: var(--accent);
-      border: 1px solid rgba(68, 138, 255, 0.2);
-      padding: 8px 14px;
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.8rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-edit:hover {
-      background: rgba(68, 138, 255, 0.25);
-    }
-
-    /* ===== MODALS ===== */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      justify-content: center;
-      align-items: flex-end;
-      z-index: 200;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      padding: 0;
-    }
-
-    .modal.active {
-      display: flex;
-      opacity: 1;
-    }
-
-    .modal-content {
-      background: var(--bg-elevated);
-      padding: 24px;
-      border-radius: var(--radius) var(--radius) 0 0;
-      width: 100%;
-      max-width: 520px;
-      max-height: 92vh;
-      border: 1px solid var(--border);
-      border-bottom: none;
-      box-shadow: var(--shadow-lg);
-      transform: translateY(100%);
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow-y: auto;
-      position: relative;
-    }
-
-    .modal.active .modal-content {
-      transform: translateY(0);
-    }
-
-    @media (min-width: 640px) {
-      .modal {
-        align-items: center;
-        padding: 20px;
-      }
-      .modal-content {
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        max-height: 85vh;
-        transform: translateY(20px) scale(0.95);
-      }
-      .modal.active .modal-content {
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .modal-content::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 20px;
-      right: 20px;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      border-radius: 0 0 4px 4px;
-      opacity: 0.8;
-    }
-
-    @media (min-width: 640px) {
-      .modal-content::before {
-        left: 0;
-        right: 0;
-        top: 0;
-        height: 3px;
-        border-radius: 0;
-      }
-    }
-
-    .modal-content h2 {
-      margin: 0 0 20px;
-      font-size: 1.35rem;
-      font-weight: 800;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: all 0.2s ease;
-      z-index: 10;
-    }
-
-    .modal-close:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text);
-    }
-
-    /* ===== FORMS ===== */
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 12px 14px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: var(--radius-xs);
-      font-family: inherit;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-      outline: none;
-      -webkit-appearance: none;
-    }
-
-    input:focus, textarea:focus {
-      border-color: var(--primary);
-      background: rgba(0, 230, 118, 0.04);
-      box-shadow: 0 0 0 3px var(--primary-dim);
-    }
-
-    input::placeholder, textarea::placeholder {
-      color: #475569;
-    }
-
-    input[type="file"] {
-      padding: 10px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    input[type="file"]::file-selector-button {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-right: 12px;
-      transition: all 0.2s ease;
-      font-family: inherit;
-      font-weight: 500;
-    }
-
-    input[type="file"]::file-selector-button:hover {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #000;
-    }
-
-    .hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* ===== CART ===== */
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-      animation: slideIn 0.35s ease backwards;
-    }
-
-    .cart-item:nth-child(1) { animation-delay: 0.04s; }
-    .cart-item:nth-child(2) { animation-delay: 0.08s; }
-    .cart-item:nth-child(3) { animation-delay: 0.12s; }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-12px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .cart-item-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .cart-item-info span:first-child {
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .cart-item-info .item-price {
-      font-size: 0.85rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .cart-total-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 0;
-      margin: 16px 0;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .cart-total-row .total-label {
-      color: var(--text-muted);
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-
-    .cart-total-row .total-amount {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
-    /* ===== QR CODE ===== */
-    .qr-container {
-      text-align: center;
-      margin: 20px 0;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-    }
-
-    .qr-container img {
-      width: 140px;
-      background: white;
-      padding: 8px;
-      border-radius: var(--radius-xs);
-    }
-
-    .qr-container p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 10px;
-    }
-
-    /* ===== TOASTS ===== */
-    .toast-container {
-      position: fixed;
-      top: 80px;
-      right: 16px;
-      left: 16px;
-      z-index: 300;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: none;
-    }
-
-    @media (min-width: 640px) {
-      .toast-container {
-        left: auto;
-        width: 360px;
-      }
-    }
-
-    .toast {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      padding: 14px 18px;
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1), toastOut 0.4s 2.8s ease forwards;
-      pointer-events: all;
-      position: relative;
-      overflow: hidden;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .toast::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-    }
-
-    .toast.success::before { background: var(--primary); }
-    .toast.error::before { background: var(--danger); }
-    .toast.warning::before { background: #f59e0b; }
-
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes toastOut {
-      from { opacity: 1; transform: translateY(0) scale(1); }
-      to { opacity: 0; transform: translateY(-20px) scale(0.95); }
-    }
-
-    /* ===== SKELETONS ===== */
-    .skeleton {
-      background: linear-gradient(110deg, #181822 8%, #222233 18%, #181822 33%);
-      background-size: 200% 100%;
-      animation: shimmerLoad 1.5s infinite;
-      border-radius: var(--radius-xs);
-    }
-
-    .skeleton-card {
-      height: 280px;
-      border-radius: var(--radius-sm);
-    }
-
-    @keyframes shimmerLoad {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
-      animation: fadeIn 0.5s ease;
-    }
-
-    .empty-state-icon {
-      font-size: 3rem;
-      margin-bottom: 16px;
-      opacity: 0.4;
-    }
-
-    .empty-state h3 {
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-    }
-
-    .empty-state p {
-      font-size: 0.9rem;
-      margin-bottom: 20px;
-      max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* ===== STATUS MESSAGE ===== */
-    .status-box {
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: var(--radius-xs);
-      font-weight: 600;
-      text-align: center;
-      font-size: 0.9rem;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .status-box.pending {
-      color: #fbbf24;
-      background: rgba(251, 191, 36, 0.08);
-      border: 1px solid rgba(251, 191, 36, 0.15);
-    }
-
-    .status-box.success {
-      color: #4ade80;
-      background: rgba(74, 222, 128, 0.08);
-      border: 1px solid rgba(74, 222, 128, 0.15);
-    }
-
-    .status-box.error {
-      color: #f87171;
-      background: rgba(248, 113, 113, 0.08);
-      border: 1px solid rgba(248, 113, 113, 0.15);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* ===== DASHBOARD HEADER ===== */
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    @media (min-width: 640px) {
-      .dashboard-header {
-        flex-direction: row;
-        align-items: center;
-      }
-    }
-
-    /* ===== RESPONSIVE NAV ===== */
-    @media (max-width: 768px) {
-      .desktop-nav { display: none; }
-      .hamburger { display: flex; }
-      body { padding-top: calc(56px + var(--safe-top)); }
-      header { height: 56px; }
-      .logo { font-size: 1.1rem; }
-      .card-badge { font-size: 0.7rem; padding: 3px 8px; }
-      .card-body { padding: 12px; }
-      .card-body h3 { font-size: 0.85rem; }
-      .card-body p { font-size: 0.75rem; }
-      .price { font-size: 0.95rem; }
-      .btn-primary { padding: 8px 12px; font-size: 0.8rem; }
-    }
-
-    /* Safe area for notched phones */
-    @supports (padding-top: env(safe-area-inset-top)) {
-      header {
-        padding-left: max(20px, env(safe-area-inset-left));
-        padding-right: max(20px, env(safe-area-inset-right));
-      }
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyBlock Store | Rank Upgrades</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mc-dirt: #8B6914;
+            --mc-grass: #5D8C3A;
+            --mc-stone: #757575;
+            --mc-diamond: #00FFFF;
+            --mc-gold: #FFD700;
+            --mc-emerald: #50C878;
+            --mc-red: #B02E26;
+            --bg-dark: #0f0f13;
+            --bg-card: #1a1a20;
+            --bg-elevated: #252530;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --border: #2a2a35;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0,255,255,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(80,200,120,0.03) 0%, transparent 50%);
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(26,26,32,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--mc-emerald);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--mc-grass), var(--mc-emerald));
+            border-radius: 8px;
+            display: grid; place-items: center;
+            font-size: 1.25rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .cart-btn {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .cart-btn:hover {
+            border-color: var(--mc-emerald);
+            background: rgba(80,200,120,0.1);
+        }
+
+        .cart-count {
+            background: var(--mc-emerald);
+            color: var(--bg-dark);
+            font-size: 0.75rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--mc-emerald));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            line-height: 1.6;
+        }
+
+        /* Upgrade Element - Rank Tiers */
+        .upgrade-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+        }
+
+        .tier-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .tier-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .tier-card.featured {
+            border-color: var(--mc-gold);
+            background: linear-gradient(180deg, rgba(255,215,0,0.05) 0%, var(--bg-card) 100%);
+            box-shadow: 0 0 40px rgba(255,215,0,0.1);
+        }
+
+        .tier-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.25rem 1rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tier-badge.vip { background: var(--mc-diamond); color: #000; }
+        .tier-badge.mvp { background: var(--mc-gold); color: #000; }
+        .tier-badge.legend { background: linear-gradient(90deg, var(--mc-red), #ff6b6b); color: white; }
+
+        .tier-header {
+            text-align: center;
+            margin: 1rem 0 2rem;
+        }
+
+        .tier-header h3 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-header .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--mc-emerald);
+        }
+
+        .tier-header .price span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .tier-features {
+            list-style: none;
+            flex: 1;
+            margin-bottom: 2rem;
+        }
+
+        .tier-features li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .tier-features li:last-child { border-bottom: none; }
+
+        .tier-features li.included {
+            color: var(--text-primary);
+        }
+
+        .tier-features li .check {
+            color: var(--mc-emerald);
+            font-weight: 700;
+        }
+
+        .tier-features li .cross {
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .btn-upgrade {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-upgrade.vip {
+            background: rgba(0,255,255,0.1);
+            color: var(--mc-diamond);
+            border: 2px solid var(--mc-diamond);
+        }
+
+        .btn-upgrade.vip:hover {
+            background: var(--mc-diamond);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+        }
+
+        .btn-upgrade.mvp {
+            background: rgba(255,215,0,0.1);
+            color: var(--mc-gold);
+            border: 2px solid var(--mc-gold);
+        }
+
+        .btn-upgrade.mvp:hover {
+            background: var(--mc-gold);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+
+        .btn-upgrade.legend {
+            background: linear-gradient(135deg, rgba(176,46,38,0.2), rgba(255,107,107,0.2));
+            color: #ff6b6b;
+            border: 2px solid var(--mc-red);
+        }
+
+        .btn-upgrade.legend:hover {
+            background: linear-gradient(135deg, var(--mc-red), #ff6b6b);
+            color: white;
+            box-shadow: 0 0 30px rgba(176,46,38,0.4);
+        }
+
+        /* Products Grid */
+        .products-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            border-color: var(--mc-emerald);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .product-thumb {
+            width: 100%;
+            height: 160px;
+            background: var(--bg-elevated);
+            display: grid;
+            place-items: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-thumb::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, var(--bg-card) 100%);
+        }
+
+        .product-info {
+            padding: 1.25rem;
+        }
+
+        .product-info h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--mc-emerald);
+        }
+
+        .btn-add {
+            background: var(--mc-emerald);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #3db86a;
+            transform: scale(1.05);
+        }
+
+        /* Cart Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            place-items: center;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            display: grid;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            align-items: center;
+        }
+
+        .cart-item-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            font-size: 1.5rem;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-info h4 {
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .cart-item-info .item-price {
+            color: var(--mc-emerald);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .cart-item-remove {
+            background: none;
+            border: none;
+            color: var(--mc-red);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .cart-item-remove:hover {
+            background: rgba(176,46,38,0.1);
+        }
+
+        .cart-total {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-elevated);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+
+        .total-row.final {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--mc-emerald);
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--mc-emerald), #3db86a);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(80,200,120,0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { display: none; }
+            .tier-comparison { grid-template-columns: 1fr; }
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating { animation: float 3s ease-in-out infinite; }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--mc-emerald);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 300px;
+        }
+
+        .toast.error { border-left-color: var(--mc-red); }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">
-      <span class="logo-icon">⛏️</span>
-      <span>MC Store</span>
-    </div>
-    
-    <nav class="desktop-nav">
-      <button class="active" onclick="switchView('store')">🛒 Store</button>
-      <button onclick="openCart()">
-        🛍️ Cart
-        <span id="cartCount" class="badge" style="display:none;">0</span>
-      </button>
-      <button id="navDashboard" style="display:none;" onclick="switchView('dashboard')">🛠 Studio</button>
-      <button id="navProfile" style="display:none;" onclick="switchView('profile')">👤 Library</button>
-      <button id="authBtn" onclick="openAuthModal()">Login</button>
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="logo">
+            <div class="logo-icon">⛏️</div>
+            SkyBlock Store
+        </a>
+        <div class="nav-links">
+            <a href="#ranks" class="active">Ranks</a>
+            <a href="#addons">Addons</a>
+            <a href="#bundles">Bundles</a>
+            <button class="cart-btn" onclick="toggleCart()">
+                🛒 Cart <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </div>
     </nav>
 
-    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-  </header>
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Upgrade Your Adventure</h1>
+        <p>Unlock exclusive perks, commands, and cosmetic items. Support the server and stand out from the crowd with our premium rank upgrades.</p>
+    </section>
 
-  <!-- Mobile Menu Overlay -->
-  <div class="mobile-menu" id="mobileMenu">
-    <button onclick="switchView('store'); toggleMobileMenu()">🛒 Store</button>
-    <button onclick="openCart(); toggleMobileMenu()">🛍️ Cart <span id="cartCountMobile" style="display:none;"></span></button>
-    <button id="navDashboardMobile" style="display:none;" onclick="switchView('dashboard'); toggleMobileMenu()">🛠 Creator Studio</button>
-    <button id="navProfileMobile" style="display:none;" onclick="switchView('profile'); toggleMobileMenu()">👤 My Library</button>
-    <button id="authBtnMobile" onclick="openAuthModal(); toggleMobileMenu()">Login / Sign Up</button>
-  </div>
-
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- STORE VIEW -->
-  <main id="storeView" class="view active">
-    <div class="view-header">
-      <h2>Available Addons</h2>
-      <p>Discover the best Minecraft addons from our creators</p>
-      <div class="accent-line"></div>
-    </div>
-    <div id="productsGrid" class="grid">
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-    </div>
-  </main>
-
-  <!-- CREATOR DASHBOARD VIEW -->
-  <main id="dashboardView" class="view">
-    <div class="dashboard-header">
-      <div class="view-header" style="margin:0;">
-        <h2>Creator Dashboard</h2>
-        <p>Manage and publish your addons</p>
-        <div class="accent-line"></div>
-      </div>
-      <button class="btn-primary" style="width:auto; padding:12px 20px;" onclick="openProductModal()">+ New Addon</button>
-    </div>
-    <div id="creatorProductsGrid" class="grid"></div>
-  </main>
-
-  <!-- USER PROFILE / LIBRARY VIEW -->
-  <main id="profileView" class="view">
-    <div class="view-header">
-      <h2>My Purchased Addons</h2>
-      <p>All your addons in one place</p>
-      <div class="accent-line"></div>
-    </div>
-    <div id="libraryGrid" class="grid"></div>
-  </main>
-
-  <!-- CART MODAL -->
-  <div id="cartModal" class="modal" onclick="if(event.target===this) closeModal('cartModal')">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal('cartModal')">✕</button>
-      <h2>Your Cart</h2>
-      <div id="cartItemsList" style="margin: 16px 0; max-height: 220px; overflow-y: auto;"></div>
-      <div class="cart-total-row">
-        <span class="total-label">Total</span>
-        <span class="total-amount">฿<span id="cartTotal">0.00</span></span>
-      </div>
-      <div class="qr-container">
-        <img src="/qrcode.jpg" alt="Payment QR">
-        <p>Scan QR to pay the exact amount</p>
-      </div>
-      <form id="cartForm">
-        <div class="form-group">
-          <label>Payment Slip</label>
-          <input type="file" id="cartSlip" accept="image/*" required>
+    <!-- Upgrade Element: Rank Tiers -->
+    <section class="upgrade-section" id="ranks">
+        <div class="section-header">
+            <h2>⚔️ Choose Your Rank</h2>
+            <p>Select the perfect tier for your playstyle. Upgrade anytime and only pay the difference!</p>
         </div>
-        <button type="submit" class="btn-primary" style="width:100%; margin-top:8px;">Verify & Download All</button>
-      </form>
-      <div id="cartStatus"></div>
-    </div>
-  </div>
 
-  <!-- AUTH MODAL -->
-  <div id="authModal" class="modal" onclick="if(event.target===this) closeModal('authModal')">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal('authModal')">✕</button>
-      <h2 id="authTitle">Sign In</h2>
-      
-      <div id="signUpFields" style="display: none;">
-        <div class="form-group">
-          <label>Profile</label>
-          <input type="text" id="authUsername" placeholder="Username / Creator Name">
-          <input type="text" id="authIgn" placeholder="Minecraft IGN" style="margin-top:8px;">
+        <div class="tier-comparison">
+            <!-- VIP Tier -->
+            <div class="tier-card">
+                <div class="tier-badge vip">Starter</div>
+                <div class="tier-header">
+                    <h3 style="color: var(--mc-diamond)">💎 VIP</h3>
+                    <div class="price">$4.99<span>/month</span></div>
+                </div>
+                <ul class="tier-features">
+                    <li class="included"><span class="check">✓</span> /fly command</li>
+                    <li class="included"><span class="check">✓</span> 5 player homes</li>
+                    <li class="included"><span class="check">✓</span> VIP chat prefix</li>
+                    <li class="included"><span class="check">✓</span> Exclusive kit</li>
+                    <li><span class="cross">✗</span> /god mode</li>
+                    <li><span class="cross">✗</span> Creative plots</li>
+                    <li><span class="cross">✗</span> Custom particles</li>
+                </ul>
+                <button class="btn-upgrade vip" onclick="addToCart('vip', 'VIP Rank', 4.99)">
+                    Select VIP
+                </button>
+            </div>
+
+            <!-- MVP Tier (Featured) -->
+            <div class="tier-card featured">
+                <div class="tier-badge mvp">Popular</div>
+                <div class="tier-header">
+                    <h3 style="color: var(--mc-gold)">👑 MVP</h3>
+                    <div class="price">$9.99<span>/month</span></div>
+                </div>
+                <ul class="tier-features">
+                    <li class="included"><span class="check">✓</span> All VIP features</li>
+                    <li class="included"><span class="check">✓</span> /god mode</li>
+                    <li class="included"><span class="check">✓</span> 15 player homes</li>
+                    <li class="included"><span class="check">✓</span> MVP chat prefix</li>
+                    <li class="included"><span class="check">✓</span> Creative plots (5)</li>
+                    <li><span class="cross">✗</span> Custom particles</li>
+                    <li><span class="cross">✗</span> Priority support</li>
+                </ul>
+                <button class="btn-upgrade mvp" onclick="addToCart('mvp', 'MVP Rank', 9.99)">
+                    Select MVP
+                </button>
+            </div>
+
+            <!-- Legend Tier -->
+            <div class="tier-card">
+                <div class="tier-badge legend">Best Value</div>
+                <div class="tier-header">
+                    <h3 style="color: #ff6b6b">🔥 LEGEND</h3>
+                    <div class="price">$19.99<span>/month</span></div>
+                </div>
+                <ul class="tier-features">
+                    <li class="included"><span class="check">✓</span> All MVP features</li>
+                    <li class="included"><span class="check">✓</span> Unlimited homes</li>
+                    <li class="included"><span class="check">✓</span> Custom particles</li>
+                    <li class="included"><span class="check">✓</span> Legend prefix + glow</li>
+                    <li class="included"><span class="check">✓</span> Creative plots (20)</li>
+                    <li class="included"><span class="check">✓</span> Priority support</li>
+                    <li class="included"><span class="check">✓</span> Beta access</li>
+                </ul>
+                <button class="btn-upgrade legend" onclick="addToCart('legend', 'Legend Rank', 19.99)">
+                    Select Legend
+                </button>
+            </div>
         </div>
-      </div>
+    </section>
 
-      <div class="form-group">
-        <label>Credentials</label>
-        <input type="email" id="authEmail" placeholder="Email Address" required>
-        <input type="password" id="authPassword" placeholder="Password" required style="margin-top:8px;">
-        <input type="password" id="authConfirmPassword" placeholder="Confirm Password" style="display: none; margin-top:8px;">
-      </div>
+    <!-- Products Section -->
+    <section class="products-section" id="addons">
+        <div class="section-header">
+            <h2>📦 Popular Addons</h2>
+            <p>Enhance your gameplay with exclusive addons and cosmetic packs</p>
+        </div>
+        <div class="products-grid" id="productsGrid">
+            <!-- Dynamically loaded -->
+        </div>
+    </section>
 
-      <button class="btn-primary" onclick="handleAuth()" style="width:100%; margin-top:8px;">Submit</button>
-      
-      <p style="text-align: center; cursor: pointer; color: var(--accent); margin-top: 16px; font-weight: 600; font-size: 0.9rem;" onclick="toggleAuthMode()" id="authToggleText">
-        Need an account? Sign Up
-      </p>
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🛒 Shopping Cart</h3>
+                <button class="modal-close" onclick="toggleCart()">×</button>
+            </div>
+            <div class="modal-body" id="cartItems">
+                <div style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🛍️</div>
+                    <p>Your cart is empty</p>
+                </div>
+            </div>
+            <div class="cart-total" id="cartTotalSection" style="display: none;">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="total-row final">
+                    <span>Total</span>
+                    <span id="total">$0.00</span>
+                </div>
+                <button class="btn-checkout" onclick="checkout()">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- CREATE/EDIT PRODUCT MODAL -->
-  <div id="productModal" class="modal" onclick="if(event.target===this) closeModal('productModal')">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
-      <h2 id="modalProductTitle">Upload Addon</h2>
-      <form id="productForm">
-        <input type="hidden" id="editProductId">
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // State
+        let cart = JSON.parse(localStorage.getItem('mc_cart') || '[]');
         
-        <div class="form-group">
-          <label>Addon Name</label>
-          <input type="text" id="pName" name="name" placeholder="e.g. Epic Swords Pack" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Description</label>
-          <textarea id="pDesc" name="description" placeholder="Describe your addon..." rows="3"></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label>Price (THB)</label>
-          <input type="number" step="0.01" id="pPrice" name="price" placeholder="0.00" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Thumbnail Image</label>
-          <input type="file" id="pThumb" name="thumbnail" accept="image/*">
-          <p class="hint">Recommended: 512x512px or 16:9 ratio</p>
-        </div>
-        
-        <div class="form-group">
-          <label>Addon File</label>
-          <input type="file" id="pFile" name="productFile" accept=".mcaddon,.zip,.mcpack">
-          <p class="hint">.mcaddon, .zip, or .mcpack (Max 50MB)</p>
-        </div>
-        
-        <button type="submit" class="btn-primary" style="width:100%;">Save & Publish</button>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // --- SUPABASE CLIENT CONFIG ---
-    const SUPABASE_URL = 'https://czuqcewdobkobohavbwo.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_2vycFL8nvwoEpWCW3oEYBQ_RqEnIIJF';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let currentUser = null;
-    let isSignUp = false;
-    let cart = [];
-
-    // --- TOAST SYSTEM ---
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
-      toast.innerHTML = `<span style="font-size:1.1rem;">${icon}</span><span>${message}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3200);
-    }
-
-    // --- MOBILE MENU ---
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobileMenu');
-      const hamburger = document.getElementById('hamburger');
-      menu.classList.toggle('active');
-      hamburger.classList.toggle('active');
-      document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
-    }
-
-    // --- INIT AUTH STATE ---
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      currentUser = session?.user || null;
-      updateAuthUI();
-      if (currentUser) {
-        loadCreatorProducts();
-        loadUserLibrary();
-      }
-    });
-
-    // --- NAVIGATION ---
-    function switchView(viewName) {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.desktop-nav button').forEach(b => b.classList.remove('active'));
-      document.getElementById(`${viewName}View`).classList.add('active');
-      if (event?.target?.closest('button')) event.target.closest('button').classList.add('active');
-      if (viewName === 'store') loadStoreProducts();
-      if (viewName === 'dashboard') loadCreatorProducts();
-      if (viewName === 'profile') loadUserLibrary();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // --- 1. STORE VIEW ---
-    async function loadStoreProducts() {
-      const grid = document.getElementById('productsGrid');
-      grid.innerHTML = '<div class="skeleton skeleton-card"></div>'.repeat(4);
-      try {
-        const res = await fetch('/api/products');
-        const products = await res.json();
-        grid.innerHTML = '';
-        if (!products.length) {
-          grid.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon">📦</div>
-              <h3>No addons yet</h3>
-              <p>Be the first creator to upload an addon!</p>
-            </div>
-          `;
-          return;
-        }
-        products.forEach((p, i) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.style.animationDelay = `${i * 0.05}s`;
-          card.innerHTML = `
-            <div class="card-image-wrap">
-              <img class="thumb" src="${p.thumbnail_url || 'https://via.placeholder.com/400x250?text=No+Thumbnail'}" alt="${p.name}" onload="this.classList.add('loaded')">
-              <div class="card-badge">฿${parseFloat(p.price).toFixed(2)}</div>
-            </div>
-            <div class="card-body">
-              <div>
-                <h3>${p.name}</h3>
-                <p>${p.description || 'No description available'}</p>
-              </div>
-              <div class="card-footer">
-                <span class="price">฿${parseFloat(p.price).toFixed(2)}</span>
-                <button class="btn-primary" onclick="addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})">Add</button>
-              </div>
-            </div>
-          `;
-          grid.appendChild(card);
-        });
-      } catch (err) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">⚠️</div>
-            <h3>Failed to load</h3>
-            <p>Could not fetch products. Please refresh.</p>
-          </div>
-        `;
-      }
-    }
-
-    // --- 2. CART SYSTEM ---
-    function addToCart(id, name, price) {
-      if (!cart.some(item => item.id === id)) {
-        cart.push({ id, name, price });
-        updateCartBadge();
-        showToast(`Added "${name}" to cart`);
-      } else {
-        showToast('Already in cart', 'warning');
-      }
-    }
-
-    function updateCartBadge() {
-      const count = cart.length;
-      ['cartCount', 'cartCountMobile'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (count > 0) {
-          el.style.display = 'inline';
-          el.textContent = count;
-          el.style.animation = 'none';
-          el.offsetHeight;
-          el.style.animation = 'badgePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-        } else {
-          el.style.display = 'none';
-        }
-      });
-    }
-
-    function openCart() {
-      const list = document.getElementById('cartItemsList');
-      list.innerHTML = '';
-      let total = 0;
-      if (cart.length === 0) {
-        list.innerHTML = `
-          <div class="empty-state" style="padding:30px 0;">
-            <div class="empty-state-icon">🛒</div>
-            <p>Your cart is empty</p>
-          </div>
-        `;
-      } else {
-        cart.forEach((item, index) => {
-          total += item.price;
-          list.innerHTML += `
-            <div class="cart-item">
-              <div class="cart-item-info">
-                <span>${item.name}</span>
-                <span class="item-price">฿${item.price.toFixed(2)}</span>
-              </div>
-              <button onclick="removeFromCart(${index})" class="btn-danger">Remove</button>
-            </div>
-          `;
-        });
-      }
-      document.getElementById('cartTotal').textContent = total.toFixed(2);
-      document.getElementById('cartModal').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      updateCartBadge();
-      openCart();
-      showToast('Removed from cart');
-    }
-
-    document.getElementById('cartForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const status = document.getElementById('cartStatus');
-      const slipFile = document.getElementById('cartSlip').files[0];
-      if (!cart.length) return showToast('Cart is empty', 'error');
-
-      const session = (await supabaseClient.auth.getSession()).data.session;
-      const formData = new FormData();
-      formData.append('slip', slipFile);
-      formData.append('productIds', JSON.stringify(cart.map(i => i.id)));
-
-      status.className = 'status-box pending';
-      status.textContent = '⏳ Verifying payment slip...';
-
-      try {
-        const res = await fetch('/api/verify-cart-payment', {
-          method: 'POST',
-          headers: session ? { 'Authorization': `Bearer ${session.access_token}` } : {},
-          body: formData
-        });
-        const data = await res.json();
-        if (data.success) {
-          status.className = 'status-box success';
-          let html = '<div style="margin-bottom:8px;">🎉 Payment Verified!</div>';
-          data.downloads.forEach(d => {
-            html += `<a href="${d.downloadUrl}" style="color:var(--primary);display:block;margin:6px 0;font-weight:600;text-decoration:none;" download>⬇️ ${d.name}</a>`;
-          });
-          status.innerHTML = html;
-          cart = [];
-          updateCartBadge();
-          showToast('Payment successful!');
-        } else {
-          status.className = 'status-box error';
-          status.textContent = data.message || 'Verification failed';
-          showToast(data.message || 'Verification failed', 'error');
-        }
-      } catch (err) {
-        status.className = 'status-box error';
-        status.textContent = 'Network error. Try again.';
-        showToast('Network error', 'error');
-      }
-    });
-
-    // --- 3. CREATOR DASHBOARD CRUD ---
-    async function loadCreatorProducts() {
-      const session = (await supabaseClient.auth.getSession()).data.session;
-      if (!session) return;
-      const grid = document.getElementById('creatorProductsGrid');
-      grid.innerHTML = '<div class="skeleton skeleton-card"></div>'.repeat(2);
-      try {
-        const res = await fetch('/api/creator/products', {
-          headers: { 'Authorization': `Bearer ${session.access_token}` }
-        });
-        const products = await res.json();
-        grid.innerHTML = '';
-        if (!products.length) {
-          grid.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon">🛠️</div>
-              <h3>No addons yet</h3>
-              <p>Upload your first addon to start selling!</p>
-              <button class="btn-primary" style="width:auto;margin-top:12px;" onclick="openProductModal()">+ Upload Addon</button>
-            </div>
-          `;
-          return;
-        }
-        products.forEach((p, i) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.style.animationDelay = `${i * 0.05}s`;
-          card.innerHTML = `
-            <div class="card-image-wrap">
-              <img class="thumb" src="${p.thumbnail_url || 'https://via.placeholder.com/400x250?text=No+Thumbnail'}" onload="this.classList.add('loaded')">
-              <div class="card-badge">฿${parseFloat(p.price).toFixed(2)}</div>
-            </div>
-            <div class="card-body">
-              <div>
-                <h3>${p.name}</h3>
-                <p>${p.description || 'No description'}</p>
-              </div>
-              <div style="display:flex;gap:8px;margin-top:8px;">
-                <button class="btn-edit" style="flex:1;" onclick="openEditProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${(p.description || '').replace(/'/g, "\\'")}', ${p.price})">Edit</button>
-                <button class="btn-danger" style="flex:1;" onclick="deleteProduct('${p.id}')">Delete</button>
-              </div>
-            </div>
-          `;
-          grid.appendChild(card);
-        });
-      } catch (err) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">⚠️</div>
-            <h3>Failed to load</h3>
-            <p>Could not fetch your addons.</p>
-          </div>
-        `;
-      }
-    }
-
-    function openProductModal() {
-      document.getElementById('editProductId').value = '';
-      document.getElementById('modalProductTitle').textContent = 'Upload New Addon';
-      document.getElementById('productForm').reset();
-      document.getElementById('pFile').required = true;
-      document.getElementById('productModal').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function openEditProduct(id, name, desc, price) {
-      document.getElementById('editProductId').value = id;
-      document.getElementById('modalProductTitle').textContent = 'Edit Addon';
-      document.getElementById('pName').value = name || '';
-      document.getElementById('pDesc').value = desc || '';
-      document.getElementById('pPrice').value = price || '';
-      document.getElementById('pFile').required = false;
-      document.getElementById('productModal').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    document.getElementById('productForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = '⏳ Saving...';
-      submitBtn.disabled = true;
-
-      try {
-        const id = document.getElementById('editProductId').value;
-        const session = (await supabaseClient.auth.getSession()).data.session;
-        if (!session) {
-          showToast('Please log in first', 'error');
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append('name', document.getElementById('pName').value.trim());
-        formData.append('description', document.getElementById('pDesc').value.trim());
-        formData.append('price', document.getElementById('pPrice').value);
-
-        const thumbFile = document.getElementById('pThumb').files[0];
-        const productFile = document.getElementById('pFile').files[0];
-
-        if (thumbFile) formData.append('thumbnail', thumbFile);
-        if (productFile) formData.append('productFile', productFile);
-
-        if (!id && !productFile) {
-          showToast('Please upload an addon file', 'error');
-          submitBtn.textContent = originalText;
-          submitBtn.disabled = false;
-          return;
-        }
-
-        const url = id ? `/api/creator/products/${id}` : '/api/creator/products';
-        const method = id ? 'PUT' : 'POST';
-
-        const res = await fetch(url, {
-          method,
-          headers: { 'Authorization': `Bearer ${session.access_token}` },
-          body: formData
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartUI();
+            loadProducts();
         });
 
-        const data = await res.json();
-        if (data.success) {
-          closeModal('productModal');
-          loadCreatorProducts();
-          showToast(id ? 'Addon updated!' : 'Addon published!');
-        } else {
-          showToast(data.message || 'Failed to save', 'error');
+        // Cart Functions
+        function addToCart(id, name, price) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                showToast('Item already in cart!', 'error');
+                return;
+            }
+            
+            cart.push({ id, name, price, icon: getIconForId(id) });
+            saveCart();
+            updateCartUI();
+            showToast(`Added ${name} to cart`);
+            
+            // Animate cart button
+            const btn = document.querySelector('.cart-btn');
+            btn.style.transform = 'scale(1.1)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 200);
         }
-      } catch (err) {
-        console.error('Upload error:', err);
-        showToast('Upload failed', 'error');
-      } finally {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-      }
-    });
 
-    async function deleteProduct(id) {
-      if (!confirm('Delete this addon? This cannot be undone.')) return;
-      try {
-        const session = (await supabaseClient.auth.getSession()).data.session;
-        if (!session) return;
-        const res = await fetch(`/api/creator/products/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            saveCart();
+            updateCartUI();
+        }
+
+        function saveCart() {
+            localStorage.setItem('mc_cart', JSON.stringify(cart));
+        }
+
+        function updateCartUI() {
+            const count = document.getElementById('cartCount');
+            const itemsList = document.getElementById('cartItems');
+            const totalSection = document.getElementById('cartTotalSection');
+            
+            count.textContent = cart.length;
+            
+            if (cart.length === 0) {
+                itemsList.innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🛍️</div>
+                        <p>Your cart is empty</p>
+                        <p style="font-size: 0.875rem; margin-top: 0.5rem;">Add ranks or addons to get started</p>
+                    </div>
+                `;
+                totalSection.style.display = 'none';
+            } else {
+                itemsList.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-icon">${item.icon}</div>
+                        <div class="cart-item-info">
+                            <h4>${item.name}</h4>
+                            <div class="item-price">$${item.price.toFixed(2)}</div>
+                        </div>
+                        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">🗑️</button>
+                    </div>
+                `).join('');
+                
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                document.getElementById('subtotal').textContent = `$${total.toFixed(2)}`;
+                document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+                totalSection.style.display = 'block';
+            }
+        }
+
+        function toggleCart() {
+            document.getElementById('cartModal').classList.toggle('active');
+        }
+
+        function checkout() {
+            showToast('Redirecting to payment...');
+            // Integrate with your existing /api/verify-cart-payment endpoint
+        }
+
+        // Helper Functions
+        function getIconForId(id) {
+            const icons = {
+                'vip': '💎', 'mvp': '👑', 'legend': '🔥',
+                'fly': '🪽', 'kit': '📦', 'particles': '✨'
+            };
+            return icons[id] || '📦';
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${type === 'success' ? '✓' : '⚠'}</span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Load Products from API
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                const products = await res.json();
+                
+                const grid = document.getElementById('productsGrid');
+                if (!products.length) {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">No products available</p>';
+                    return;
+                }
+                
+                grid.innerHTML = products.map(p => `
+                    <div class="product-card" onclick="addToCart('${p.id}', '${p.name}', ${p.price})">
+                        <div class="product-thumb">
+                            ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" style="width:100%;height:100%;object-fit:cover;">` : '📦'}
+                        </div>
+                        <div class="product-info">
+                            <h4>${p.name}</h4>
+                            <p>${p.description || 'No description'}</p>
+                            <div class="product-footer">
+                                <span class="product-price">$${parseFloat(p.price).toFixed(2)}</span>
+                                <button class="btn-add">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load products:', err);
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('cartModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) toggleCart();
         });
-        const data = await res.json();
-        if (data.success) {
-          loadCreatorProducts();
-          showToast('Addon deleted');
-        } else {
-          showToast(data.message || 'Failed to delete', 'error');
-        }
-      } catch (err) {
-        showToast('Delete failed', 'error');
-      }
-    }
-
-    // --- 4. PROFILE / LIBRARY ---
-    async function loadUserLibrary() {
-      const session = (await supabaseClient.auth.getSession()).data.session;
-      if (!session) return;
-      const grid = document.getElementById('libraryGrid');
-      grid.innerHTML = '<div class="skeleton skeleton-card"></div>'.repeat(2);
-      try {
-        const res = await fetch('/api/user/library', {
-          headers: { 'Authorization': `Bearer ${session.access_token}` }
-        });
-        const purchases = await res.json();
-        grid.innerHTML = '';
-        if (!purchases.length) {
-          grid.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon">📚</div>
-              <h3>No purchases yet</h3>
-              <p>Browse the store and buy your first addon!</p>
-              <button class="btn-primary" style="width:auto;margin-top:12px;" onclick="switchView('store')">Browse Store</button>
-            </div>
-          `;
-          return;
-        }
-        purchases.forEach((item, i) => {
-          const p = item.products;
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.style.animationDelay = `${i * 0.05}s`;
-          card.innerHTML = `
-            <div class="card-image-wrap">
-              <img class="thumb" src="${p.thumbnail_url || 'https://via.placeholder.com/400x250?text=No+Thumbnail'}" onload="this.classList.add('loaded')">
-              <div class="card-badge" style="left:12px;right:auto;font-size:0.7rem;font-weight:500;color:var(--text-muted);border-color:var(--border);">
-                ${new Date(item.created_at).toLocaleDateString()}
-              </div>
-            </div>
-            <div class="card-body">
-              <div>
-                <h3>${p.name}</h3>
-                <p>Purchased and ready to download</p>
-              </div>
-              <a href="${p.file_url}" class="btn-primary" style="text-align:center;text-decoration:none;display:block;margin-top:8px;" download>⬇️ Download</a>
-            </div>
-          `;
-          grid.appendChild(card);
-        });
-      } catch (err) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">⚠️</div>
-            <h3>Failed to load</h3>
-            <p>Could not fetch your library.</p>
-          </div>
-        `;
-      }
-    }
-
-    // --- AUTH HELPERS ---
-    function openAuthModal() {
-      document.getElementById('authModal').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-      document.body.style.overflow = '';
-      if (id === 'productModal') {
-        document.getElementById('productForm').reset();
-        document.getElementById('editProductId').value = '';
-      }
-      if (id === 'cartModal') {
-        document.getElementById('cartStatus').innerHTML = '';
-        document.getElementById('cartStatus').className = '';
-        document.getElementById('cartForm').reset();
-      }
-    }
-
-    function toggleAuthMode() {
-      isSignUp = !isSignUp;
-      document.getElementById('authTitle').textContent = isSignUp ? 'Create Account' : 'Sign In';
-      document.getElementById('authToggleText').textContent = isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up';
-      document.getElementById('signUpFields').style.display = isSignUp ? 'block' : 'none';
-      document.getElementById('authConfirmPassword').style.display = isSignUp ? 'block' : 'none';
-    }
-
-    async function handleAuth() {
-      const email = document.getElementById('authEmail').value.trim();
-      const password = document.getElementById('authPassword').value;
-      if (!email || !password) {
-        showToast('Please fill in all fields', 'error');
-        return;
-      }
-
-      if (isSignUp) {
-        const username = document.getElementById('authUsername').value.trim();
-        const minecraftIgn = document.getElementById('authIgn').value.trim();
-        const confirmPassword = document.getElementById('authConfirmPassword').value;
-
-        if (!username) {
-          showToast('Please enter a username', 'error');
-          return;
-        }
-        if (password !== confirmPassword) {
-          showToast('Passwords do not match', 'error');
-          return;
-        }
-        if (password.length < 6) {
-          showToast('Password must be 6+ characters', 'error');
-          return;
-        }
-
-        const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password,
-          options: { data: { username, minecraft_ign: minecraftIgn || 'Steve' } }
-        });
-
-        if (error) {
-          showToast(error.message, 'error');
-        } else {
-          showToast(`Welcome, ${username}!`);
-          toggleAuthMode();
-        }
-      } else {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) {
-          showToast(error.message, 'error');
-        } else {
-          closeModal('authModal');
-          showToast('Signed in!');
-        }
-      }
-    }
-
-    function updateAuthUI() {
-      const displayName = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'User';
-      const ign = currentUser?.user_metadata?.minecraft_ign ? ` [${currentUser.user_metadata.minecraft_ign}]` : '';
-
-      const isLoggedIn = !!currentUser;
-
-      // Desktop
-      document.getElementById('navDashboard').style.display = isLoggedIn ? 'inline-block' : 'none';
-      document.getElementById('navProfile').style.display = isLoggedIn ? 'inline-block' : 'none';
-      const authBtn = document.getElementById('authBtn');
-      authBtn.innerHTML = isLoggedIn ? `<span>Logout (${displayName}${ign})</span>` : '<span>Login</span>';
-      authBtn.onclick = isLoggedIn ? () => { supabaseClient.auth.signOut(); showToast('Signed out'); } : openAuthModal;
-
-      // Mobile
-      document.getElementById('navDashboardMobile').style.display = isLoggedIn ? 'block' : 'none';
-      document.getElementById('navProfileMobile').style.display = isLoggedIn ? 'block' : 'none';
-      const authBtnMobile = document.getElementById('authBtnMobile');
-      authBtnMobile.textContent = isLoggedIn ? `Logout (${displayName}${ign})` : 'Login / Sign Up';
-      authBtnMobile.onclick = isLoggedIn ? () => { supabaseClient.auth.signOut(); toggleMobileMenu(); showToast('Signed out'); } : () => { openAuthModal(); toggleMobileMenu(); };
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id));
-        const menu = document.getElementById('mobileMenu');
-        if (menu.classList.contains('active')) toggleMobileMenu();
-      }
-    });
-
-    // Initial Load
-    loadStoreProducts();
-  </script>
+    </script>
 </body>
 </html>
