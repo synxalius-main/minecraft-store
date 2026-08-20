@@ -23,6 +23,10 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
     });
     slipFormData.append('log', 'true');
 
+    // ... inside app.post('/api/verify-payment', ...)
+    
+    console.log('Sending to SlipOK with Branch ID:', process.env.SLIPOK_BRANCH_ID);
+    
     const response = await fetch(`https://api.slipok.com/api/line/apikey/${process.env.SLIPOK_BRANCH_ID}`, {
       method: 'POST',
       headers: {
@@ -31,8 +35,9 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
       },
       body: slipFormData
     });
-
+    
     const result = await response.json();
+    console.log('SlipOK Response:', result); // Check your Vercel Logs!
 
     if (!result.success || !result.data) {
       return res.status(400).json({ 
