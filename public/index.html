@@ -3,83 +3,184 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft Addon Store</title>
+  <title>Minecraft Addon Marketplace</title>
   <style>
     body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 20px; }
-    .card { background: #1e1e1e; max-width: 400px; margin: 0 auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    img { width: 220px; height: auto; border-radius: 8px; background: #fff; padding: 10px; margin: 15px 0; }
-    input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: none; font-size: 16px; box-sizing: border-box; }
+    .nav { margin-bottom: 20px; }
+    .nav button { background: #333; padding: 10px 20px; border: none; color: white; cursor: pointer; margin: 0 5px; border-radius: 5px; }
+    .nav button.active { background: #4CAF50; }
+    
+    .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; display: none; }
+    .container.active { display: flex; }
+    
+    .card { background: #1e1e1e; width: 300px; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    img.qr { width: 180px; border-radius: 8px; background: #fff; padding: 10px; margin: 10px 0; }
+    input, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px; border: none; font-size: 14px; box-sizing: border-box; }
     input { background: #2a2a2a; color: #fff; }
-    button { background: #4CAF50; color: white; cursor: pointer; font-weight: bold; }
-    button:hover { background: #45a049; }
-    #message { margin-top: 15px; font-weight: bold; }
+    button.submit-btn { background: #4CAF50; color: white; cursor: pointer; font-weight: bold; }
+    button.submit-btn:hover { background: #45a049; }
+    .message { margin-top: 15px; font-weight: bold; font-size: 14px; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>Minecraft Custom Addon</h2>
-    <p>Price: <b>฿0.10</b></p>
-    
-    <!-- Direct Image Display for your QR Code -->
-    <div>
-      <img src="/qrcode.jpg" alt="PromptPay QR Code">
+  <h1>Minecraft Addon Store</h1>
+  
+  <div class="nav">
+    <button id="tab-store" class="active" onclick="switchTab('store')">🛒 Store</button>
+    <button id="tab-creator" onclick="switchTab('creator')">🛠 Creator Upload</button>
+  </div>
+
+  <!-- STOREFRONT SECTION -->
+  <div id="store-section" class="container active">
+    <!-- Products will be injected here by JavaScript -->
+    <p>Loading products...</p>
+  </div>
+
+  <!-- CREATOR UPLOAD SECTION -->
+  <div id="creator-section" class="container">
+    <div class="card" style="max-width: 400px; margin: auto;">
+      <h2>Upload New Addon</h2>
+      <form id="uploadForm">
+        <input type="text" id="prodName" placeholder="Product Name" required>
+        <input type="number" step="0.01" id="prodPrice" placeholder="Price (฿)" required>
+        <label style="display:block; text-align:left; margin-top:10px; font-size:12px; color:#aaa;">Addon File:</label>
+        <input type="file" id="prodFile" required>
+        <button type="submit" class="submit-btn">Publish Product</button>
+      </form>
+      <div id="uploadMessage" class="message"></div>
     </div>
-    <p style="font-size: 14px; color: #aaa;">Scan with any Thai banking app to pay</p>
-
-    <form id="paymentForm">
-      <input type="file" id="slip" accept="image/*" required>
-      <button type="submit">Verify Slip & Download</button>
-    </form>
-
-    <div id="message"></div>
   </div>
 
   <script>
-    const form = document.getElementById('paymentForm');
-    const messageDiv = document.getElementById('message');
-    const submitButton = form.querySelector('button[type="submit"]');
+    // --- TAB SWITCHING LOGIC ---
+    function switchTab(tab) {
+      document.getElementById('store-section').classList.remove('active');
+      document.getElementById('creator-section').classList.remove('active');
+      document.getElementById('tab-store').classList.remove('active');
+      document.getElementById('tab-creator').classList.remove('active');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById('slip');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      document.getElementById(`${tab}-section`).classList.add('active');
+      
+      if (tab === 'store') loadProducts();
+    }
 
-      if (!fileInput.files[0]) {
-        messageDiv.style.color = '#f44336';
-        messageDiv.textContent = 'Please select a slip image.';
-        return;
+    // --- FETCH AND RENDER PRODUCTS ---
+    async function loadProducts() {
+      const storeSection = document.getElementById('store-section');
+      storeSection.innerHTML = '<p>Loading...</p>';
+      
+      try {
+        const res = await fetch('/api/products');
+        const products = await res.json();
+        
+        storeSection.innerHTML = ''; // Clear loading
+        
+        if (products.length === 0) {
+          storeSection.innerHTML = '<p>No products available yet.</p>';
+          return;
+        }
+
+        products.forEach(product => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3>${product.name}</h3>
+            <p>Price: <b>฿${product.price.toFixed(2)}</b></p>
+            <div><img src="/qrcode.jpg" alt="QR Code" class="qr"></div>
+            <p style="font-size: 12px; color: #aaa;">Scan & upload slip to buy</p>
+            
+            <form onsubmit="handlePurchase(event, '${product.id}')">
+              <input type="file" id="slip-${product.id}" accept="image/*" required>
+              <button type="submit" class="submit-btn" id="btn-${product.id}">Verify Slip & Buy</button>
+            </form>
+            <div id="msg-${product.id}" class="message"></div>
+          `;
+          storeSection.appendChild(card);
+        });
+      } catch (err) {
+        storeSection.innerHTML = '<p>Failed to load products.</p>';
       }
+    }
+
+    // --- HANDLE BUYING A PRODUCT ---
+    async function handlePurchase(e, productId) {
+      e.preventDefault();
+      const fileInput = document.getElementById(`slip-${productId}`);
+      const msgDiv = document.getElementById(`msg-${productId}`);
+      const btn = document.getElementById(`btn-${productId}`);
+
+      if (!fileInput.files[0]) return;
       
       const formData = new FormData();
       formData.append('slip', fileInput.files[0]);
+      formData.append('productId', productId); // Tell backend WHICH product we are buying
 
-      messageDiv.style.color = '#ffeb3b';
-      messageDiv.textContent = 'Verifying slip with SlipOK...';
-      submitButton.disabled = true;
-      submitButton.textContent = 'Verifying…';
+      msgDiv.style.color = '#ffeb3b';
+      msgDiv.textContent = 'Verifying slip...';
+      btn.disabled = true;
 
       try {
-        const res = await fetch('/api/verify-payment', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json().catch(() => null);
+        const res = await fetch('/api/verify-payment', { method: 'POST', body: formData });
+        const data = await res.json();
 
         if (data?.success) {
-          messageDiv.style.color = '#4CAF50';
-          messageDiv.innerHTML = `${data.message}<br><a href="${data.downloadUrl}" style="color: #4CAF50; text-decoration: underline;" download>Click here to download your Addon</a>`;
+          msgDiv.style.color = '#4CAF50';
+          msgDiv.innerHTML = `Success! <br><a href="${data.downloadUrl}" style="color: #4CAF50; text-decoration: underline;" download>Download Addon Here</a>`;
         } else {
-          messageDiv.style.color = '#f44336';
-          messageDiv.textContent = data?.message || 'The verification service returned an unexpected response.';
+          msgDiv.style.color = '#f44336';
+          msgDiv.textContent = data?.message || 'Verification failed.';
         }
       } catch (err) {
-        messageDiv.style.color = '#f44336';
-        messageDiv.textContent = 'An error occurred during verification.';
+        msgDiv.style.color = '#f44336';
+        msgDiv.textContent = 'An error occurred.';
       } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Verify Slip & Download';
+        btn.disabled = false;
+      }
+    }
+
+    // --- HANDLE CREATOR UPLOADING NEW PRODUCT ---
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msgDiv = document.getElementById('uploadMessage');
+      const btn = e.target.querySelector('button');
+      
+      const name = document.getElementById('prodName').value;
+      const price = document.getElementById('prodPrice').value;
+      const file = document.getElementById('prodFile').files[0];
+
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('price', price);
+      formData.append('productFile', file);
+
+      msgDiv.style.color = '#ffeb3b';
+      msgDiv.textContent = 'Uploading...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/add-product', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+          msgDiv.style.color = '#4CAF50';
+          msgDiv.textContent = 'Product published! Check the Store tab.';
+          e.target.reset(); // clear form
+        } else {
+          msgDiv.style.color = '#f44336';
+          msgDiv.textContent = data.message || 'Failed to upload.';
+        }
+      } catch (err) {
+        msgDiv.style.color = '#f44336';
+        msgDiv.textContent = 'Server error.';
+      } finally {
+        btn.disabled = false;
       }
     });
+
+    // Load products on initial page load
+    loadProducts();
   </script>
 
 </body>
