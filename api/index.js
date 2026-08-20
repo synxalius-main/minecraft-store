@@ -24,7 +24,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // --- MULTER MEMORY STORAGE ---
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Only ${allowed.join(', ')} files are allowed`), false);
+    }
+  }
 });
 
 // --- AUTH MIDDLEWARE ---
