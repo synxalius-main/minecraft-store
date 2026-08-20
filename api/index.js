@@ -1,7 +1,6 @@
 import express from 'express';
 import multer from 'multer';
 import fetch from 'node-fetch';
-import FormData from 'form-data';
 
 const app = express();
 const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
@@ -15,29 +14,25 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please select a slip image.' });
     }
 
-    // SlipOK requires the file to be passed under the 'files' field using multipart/form-data
-    const slipFormData = new FormData();
-    slipFormData.append('files', req.file.buffer, {
-      filename: req.file.originalname || 'slip.jpg',
-      contentType: req.file.mimetype
-    });
-    slipFormData.append('log', 'true');
+    // Use native FormData built into Node 18+ / fetch
+    const formData = new FormData();
+    const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+    
+    formData.append('files', blob, req.file.originalname || 'slip.jpg');
+    formData.append('log', 'true');
 
-    // ... inside app.post('/api/verify-payment', ...)
-    
-    console.log('Sending to SlipOK with Branch ID:', process.env.SLIPOK_BRANCH_ID);
-    
-    const response = await fetch(`https://api.slipok.com/api/line/apikey/${process.env.SLIPOK_BRANCH_ID}`, {
+    const branchId = process.env.SLIPOK_BRANCH_ID;
+    const apiKey = process.env.SLIPOK_API_KEY;
+
+    const response = await fetch(`https://api.slipok.com/api/line/apikey/${branchId}`, {
       method: 'POST',
       headers: {
-        'x-authorization': process.env.SLIPOK_API_KEY,
-        ...slipFormData.getHeaders()
+        'x-authorization': apiKey
       },
-      body: slipFormData
+      body: formData
     });
-    
+
     const result = await response.json();
-    console.log('SlipOK Response:', result); // Check your Vercel Logs!
 
     if (!result.success || !result.data) {
       return res.status(400).json({ 
