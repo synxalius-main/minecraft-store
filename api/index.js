@@ -25,11 +25,22 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowed.includes(ext)) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const name = (file.originalname || '').toLowerCase();
+    
+    // Debug log - check Vercel logs to see what filename actually arrives
+    console.log('Upload received:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      ext: ext
+    });
+    
+    const isAllowed = allowed.includes(ext) || allowed.some(a => name.endsWith(a));
+    
+    if (isAllowed) {
       cb(null, true);
     } else {
-      cb(new Error(`Only ${allowed.join(', ')} files are allowed`), false);
+      cb(new Error(`Only .mcaddon, .mcpack, .mcworld, .zip files are allowed (got: ${ext || 'none'})`), false);
     }
   }
 });
@@ -109,65 +120,16 @@ app.post('/api/creator/products', requireAuth, upload.fields([
     console.log('--- UPLOAD START ---');
     console.log('User:', req.user.id);
     console.log('Body:', req.body);
-    console.log('Files keys:', req.files ? Object.keys(req.files) : 'NO FILES');
-
-    const { name, description, price } = req.body;
-    const productFile = req.files?.productFile?.[0];
-    const thumbnailFile = req.files?.thumbnail?.[0];
-
-    if (!name || price === undefined || price === '') {
-      return res.status(400).json({ success: false, message: 'Name and price are required.' });
-    }
-    if (!productFile) {
-      return res.status(400).json({ success: false, message: 'Addon file is required.' });
-    }
-
-    const addonFileName = `${Date.now()}-${productFile.originalname.replace(/\s+/g, '_')}`;
-    const { error: fileErr } = await supabase.storage
-      .from('addons')
-      .upload(addonFileName, productFile.buffer, {
-        contentType: productFile.mimetype || 'application/octet-stream'
+    console.log('Files received:', req.files ? Object.keys(req.files) : 'NO FILES');
+    
+    // Log each file's details
+    if (req.files?.productFile?.[0]) {
+      console.log('Product file:', {
+        name: req.files.productFile[0].originalname,
+        size: req.files.productFile[0].size,
+        mimetype: req.files.productFile[0].mimetype
       });
-    if (fileErr) {
-      console.error('Addon storage error:', fileErr);
-      return res.status(500).json({ success: false, message: 'Failed to upload addon file: ' + fileErr.message });
     }
-    const fileUrl = supabase.storage.from('addons').getPublicUrl(addonFileName).data.publicUrl;
-
-    let thumbnailUrl = '';
-    if (thumbnailFile) {
-      const thumbName = `${Date.now()}-${thumbnailFile.originalname.replace(/\s+/g, '_')}`;
-      const { error: thumbErr } = await supabase.storage
-        .from('thumbnails')
-        .upload(thumbName, thumbnailFile.buffer, { contentType: thumbnailFile.mimetype });
-      if (thumbErr) {
-        console.error('Thumbnail storage error:', thumbErr);
-      } else {
-        thumbnailUrl = supabase.storage.from('thumbnails').getPublicUrl(thumbName).data.publicUrl;
-      }
-    }
-
-    const { data, error } = await supabase.from('products').insert([{
-      creator_id: req.user.id,
-      name: name.trim(),
-      description: (description || '').trim(),
-      price: parseFloat(price),
-      thumbnail_url: thumbnailUrl,
-      file_url: fileUrl
-    }]).select();
-
-    if (error) {
-      console.error('DB insert error:', error);
-      throw error;
-    }
-
-    console.log('Product created:', data[0]?.id);
-    res.json({ success: true, product: data[0] });
-  } catch (error) {
-    console.error('POST product error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Server error during upload.' });
-  }
-});
 
 app.put('/api/creator/products/:id', requireAuth, upload.fields([
   { name: 'productFile', maxCount: 1 },
