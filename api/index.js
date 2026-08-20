@@ -214,6 +214,37 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
   }
 });
 
+// CREATOR STATS (revenue, downloads, 7-day activity)
+app.get('/api/creator/stats', requireAuth, async (req, res) => {
+  try {
+    const { data: purchases, error } = await supabase
+      .from('purchases')
+      .select('amount_paid, created_at, products!inner(creator_id)')
+      .eq('products.creator_id', req.user.id);
+    if (error) throw error;
+
+    const { count } = await supabase
+      .from('products').select('id', { count: 'exact', head: true })
+      .eq('creator_id', req.user.id);
+
+    const list = purchases || [];
+    const revenue = list.reduce((s, p) => s + parseFloat(p.amount_paid || 0), 0);
+
+    const days = [...Array(7)].map((_, i) => {
+      const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (6 - i)); return d;
+    });
+    const series = days.map(d => {
+      const next = new Date(d); next.setDate(d.getDate() + 1);
+      return list.filter(p => { const t = new Date(p.created_at); return t >= d && t < next; }).length;
+    });
+
+    res.json({ revenue, downloads: list.length, active: count || 0, series });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
 // DELETE PRODUCT
 app.delete('/api/creator/products/:id', requireAuth, async (req, res) => {
   try {
