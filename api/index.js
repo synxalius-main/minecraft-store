@@ -4,13 +4,11 @@ import fetch, { Blob, FormData } from 'node-fetch';
 import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cors from 'cors'; // npm install cors
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(cors()); // Allow frontend dev servers
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -24,9 +22,9 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // --- MULTER MEMORY STORAGE ---
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
 // --- AUTH MIDDLEWARE ---
@@ -38,11 +36,13 @@ async function requireAuth(req, res, next) {
     }
     const token = authHeader.split(' ')[1];
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) return res.status(401).json({ success: false, message: 'Invalid session.' });
+    if (error || !user) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired session.' });
+    }
     req.user = user;
     next();
   } catch (err) {
-    res.status(401).json({ success: false, message: 'Auth failed.' });
+    res.status(401).json({ success: false, message: 'Authentication failed.' });
   }
 }
 
@@ -58,62 +58,78 @@ async function optionalAuth(req, res, next) {
 }
 
 // ==========================================
-// PUBLIC STORE
+// 1. PUBLIC STORE ROUTES
 // ==========================================
 app.get('/api/products', async (req, res) => {
   try {
-    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
     if (error) throw error;
     res.json(data);
   } catch (error) {
+    console.error('GET /api/products error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // ==========================================
-// CREATOR CRUD
+// 2. CREATOR DASHBOARD & PRODUCT CRUD
 // ==========================================
 app.get('/api/creator/products', requireAuth, async (req, res) => {
   try {
-    const { data, error } = await supabase.from('products').select('*').eq('creator_id', req.user.id).order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('creator_id', req.user.id)
+      .order('created_at', { ascending: false });
+
     if (error) throw error;
     res.json(data);
   } catch (error) {
+    console.error('GET creator products error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+// ADD NEW PRODUCT
 app.post('/api/creator/products', requireAuth, upload.fields([
   { name: 'productFile', maxCount: 1 },
   { name: 'thumbnail', maxCount: 1 }
 ]), async (req, res) => {
   try {
-    console.log('Upload attempt by:', req.user.id);
-    console.log('Files received:', Object.keys(req.files || {}));
-    
+    console.log('--- UPLOAD START ---');
+    console.log('User:', req.user.id);
+    console.log('Body:', req.body);
+    console.log('Files keys:', req.files ? Object.keys(req.files) : 'NO FILES');
+
     const { name, description, price } = req.body;
     const productFile = req.files?.productFile?.[0];
     const thumbnailFile = req.files?.thumbnail?.[0];
 
-    if (!name || !price || !productFile) {
-      return res.status(400).json({ success: false, message: 'Name, price, and addon file are required.' });
+    if (!name || price === undefined || price === '') {
+      return res.status(400).json({ success: false, message: 'Name and price are required.' });
+    }
+    if (!productFile) {
+      return res.status(400).json({ success: false, message: 'Addon file is required.' });
     }
 
-    // 1. Upload Addon
+    // 1. Upload Addon File
     const addonFileName = `${Date.now()}-${productFile.originalname.replace(/\s+/g, '_')}`;
     const { error: fileErr } = await supabase.storage
       .from('addons')
-      .upload(addonFileName, productFile.buffer, { 
-        contentType: productFile.mimetype || 'application/octet-stream',
-        upsert: false 
+      .upload(addonFileName, productFile.buffer, {
+        contentType: productFile.mimetype || 'application/octet-stream'
       });
     if (fileErr) {
-      console.error('Addon upload error:', fileErr);
+      console.error('Addon storage error:', fileErr);
       return res.status(500).json({ success: false, message: 'Failed to upload addon file: ' + fileErr.message });
     }
     const fileUrl = supabase.storage.from('addons').getPublicUrl(addonFileName).data.publicUrl;
 
-    // 2. Upload Thumbnail
+    // 2. Upload Thumbnail (optional)
     let thumbnailUrl = '';
     if (thumbnailFile) {
       const thumbName = `${Date.now()}-${thumbnailFile.originalname.replace(/\s+/g, '_')}`;
@@ -121,7 +137,7 @@ app.post('/api/creator/products', requireAuth, upload.fields([
         .from('thumbnails')
         .upload(thumbName, thumbnailFile.buffer, { contentType: thumbnailFile.mimetype });
       if (thumbErr) {
-        console.error('Thumbnail upload error:', thumbErr);
+        console.error('Thumbnail storage error:', thumbErr);
       } else {
         thumbnailUrl = supabase.storage.from('thumbnails').getPublicUrl(thumbName).data.publicUrl;
       }
@@ -130,8 +146,8 @@ app.post('/api/creator/products', requireAuth, upload.fields([
     // 3. Save to DB
     const { data, error } = await supabase.from('products').insert([{
       creator_id: req.user.id,
-      name,
-      description: description || '',
+      name: name.trim(),
+      description: (description || '').trim(),
       price: parseFloat(price),
       thumbnail_url: thumbnailUrl,
       file_url: fileUrl
@@ -141,15 +157,16 @@ app.post('/api/creator/products', requireAuth, upload.fields([
       console.error('DB insert error:', error);
       throw error;
     }
-    
-    console.log('Product created:', data[0].id);
+
+    console.log('Product created:', data[0]?.id);
     res.json({ success: true, product: data[0] });
   } catch (error) {
-    console.error('Create product error:', error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error('POST product error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Server error during upload.' });
   }
 });
 
+// EDIT PRODUCT
 app.put('/api/creator/products/:id', requireAuth, upload.fields([
   { name: 'productFile', maxCount: 1 },
   { name: 'thumbnail', maxCount: 1 }
@@ -172,9 +189,9 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
     }
 
     const updates = {
-      name: name || existing.name,
-      description: description !== undefined ? description : existing.description,
-      price: price ? parseFloat(price) : existing.price
+      name: name ? name.trim() : existing.name,
+      description: description !== undefined ? description.trim() : existing.description,
+      price: price !== undefined ? parseFloat(price) : existing.price
     };
 
     if (productFile) {
@@ -191,16 +208,23 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
 
     const { data, error } = await supabase.from('products').update(updates).eq('id', id).select();
     if (error) throw error;
+
     res.json({ success: true, product: data[0] });
   } catch (error) {
-    console.error('Update product error:', error);
+    console.error('PUT product error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+// DELETE PRODUCT
 app.delete('/api/creator/products/:id', requireAuth, async (req, res) => {
   try {
-    const { error } = await supabase.from('products').delete().eq('id', req.params.id).eq('creator_id', req.user.id);
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', req.params.id)
+      .eq('creator_id', req.user.id);
+
     if (error) throw error;
     res.json({ success: true, message: 'Product deleted.' });
   } catch (error) {
@@ -209,16 +233,26 @@ app.delete('/api/creator/products/:id', requireAuth, async (req, res) => {
 });
 
 // ==========================================
-// CART & PAYMENT
+// 3. CART & PAYMENT
 // ==========================================
 app.post('/api/verify-cart-payment', optionalAuth, upload.single('slip'), async (req, res) => {
   try {
     const productIds = JSON.parse(req.body.productIds || '[]');
-    if (!productIds.length) return res.status(400).json({ success: false, message: 'Cart is empty.' });
-    if (!req.file) return res.status(400).json({ success: false, message: 'Please upload a payment slip.' });
+    if (!productIds.length) {
+      return res.status(400).json({ success: false, message: 'Cart is empty.' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please upload a payment slip.' });
+    }
 
-    const { data: cartItems, error: dbErr } = await supabase.from('products').select('*').in('id', productIds);
-    if (dbErr || !cartItems.length) return res.status(400).json({ success: false, message: 'Invalid cart items.' });
+    const { data: cartItems, error: dbErr } = await supabase
+      .from('products')
+      .select('*')
+      .in('id', productIds);
+
+    if (dbErr || !cartItems.length) {
+      return res.status(400).json({ success: false, message: 'Invalid cart items.' });
+    }
 
     const totalPrice = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
 
@@ -258,13 +292,13 @@ app.post('/api/verify-cart-payment', optionalAuth, upload.single('slip'), async 
       downloads: cartItems.map(item => ({ name: item.name, downloadUrl: item.file_url }))
     });
   } catch (error) {
-    console.error('Payment verification error:', error);
+    console.error('Payment error:', error);
     res.status(500).json({ success: false, message: 'Server verification error.' });
   }
 });
 
 // ==========================================
-// USER LIBRARY
+// 4. USER LIBRARY
 // ==========================================
 app.get('/api/user/library', requireAuth, async (req, res) => {
   try {
@@ -273,6 +307,7 @@ app.get('/api/user/library', requireAuth, async (req, res) => {
       .select('created_at, products(id, name, thumbnail_url, file_url, price)')
       .eq('user_id', req.user.id)
       .order('created_at', { ascending: false });
+
     if (error) throw error;
     res.json(data);
   } catch (error) {
@@ -281,4 +316,4 @@ app.get('/api/user/library', requireAuth, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Store live at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server live at http://localhost:${PORT}`));
