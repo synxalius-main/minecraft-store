@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Addon Store - PromptPay Verification</title>
+  <style>
+    :root {
+      --bg: #120f24;
+      --card: #231f3d;
+      --accent: #7000ff;
+      --text: #ffffff;
+      --subtext: #a0a0b0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .product-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .price-tag {
+      font-size: 24px;
+      color: #00ff88;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .qr-box img {
+      width: 200px;
+      height: 200px;
+    }
+
+    .fee-info {
+      font-size: 13px;
+      color: var(--subtext);
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .file-input-label {
+      display: block;
+      background: #2d284d;
+      border: 2px dashed var(--accent);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .file-input-label:hover {
+      background: #38325f;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 16px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .success { color: #00ff88; }
+    .error { color: #ff4d4d; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="product-title">Jujutsu Craft Addon (.mcaddon)</div>
+    <div class="price-tag">฿0.10 THB</div>
+
+    <div class="qr-box">
+      <img src="promptpay-qr.png" alt="Scan PromptPay QR">
+      <div class="fee-info">Scan via Mobile Banking (0% Gateway Surcharge)</div>
+    </div>
+
+    <form id="checkout-form">
+      <label for="slip-upload" class="file-input-label">
+        <span id="file-label-text">📎 Upload Payment Slip</span>
+        <input type="file" id="slip-upload" accept="image/*" required>
+      </label>
+
+      <button type="submit" id="submit-btn" class="btn">Verify & Download Pack</button>
+    </form>
+
+    <div id="status"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
