@@ -795,28 +795,35 @@
     </div>
   </div>
 
-  <!-- CREATE/EDIT PRODUCT MODAL -->
-  <div id="productModal" class="modal" onclick="if(event.target===this) closeModal('productModal')">
-    <div class="modal-content">
-      <h2 id="modalProductTitle">Upload Addon</h2>
-      <form id="productForm">
-        <input type="hidden" id="editProductId">
-        <label>Addon Details</label>
-        <input type="text" id="pName" placeholder="Addon Name" required>
-        <textarea id="pDesc" placeholder="Description" rows="3"></textarea>
-        <input type="number" step="0.01" id="pPrice" placeholder="Price (THB ฿)" required>
-        
-        <label>Thumbnail Image</label>
-        <input type="file" id="pThumb" accept="image/*">
-        
-        <label>Addon File (.mcaddon, .zip)</label>
-        <input type="file" id="pFile">
-        
-        <button type="submit" class="btn-primary" style="margin-top: 16px;">Save & Publish</button>
-      </form>
-      <button onclick="closeModal('productModal')" style="margin-top: 12px; background: transparent; color: var(--text-muted); border: none; width: 100%; cursor: pointer; font-family: inherit; font-weight: 500; transition: color 0.3s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-muted)'">Cancel</button>
-    </div>
+<!-- CREATE/EDIT PRODUCT MODAL -->
+<div id="productModal" class="modal" onclick="if(event.target===this) closeModal('productModal')">
+  <div class="modal-content">
+    <h2 id="modalProductTitle">Upload Addon</h2>
+    <form id="productForm">
+      <input type="hidden" id="editProductId">
+      
+      <label>Addon Name</label>
+      <input type="text" id="pName" name="name" placeholder="e.g. Epic Swords Pack" required>
+      
+      <label>Description</label>
+      <textarea id="pDesc" name="description" placeholder="Describe your addon..." rows="3"></textarea>
+      
+      <label>Price (THB)</label>
+      <input type="number" step="0.01" id="pPrice" name="price" placeholder="0.00" required>
+      
+      <label>Thumbnail Image</label>
+      <input type="file" id="pThumb" name="thumbnail" accept="image/*">
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin: -6px 0 8px;">Recommended: 512x512px or 16:9</p>
+      
+      <label>Addon File</label>
+      <input type="file" id="pFile" name="productFile" accept=".mcaddon,.zip,.mcpack">
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin: -6px 0 8px;">.mcaddon, .zip, or .mcpack (Max 50MB)</p>
+      
+      <button type="submit" class="btn-primary" style="margin-top: 16px;">Save & Publish</button>
+    </form>
+    <button onclick="closeModal('productModal')" style="margin-top: 12px; background: transparent; color: var(--text-muted); border: none; width: 100%; cursor: pointer; font-family: inherit; font-weight: 500; transition: color 0.3s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-muted)'">Cancel</button>
   </div>
+</div>
 
   <script>
     // --- SUPABASE CLIENT CONFIG ---
