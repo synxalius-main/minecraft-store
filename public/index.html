@@ -38,34 +38,46 @@
   <script>
     const form = document.getElementById('paymentForm');
     const messageDiv = document.getElementById('message');
+    const submitButton = form.querySelector('button[type="submit"]');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fileInput = document.getElementById('slip');
+
+      if (!fileInput.files[0]) {
+        messageDiv.style.color = '#f44336';
+        messageDiv.textContent = 'Please select a slip image.';
+        return;
+      }
       
       const formData = new FormData();
       formData.append('slip', fileInput.files[0]);
 
       messageDiv.style.color = '#ffeb3b';
       messageDiv.textContent = 'Verifying slip with SlipOK...';
+      submitButton.disabled = true;
+      submitButton.textContent = 'Verifying…';
 
       try {
         const res = await fetch('/api/verify-payment', {
           method: 'POST',
           body: formData
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => null);
 
-        if (data.success) {
+        if (data?.success) {
           messageDiv.style.color = '#4CAF50';
           messageDiv.innerHTML = `${data.message}<br><a href="${data.downloadUrl}" style="color: #4CAF50; text-decoration: underline;" download>Click here to download your Addon</a>`;
         } else {
           messageDiv.style.color = '#f44336';
-          messageDiv.textContent = data.message;
+          messageDiv.textContent = data?.message || 'The verification service returned an unexpected response.';
         }
       } catch (err) {
         messageDiv.style.color = '#f44336';
         messageDiv.textContent = 'An error occurred during verification.';
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Verify Slip & Download';
       }
     });
   </script>
