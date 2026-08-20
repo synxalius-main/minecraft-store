@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minecraft Addon Store</title>
+  <!-- Include qrious library to generate reliable QR codes locally -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <!-- Include official promptpay-qr payload generator -->
+  <script src="https://cdn.jsdelivr.net/npm/promptpay-qr@0.5.2/dist/promptpay-qr.js"></script>
   <style>
     body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 20px; }
     .card { background: #1e1e1e; max-width: 400px; margin: 0 auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    img { width: 220px; height: 220px; border-radius: 8px; background: #fff; padding: 10px; margin: 15px 0; }
+    canvas { background: #fff; padding: 10px; border-radius: 8px; margin: 15px 0; }
     input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: none; font-size: 16px; box-sizing: border-box; }
     input { background: #2a2a2a; color: #fff; }
     button { background: #4CAF50; color: white; cursor: pointer; font-weight: bold; }
@@ -21,10 +25,9 @@
     <h2>Minecraft Custom Addon</h2>
     <p>Price: <b>฿0.10</b></p>
     
-    <!-- PromptPay QR Code Image (Using a reliable generator API or static image) -->
-    <!-- Replace YOUR_PROMPTPAY_ID with your phone number or national ID -->
-    <div id="qr-container">
-      <img id="promptpay-qr" src="" alt="PromptPay QR Code">
+    <!-- Canvas for generating a valid QR code -->
+    <div>
+      <canvas id="qr-canvas"></canvas>
     </div>
     <p style="font-size: 14px; color: #aaa;">Scan with any Thai banking app to pay</p>
 
@@ -37,11 +40,23 @@
   </div>
 
   <script>
-    // Automatically generate PromptPay QR code url using your phone/ID and amount (0.10 Baht)
-    // Replace '0812345678' with your actual PromptPay phone number (format: 0xxxxxxxx)
+    // CHANGE THIS to your exact 10-digit PromptPay phone number (e.g., "0891234567")
     const promptPayID = "0935652519"; 
-    const amount = "0.10";
-    document.getElementById('promptpay-qr').src = `https://promptpay.io/${promptPayID}/${amount}.png`;
+    const amount = 0.10;
+
+    try {
+      // Generate standard EMV payload for Thai PromptPay
+      const payload = generatePayload(promptPayID, { amount: amount });
+      
+      // Render the QR code onto the canvas element
+      new QRious({
+        element: document.getElementById('qr-canvas'),
+        value: payload,
+        size: 220
+      });
+    } catch (err) {
+      console.error("QR Generation Error:", err);
+    }
 
     const form = document.getElementById('paymentForm');
     const messageDiv = document.getElementById('message');
