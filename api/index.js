@@ -1,13 +1,12 @@
 import express from 'express';
 import multer from 'multer';
 import fetch from 'node-fetch';
+import FormData from 'form-data';
 
 const app = express();
 const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
 
-// Memory cache to prevent duplicate slip usage
 const processedTransactions = new Set();
-
 app.use(express.json());
 
 app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
@@ -16,18 +15,25 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please select a slip image.' });
     }
 
-    const base64Image = req.file.buffer.toString('base64');
+    // Create a form-data payload to send the file buffer to SlipOK
+    const slipFormData = new FormData();
+    slipFormData.append('files', req.file.buffer, {
+      filename: req.file.originalname || 'slip.jpg',
+      contentType: req.file.mimetype
+    });
+    slipFormData.append('log', 'true');
+    
+    // Optional: include expected amount to let SlipOK validate it directly
+    const expectedPrice = parseFloat(process.env.EXPECTED_PRICE || '0.10');
+    slipFormData.append('amount', expectedPrice.toString());
 
     const response = await fetch(`https://api.slipok.com/api/line/apikey/${process.env.SLIPOK_BRANCH_ID}`, {
       method: 'POST',
       headers: {
         'x-authorization': process.env.SLIPOK_API_KEY,
-        'Content-Type': 'application/json'
+        ...slipFormData.getHeaders()
       },
-      body: JSON.stringify({
-        data: base64Image,
-        log: true
-      })
+      body: slipFormData
     });
 
     const result = await response.json();
@@ -47,7 +53,6 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
     }
 
     // 2. Validate Price Paid
-    const expectedPrice = parseFloat(process.env.EXPECTED_PRICE || '0.10');
     if (parseFloat(slipData.amount) < expectedPrice) {
       return res.status(400).json({ 
         success: false, 
@@ -70,5 +75,4 @@ app.post('/api/verify-payment', upload.single('slip'), async (req, res) => {
   }
 });
 
-// Export the Express app for Vercel
 export default app;
