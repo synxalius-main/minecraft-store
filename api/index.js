@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // MUST BE SERVICE ROLE KEY
+const supabaseKey = process.env.SUPABASE_API_KEY; // MUST BE SERVICE ROLE KEY
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const upload = multer({
