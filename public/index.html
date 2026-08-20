@@ -1619,60 +1619,85 @@
       }
     }
 
-    async function loadUserLibrary() {
-      const session = (await supabaseClient.auth.getSession()).data.session;
-      if (!session) return;
-      const grid = document.getElementById('libraryGrid');
-      grid.innerHTML = '<div class="skeleton skeleton-card"></div>'.repeat(2);
-      try {
-        const res = await fetch('/api/user/library', {
-          headers: { 'Authorization': `Bearer ${session.access_token}` }
-        });
-        const purchases = await res.json();
-        grid.innerHTML = '';
-        if (!purchases.length) {
-          grid.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon">📚</div>
-              <h3>No purchases yet</h3>
-              <p>Browse the store and buy your first addon!</p>
-              <button class="btn-primary" style="width:auto;margin-top:12px;" onclick="switchView('store')">Browse Store</button>
-            </div>
-          `;
-          return;
-        }
-        purchases.forEach((item, i) => {
-          const p = item.products;
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.style.animationDelay = `${i * 0.05}s`;
-          card.innerHTML = `
-            <div class="card-image-wrap">
-              <img class="thumb" src="${p.thumbnail_url || 'https://via.placeholder.com/400x250?text=No+Thumbnail'}" onload="this.classList.add('loaded')">
-              <div class="card-badge" style="left:12px;right:auto;font-size:0.7rem;font-weight:500;color:var(--text-muted);border-color:var(--border);">
-                ${new Date(item.created_at).toLocaleDateString()}
-              </div>
-            </div>
-            <div class="card-body">
-              <div>
-                <h3>${p.name}</h3>
-                <p>Purchased and ready to download</p>
-              </div>
-              <a href="${p.file_url}" class="btn-primary" style="text-align:center;text-decoration:none;display:block;margin-top:8px;" download>⬇️ Download</a>
-            </div>
-          `;
-          grid.appendChild(card);
-        });
-      } catch (err) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">⚠️</div>
-            <h3>Failed to load</h3>
-            <p>Could not fetch your library.</p>
-          </div>
-        `;
-      }
+async function loadUserLibrary() {
+  const session = (await supabaseClient.auth.getSession()).data.session;
+  if (!session) return;
+  const grid = document.getElementById('libraryGrid');
+  grid.innerHTML = '<div class="skeleton skeleton-card"></div>'.repeat(2);
+  try {
+    const res = await fetch('/api/user/library', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
+    const purchases = await res.json();
+    grid.innerHTML = '';
+    if (!purchases.length) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📚</div>
+          <h3>No purchases yet</h3>
+          <p>Browse the store and buy your first addon!</p>
+          <button class="btn-primary" style="width:auto;margin-top:12px;" onclick="switchView('store')">Browse Store</button>
+        </div>
+      `;
+      return;
     }
+    purchases.forEach((item, i) => {
+      const p = item.products;
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.animationDelay = `${i * 0.05}s`;
+      card.innerHTML = `
+        <div class="card-image-wrap">
+          <img class="thumb" src="${p.thumbnail_url || 'https://via.placeholder.com/400x250?text=No+Thumbnail'}" onload="this.classList.add('loaded')">
+          <div class="card-badge" style="left:12px;right:auto;font-size:0.7rem;font-weight:500;color:var(--text-muted);border-color:var(--border);">
+            ${new Date(item.created_at).toLocaleDateString()}
+          </div>
+        </div>
+        <div class="card-body">
+          <div>
+            <h3>${esc(p.name)}</h3>
+            <p>Purchased and ready to download</p>
+          </div>
+          <button class="btn-primary" style="text-align:center;margin-top:8px;" onclick="secureDownload('${p.id}', '${esc(p.name)}')">⬇️ Download</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch your library.</p></div>`;
+  }
+}
+
+// Add this new secure download function
+async function secureDownload(id, name) {
+  try {
+    showToast(`Generating download link for ${name}...`);
+    const session = (await supabaseClient.auth.getSession()).data.session;
+    const res = await fetch('/api/downloads', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}` 
+      },
+      body: JSON.stringify({ productId: id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Trigger download via hidden anchor
+      const a = document.createElement('a');
+      a.href = data.url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('Download started!');
+    } else {
+      showToast(data.message || 'Download failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error during download', 'error');
+  }
+}
 
     function openAuthModal() {
       document.getElementById('authModal').classList.add('active');
