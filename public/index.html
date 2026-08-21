@@ -33,7 +33,6 @@
     border-bottom:1px solid var(--border);animation:slideDown .5s cubic-bezier(.16,1,.3,1)}
   @keyframes slideDown{from{transform:translateY(-100%)}to{transform:none}}
 
-  /* Logo = dropdown trigger */
   .menu-wrap{position:relative;flex-shrink:0}
   .logo{background:none;border:none;color:var(--text);display:flex;align-items:center;gap:12px;
     font-family:'Press Start 2P';font-size:.78rem;letter-spacing:1px;white-space:nowrap;
@@ -130,10 +129,8 @@
   @keyframes cardIn{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
   .card:hover{transform:translateY(-6px);border-color:var(--border-glow);box-shadow:0 22px 44px rgba(0,0,0,.5),0 0 32px rgba(0,230,118,.12)}
   .thumb{height:150px;display:grid;place-items:center;font-size:3.2rem;position:relative;overflow:hidden;background:linear-gradient(160deg,#122036,#0a1220)}
-  .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1)}
-  .card:hover .thumb img{transform:scale(1.08)}
   .thumb .fallback{filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
-  .thumb-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
+  .thumb-badge{position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
     border:1px solid var(--border-glow);color:var(--primary);font-weight:800;font-size:.75rem;padding:4px 11px;border-radius:100px}
   .card-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:4px}
   .card-body h3{margin:0;font-size:1rem;font-weight:800;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -165,7 +162,6 @@
   .m-row:last-child{border-bottom:none}
   .m-row:hover{background:rgba(255,255,255,.03)}
   .m-avatar{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0;overflow:hidden;background:linear-gradient(160deg,#122036,#0a1220)}
-  .m-avatar img{width:100%;height:100%;object-fit:cover}
   .m-info{flex:1;min-width:140px}
   .m-info b{display:block;font-size:.9rem}
   .m-info span{color:var(--muted);font-size:.75rem}
@@ -189,7 +185,6 @@
   .c-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);animation:slideIn .35s ease backwards}
   @keyframes slideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
   .c-thumb{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0;overflow:hidden;background:linear-gradient(160deg,#122036,#0a1220)}
-  .c-thumb img{width:100%;height:100%;object-fit:cover}
   .c-info{flex:1;min-width:0}
   .c-info b{display:block;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .c-info span{color:var(--primary);font-weight:800;font-size:.8rem}
@@ -256,6 +251,20 @@
   .empty-state h3{color:var(--text);margin:0 0 8px;font-weight:800}
   .empty-state p{font-size:.88rem;margin:0 0 18px}
 
+  /* ============ THUMBNAIL COVER + LOADING POLISH ============ */
+  .thumb,.c-thumb,.m-avatar{position:relative}
+  .thumb{height:auto;aspect-ratio:16/10}
+  .thumb img,.c-thumb img,.m-avatar img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
+    opacity:0;transition:opacity .45s ease,transform .6s cubic-bezier(.16,1,.3,1);
+  }
+  .thumb::before{content:'';position:absolute;inset:0;
+    background:linear-gradient(110deg,#101623 8%,#1a2334 18%,#101623 33%);
+    background-size:200% 100%;animation:shimmer 1.4s infinite}
+  .thumb.img-loaded::before{animation:none;opacity:0;transition:opacity .4s}
+  .thumb img.loaded,.c-thumb img.loaded,.m-avatar img.loaded{opacity:1}
+  .card:hover .thumb img.loaded{transform:scale(1.08)}
+
   /* ============ MOBILE ============ */
   @media(max-width:820px){
     nav{display:none}
@@ -269,7 +278,7 @@
     .hero-art{display:none}
     .cart-btn{padding:10px 14px}
     .search{min-width:100%}
-    input,textarea{font-size:16px} /* prevents iOS auto-zoom on focus */
+    input,textarea{font-size:16px}
     .m-rev{display:none}
     .grid{gap:14px}
     .toasts{left:12px;right:12px}
@@ -540,6 +549,21 @@
       card.querySelector('.btn-sm').addEventListener('click', () => addToCart(p.id, p.name, parseFloat(p.price), p.thumbnail_url));
       grid.appendChild(card);
     });
+    wireThumb(grid);
+  }
+
+  /* ---------- THUMBNAIL LOADING (shimmer → fade-in → hover zoom) ---------- */
+  function wireThumb(root) {
+    (root || document).querySelectorAll('.thumb img, .c-thumb img, .m-avatar img').forEach(img => {
+      const box = img.parentElement;
+      const ok   = () => { img.classList.add('loaded'); box.classList.add('img-loaded'); };
+      const fail = () => box.classList.add('img-loaded');
+      if (img.complete) { img.naturalWidth ? ok() : fail(); }
+      else {
+        img.addEventListener('load', ok, { once: true });
+        img.addEventListener('error', fail, { once: true });
+      }
+    });
   }
 
   /* ---------- CART ---------- */
@@ -569,6 +593,7 @@
       </div>`).join('')
       : '<p style="color:var(--muted);text-align:center;padding:26px 0;font-size:.85rem">Your cart is empty</p>';
     $('cartItems').querySelectorAll('.c-rm').forEach(b => b.addEventListener('click', () => removeFromCart(b.dataset.id)));
+    wireThumb($('cartItems'));
   }
 
   function openCart() { $('drawer').classList.add('open'); $('overlay').classList.add('show'); document.body.style.overflow = 'hidden'; }
@@ -675,6 +700,7 @@
             <button class="btn-danger" onclick="deleteProduct('${p.id}')">Delete</button>
           </div>
         </div>`).join('');
+      wireThumb(box);
     } catch (err) {
       box.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch your addons.</p></div>`;
     }
@@ -791,6 +817,7 @@
         card.querySelector('button').addEventListener('click', () => secureDownload(p.id, p.name));
         grid.appendChild(card);
       });
+      wireThumb(grid);
     } catch (err) {
       grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch your library.</p></div>`;
     }
