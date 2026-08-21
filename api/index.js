@@ -84,6 +84,138 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+// ========== PRODUCT MEDIA (PREVIEW GALLERY) ==========
+
+// GET media for a product (public)
+app.get('/api/products/:id/media', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('product_media')
+      .select('id, media_url, media_type, sort_order')
+      .eq('product_id', req.params.id)
+      .order('sort_order');
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST — upload preview images (up to 5)
+app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews', 5), async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    // Verify ownership
+    const { data: product } = await supabase
+      .from('products').select('id, creator_id').eq('id', productId).single();
+    if (!product || product.creator_id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not your product' });
+    }
+
+    // Check existing count
+    const { count } = await supabase
+      .from('product_media')
+      .select('id', { count: 'exact', head: true })
+      .eq('product_id', productId);
+    
+    const youtubeUrls = req.body.youtube_urls
+      ? (typeof req.body.youtube_urls === 'string' ? JSON.parse(req.body.youtube_urls) : req.body.youtube_urls)
+      : [];
+
+    const totalNew = (req.files?.length || 0) + youtubeUrls.length;
+    if ((count || 0) + totalNew > 8) {
+      return res.status(400).json({ success: false, message: 'Max 8 preview items per product' });
+    }
+
+    const inserts = [];
+    let sortBase = (count || 0);
+
+    // Upload image files
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowed.includes(file.mimetype)) continue;
+
+        const ext = file.originalname.split('.').pop();
+        const fileName = `previews/${productId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from('addons')
+          .upload(fileName, file.buffer, { contentType: file.mimetype, upsert: false });
+        if (upErr) throw upErr;
+
+        const { data: pub } = supabase.storage.from('addons').getPublicUrl(fileName);
+        inserts.push({
+          product_id: productId,
+          media_url: pub.publicUrl,
+          media_type: 'image',
+          sort_order: sortBase++
+        });
+      }
+    }
+
+    // Add YouTube videos
+    for (const url of youtubeUrls) {
+      const videoId = extractYouTubeId(url);
+      if (!videoId) continue;
+      inserts.push({
+        product_id: productId,
+        media_url: `https://www.youtube.com/embed/${videoId}`,
+        media_type: 'video',
+        sort_order: sortBase++
+      });
+    }
+
+    if (inserts.length > 0) {
+      const { error } = await supabase.from('product_media').insert(inserts);
+      if (error) throw error;
+    }
+
+    res.json({ success: true, added: inserts.length });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// DELETE a single media item
+app.delete('/api/creator/products/:id/media/:mediaId', requireAuth, async (req, res) => {
+  try {
+    const { data: product } = await supabase
+      .from('products').select('id, creator_id').eq('id', req.params.id).single();
+    if (!product || product.creator_id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not your product' });
+    }
+
+    // Get media to delete storage file if image
+    const { data: media } = await supabase
+      .from('product_media').select('*').eq('id', req.params.mediaId).single();
+    if (!media) return res.status(404).json({ success: false, message: 'Not found' });
+
+    if (media.media_type === 'image' && media.media_url.includes('/previews/')) {
+      const path = media.media_url.split('/addons/')[1];
+      if (path) await supabase.storage.from('addons').remove([decodeURIComponent(path)]);
+    }
+
+    const { error } = await supabase.from('product_media').delete().eq('id', req.params.mediaId);
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+function extractYouTubeId(url) {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
+  return null;
+}
+
+
 // GET CREATOR DASHBOARD (Includes file_path for management)
 app.get('/api/creator/products', requireAuth, async (req, res) => {
   try {
