@@ -1,0 +1,15 @@
+{
+  "name": "MC Store — Minecraft Addons",
+  "short_name": "MC Store",
+  "description": "Hand-crafted Minecraft addons, textures and worlds. Pay with PromptPay, download instantly.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07090d",
+  "theme_color": "#07090d",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
