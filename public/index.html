@@ -722,6 +722,14 @@ async function refreshOwnedIds() {
   }
   function heroCreatorClick() { currentUser ? switchView('dashboard') : openAuthModal(); }
 
+/* ---------- EXPANDING SEARCH ---------- */
+function updateSearchState() {
+  const active = document.activeElement === $('searchInput') || $('searchInput').value.trim().length > 0;
+  document.querySelector('.toolbar').classList.toggle('searching', active);
+}
+['focus', 'blur', 'input'].forEach(ev => $('searchInput').addEventListener(ev, updateSearchState));
+
+
   /* ---------- CATEGORY CHIPS ---------- */
   function buildChips() {
     $('catChips').innerHTML = CATS.map(c => `<button class="chip${c === currentCategory ? ' active' : ''}" data-cat="${c}">${c === 'All' ? '✨ All' : c}</button>`).join('');
