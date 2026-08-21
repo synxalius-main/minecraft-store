@@ -1096,14 +1096,16 @@
     } catch { window._creatorProducts = {}; updateAuthUI(); box.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3></div>`; }
   }
 
-  function openProductModal() {
+    function openProductModal() {
     $('editProductId').value = '';
     $('modalProductTitle').textContent = 'อัปโหลดแอดออน';
     $('productForm').reset(); $('pCategory').value = 'Addons';
     $('fileHint').textContent = '📦 คลิกหรือวางไฟล์แอดออน';
     $('thumbHint').textContent = '🖼️ คลิกหรือวางรูป';
     $('thumbPrev').style.display = 'none'; $('fileError').style.display = 'none';
-    $('mediaManager').style.display = 'none';
+    pendingPreviews = []; pendingYouTube = [];
+    renderPendingMedia();
+    $('mediaManager').style.display = 'block'; // สร้างใหม่ก็เพิ่ม preview ได้เลย
     $('productModal').classList.add('active'); document.body.style.overflow = 'hidden';
   }
 
@@ -1114,10 +1116,10 @@
     $('pName').value = p.name || ''; $('pDesc').value = p.description || '';
     $('pPrice').value = formatPrice(p.price) || ''; $('pCategory').value = normCat(p.category);
     $('fileHint').textContent = '📦 เว้นว่างไว้เพื่อใช้ไฟล์เดิม';
-    $('fileError').style.display = 'none';     $('thumbPrev').style.display = 'none'; $('fileError').style.display = 'none';
+    $('fileError').style.display = 'none'; $('thumbPrev').style.display = 'none';
     pendingPreviews = []; pendingYouTube = [];
-    renderPendingMedia();
-    $('mediaManager').style.display = 'block'; // แสดงส่วน preview ตอนสร้างใหม่ด้วย
+    $('mediaManager').style.display = 'block';
+    await loadMediaManager(id); // โหลดรูป/วิดีโอที่บันทึกไว้มาแสดง
     $('productModal').classList.add('active'); document.body.style.overflow = 'hidden';
   }
 
@@ -1127,31 +1129,31 @@
     try {
       const res = await fetch(`/api/products/${productId}/media`);
       const media = await res.json();
-      if (!media.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">ยังไม่มีภาพตัวอย่าง</p>'; return; }
+      if (!media.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">ยังไม่มีภาพตัวอย่าง — เพิ่มได้เลย</p>'; return; }
       grid.innerHTML = media.map(m => `
         <div class="media-item">
           ${m.media_type === 'video'
-            ? `<img src="https://img.youtube.com/vi/${m.media_url.split('/embed/')[1]}/mqdefault.jpg" alt="vid">`
+            ? `<img src="https://img.youtube.com/vi/${m.media_url.split('/embed/')[1]}/mqdefault.jpg" alt="vid"><div class="g-play">▶</div>`
             : `<img src="${m.media_url}" alt="preview">`}
-          <button class="media-del" data-mid="${m.id}" onclick="deleteMedia('${$('editProductId').value}','${m.id}')">✕</button>
+          <button class="media-del" data-mid="${m.id}" onclick="deleteMedia('${productId}','${m.id}')">✕</button>
         </div>`).join('');
     } catch { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">โหลดไม่สำเร็จ</p>'; }
   }
 
-    $('previewFiles').addEventListener('change', async function () {
+  $('previewFiles').addEventListener('change', async function () {
     if (!this.files.length) return;
     const productId = $('editProductId').value;
     if (productId) {
       showToast('กำลังอัปโหลดรูปตัวอย่าง...');
       if (await uploadPreviewsNow(productId, this.files, null)) { showToast('เพิ่มรูปตัวอย่างแล้ว!'); loadMediaManager(productId); }
     } else {
-      for (const f of this.files) pendingPreviews.push(f); // สินค้าใหม่ → คิวไว้ อัปโหลดหลังบันทึก
+      for (const f of this.files) pendingPreviews.push(f);
       renderPendingMedia();
     }
     this.value = '';
   });
 
-    async function addYouTube() {
+  async function addYouTube() {
     const url = $('ytUrl').value.trim();
     if (!url || !ytId(url)) return showToast('วางลิงก์ YouTube ที่ถูกต้องก่อนนะ', 'warn');
     const productId = $('editProductId').value;
@@ -1164,21 +1166,14 @@
 
   async function deleteMedia(productId, mediaId) {
     if (!confirm('ลบรูปตัวอย่างนี้?')) return;
-    const session = (await supabaseClient.auth.getSession()).data.session;
+    const session = await ensureSession();
+    if (!session) return;
     try {
       const res = await fetch(`/api/creator/products/${productId}/media/${mediaId}`, {
         method: 'DELETE', headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
-            const data = await res.json();
-      if (data.success) {
-        const pid = id || data.product?.id;
-        if (pid && (pendingPreviews.length || pendingYouTube.length)) {
-          await uploadPreviewsNow(pid, pendingPreviews, pendingYouTube); // อัปโหลดตัวอย่างที่คิวไว้
-        }
-        pendingPreviews = []; pendingYouTube = [];
-        closeModal('productModal'); loadCreatorProducts(); loadCreatorStats();
-        showToast(id ? 'อัปเดตแล้ว!' : 'เผยแพร่แล้ว!');
-      }
+      const data = await res.json();
+      if (data.success) { showToast('ลบแล้ว!'); loadMediaManager(productId); }
       else showToast(data.message || 'ล้มเหลว', 'error');
     } catch { showToast('ล้มเหลว', 'error'); }
   }
@@ -1218,12 +1213,21 @@
       const res = await fetch(id ? `/api/creator/products/${id}` : '/api/creator/products', {
         method: id ? 'PUT' : 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
       });
-      const data = await res.json();
-      if (data.success) { closeModal('productModal'); loadCreatorProducts(); loadCreatorStats(); showToast(id ? 'อัปเดตแล้ว!' : 'เผยแพร่แล้ว!'); }
+            const data = await res.json();
+      if (data.success) {
+        const pid = id || data.product?.id;
+        if (pid && (pendingPreviews.length || pendingYouTube.length)) {
+          await uploadPreviewsNow(pid, pendingPreviews, pendingYouTube);
+        }
+        pendingPreviews = []; pendingYouTube = [];
+        closeModal('productModal'); loadCreatorProducts(); loadCreatorStats();
+        showToast(id ? 'อัปเดตแล้ว!' : 'เผยแพร่แล้ว!');
+      }
       else showToast(data.message || 'ล้มเหลว', 'error');
     } catch { showToast('อัปโหลดไม่สำเร็จ', 'error'); }
     finally { btn.disabled = false; btn.textContent = original; }
   });
+
 
   async function deleteProduct(id) {
     if (!confirm('ลบแอดออนนี้? การลบไม่สามารถย้อนกลับได้')) return;
