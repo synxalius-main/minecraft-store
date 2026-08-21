@@ -298,6 +298,144 @@
     .toasts{left:12px;right:12px}
   }
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+  /* ============ PRODUCT DETAIL + OWNED STATES ============ */
+.thumb.clickable{
+  cursor:pointer;
+}
+
+.thumb.clickable::after{
+  content:'Click to view';
+  position:absolute;
+  left:50%;
+  bottom:12px;
+  transform:translateX(-50%) translateY(8px);
+  z-index:3;
+  opacity:0;
+  pointer-events:none;
+  background:rgba(0,0,0,.68);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:.72rem;
+  font-weight:800;
+  padding:6px 12px;
+  border-radius:999px;
+  transition:.25s;
+  backdrop-filter:blur(8px);
+}
+
+.card:hover .thumb.clickable::after{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+.thumb-badge.owned{
+  color:var(--accent);
+  border-color:rgba(167,139,250,.45);
+  background:rgba(167,139,250,.16);
+}
+
+.detail-box{
+  max-width:760px;
+}
+
+.detail-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  align-items:start;
+}
+
+.detail-thumb{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/10;
+  border-radius:18px;
+  overflow:hidden;
+  background:linear-gradient(160deg,#122036,#0a1220);
+  border:1px solid var(--border);
+}
+
+.detail-thumb img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.detail-fallback{
+  height:100%;
+  display:grid;
+  place-items:center;
+  font-size:4rem;
+}
+
+.detail-info h2{
+  margin:0 0 8px;
+  font-size:1.5rem;
+  font-weight:900;
+  line-height:1.15;
+}
+
+.detail-desc{
+  color:var(--muted);
+  font-size:.9rem;
+  margin:0 0 16px;
+  line-height:1.65;
+}
+
+.detail-meta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.detail-pill{
+  border:1px solid var(--border);
+  background:var(--glass);
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:800;
+  padding:6px 12px;
+  border-radius:999px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.detail-price{
+  font-size:1.8rem;
+  font-weight:900;
+  color:var(--primary);
+  text-shadow:0 0 18px rgba(0,230,118,.35);
+  margin-bottom:16px;
+}
+
+.detail-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.owned-note{
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(167,139,250,.35);
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:.85rem;
+  font-weight:700;
+}
+
+@media(max-width:700px){
+  .detail-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+
 </style>
 </head>
 <body>
@@ -308,7 +446,7 @@
       <div class="logo-tile">⛏️</div>MC STORE<span class="caret">▼</span>
     </button>
     <div class="dropdown" id="logoMenu">
-      <button onclick="switchView('store');closeMenu()"><span>🛒</span> Store</button>
+      <button <button onclick="switchView('store');closeMenu()"><span>🧭</span> Explore</button>
       <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>🛠️</span> Creator Studio</button>
       <button id="mProfile" style="display:none" onclick="switchView('profile');closeMenu()"><span>📚</span> My Library</button>
       <div class="dd-divider" id="mDivider" style="display:none"></div>
@@ -317,7 +455,7 @@
   </div>
 
   <nav>
-    <button data-view="store" class="active" onclick="switchView('store',this)">Store</button>
+    <button data-view="store" class="active" onclick="switchView('store',this)">Explore</button>
     <button data-view="dashboard" id="navDashboard" style="display:none" onclick="switchView('dashboard',this)">Studio</button>
     <button data-view="profile" id="navProfile" style="display:none" onclick="switchView('profile',this)">Library</button>
   </nav>
@@ -472,6 +610,14 @@
   </div>
 </div>
 
+<!-- ================= PRODUCT DETAIL MODAL ================= -->
+<div id="detailModal" class="modal" onclick="if(event.target===this)closeModal('detailModal')">
+  <div class="modal-box detail-box">
+    <button class="x modal-close" onclick="closeModal('detailModal')">✕</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
 <div class="toasts" id="toastContainer"></div>
 
 <script>
@@ -497,6 +643,35 @@
     $('toastContainer').appendChild(t);
     setTimeout(() => t.remove(), 2800);
   }
+  
+  function isOwned(productId) {
+  return ownedProductIds.has(String(productId));
+}
+
+async function refreshOwnedIds() {
+  ownedProductIds = new Set();
+
+  const session = (await supabaseClient.auth.getSession()).data.session;
+  if (!session) return;
+
+  try {
+    const res = await fetch('/api/user/library', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
+
+    const purchases = await res.json();
+    if (!Array.isArray(purchases)) return;
+
+    ownedProductIds = new Set(
+      purchases
+        .map(item => item.products?.id)
+        .filter(Boolean)
+        .map(String)
+    );
+  } catch (err) {
+    console.warn('Could not refresh owned products:', err);
+  }
+}
 
   /* ---------- SCROLL REVEAL ---------- */
   const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
@@ -552,7 +727,8 @@
     try {
       const res = await fetch('/api/products');
       allProducts = await res.json();
-      applyFilters();
+if (currentUser) await refreshOwnedIds();
+applyFilters();
     } catch (err) {
       grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch products. Please refresh.</p></div>`;
     }
@@ -575,26 +751,40 @@
       return;
     }
     list.forEach((p, i) => {
-      const card = document.createElement('div');
-      card.className = 'card reveal';
-      card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
-      card.innerHTML = `
-        <div class="thumb">
-          ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}" loading="lazy">` : `<span class="fallback">📦</span>`}
-          <div class="cat-tag">${esc(normCat(p.category))}</div>
-          <div class="thumb-badge">฿${parseFloat(p.price).toFixed(2)}</div>
-        </div>
-        <div class="card-body">
-          <h3>${esc(p.name)}</h3>
-          <p class="creator">${esc(p.description || 'No description available')}</p>
-          <div class="card-foot">
-            <span class="price">฿${parseFloat(p.price).toFixed(2)}</span>
-            <button class="btn btn-primary btn-sm">Add +</button>
-          </div>
-        </div>`;
-      card.querySelector('.btn-sm').addEventListener('click', () => addToCart(p.id, p.name, parseFloat(p.price), p.thumbnail_url));
-      grid.appendChild(card);
-    });
+  const owned = isOwned(p.id);
+  const price = parseFloat(p.price || 0);
+
+  const card = document.createElement('div');
+  card.className = 'card reveal';
+  card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
+
+  card.innerHTML = `
+    <div class="thumb clickable">
+      ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}" loading="lazy">` : `<span class="fallback">📦</span>`}
+      <div class="cat-tag">${esc(normCat(p.category))}</div>
+      <div class="thumb-badge ${owned ? 'owned' : ''}">
+        ${owned ? 'OWNED' : `฿${price.toFixed(2)}`}
+      </div>
+    </div>
+
+    <div class="card-body">
+      <h3>${esc(p.name)}</h3>
+      <p class="creator">${esc(p.description || 'No description available')}</p>
+
+      <div class="card-foot">
+        <span class="price">฿${price.toFixed(2)}</span>
+        <button class="btn ${owned ? 'btn-ghost' : 'btn-primary'} btn-sm">
+          ${owned ? 'Owned' : 'Details'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  card.querySelector('.thumb').addEventListener('click', () => openProductDetail(p));
+  card.querySelector('.btn-sm').addEventListener('click', () => openProductDetail(p));
+
+  grid.appendChild(card);
+});
     observeReveals(grid);
     wireThumb(grid);
   }
@@ -612,16 +802,97 @@
       }
     });
   }
+  
+  function openProductDetail(p) {
+  const owned = isOwned(p.id);
+  const category = normCat(p.category);
+  const price = parseFloat(p.price || 0);
+
+  $('detailContent').innerHTML = `
+    <div class="detail-layout">
+      <div class="detail-thumb">
+        ${p.thumbnail_url
+          ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}">`
+          : `<div class="detail-fallback">📦</div>`
+        }
+      </div>
+
+      <div class="detail-info">
+        <div class="detail-meta">
+          <span class="detail-pill">${esc(category)}</span>
+          ${owned ? `<span class="detail-pill" style="color:var(--accent);border-color:rgba(167,139,250,.45)">Owned</span>` : ''}
+        </div>
+
+        <h2>${esc(p.name)}</h2>
+        <p class="detail-desc">${esc(p.description || 'No description available')}</p>
+
+        <div class="detail-price">฿${price.toFixed(2)}</div>
+
+        <div class="detail-actions">
+          ${
+            owned
+              ? `
+                <button class="btn btn-ghost w100" disabled>✅ Owned</button>
+                <button class="btn btn-primary w100" id="detailLibraryBtn">Open Library</button>
+              `
+              : `
+                <button class="btn btn-primary w100" id="detailAddBtn">Add to Cart</button>
+              `
+          }
+        </div>
+
+        ${
+          owned
+            ? `<div class="owned-note">You already own this addon. You can download it from your Library.</div>`
+            : ''
+        }
+      </div>
+    </div>
+  `;
+
+  $('detailModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  const addBtn = $('detailAddBtn');
+  if (addBtn) {
+    addBtn.onclick = () => {
+      addToCart(p.id, p.name, price, p.thumbnail_url);
+      closeModal('detailModal');
+    };
+  }
+
+  const libraryBtn = $('detailLibraryBtn');
+  if (libraryBtn) {
+    libraryBtn.onclick = () => {
+      closeModal('detailModal');
+      switchView('profile');
+    };
+  }
+}
 
   /* ---------- CART ---------- */
   function saveCart() { localStorage.setItem('mc_cart', JSON.stringify(cart)); }
 
   function addToCart(id, name, price, thumb) {
-    if (cart.some(i => i.id === id)) { showToast('Already in cart', 'warn'); openCart(); return; }
-    cart.push({ id, name, price, thumb });
-    saveCart(); renderCart(); openCart();
-    showToast(`Added "${name}" to cart`);
+  if (isOwned(id)) {
+    showToast('You already own this addon', 'warn');
+    switchView('profile');
+    return;
   }
+
+  if (cart.some(i => i.id === id)) {
+    showToast('Already in cart', 'warn');
+    openCart();
+    return;
+  }
+
+  cart.push({ id, name, price, thumb });
+  saveCart();
+  renderCart();
+  openCart();
+  showToast(`Added "${name}" to cart`);
+}
+
   function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); renderCart(); }
 
   function renderCart() {
@@ -669,7 +940,12 @@
       });
       const data = await res.json();
       if (data.success) {
-        cart = []; saveCart(); renderCart();
+cart = [];
+saveCart();
+renderCart();
+await refreshOwnedIds();
+if (allProducts.length) applyFilters();
+
         status.className = 'status-box success';
         status.innerHTML = `🎉 Payment verified! Your addons are in your Library.<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">Go to Library →</button>`;
         showToast('Payment successful!');
@@ -930,11 +1206,20 @@
     } finally { btn.disabled = false; btn.textContent = original; }
   }
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    currentUser = session?.user || null;
-    updateAuthUI();
-    if (currentUser) { loadCreatorProducts(); loadCreatorStats(); loadUserLibrary(); }
-  });
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  currentUser = session?.user || null;
+  updateAuthUI();
+
+  await refreshOwnedIds();
+
+  if (currentUser) {
+    loadCreatorProducts();
+    loadCreatorStats();
+    loadUserLibrary();
+  }
+
+  if (allProducts.length) applyFilters();
+});
 
   function updateAuthUI() {
     const name = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'User';
