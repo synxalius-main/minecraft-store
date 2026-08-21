@@ -6,13 +6,13 @@
 <title>Minecraft Explore</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#07090d">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MC Store"> 
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#07090d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MC Store">
 <style>
   :root{
     --bg:#07090d; --glass:rgba(255,255,255,.05); --glass2:rgba(255,255,255,.08);
@@ -33,14 +33,12 @@
   button{font-family:inherit;cursor:pointer;touch-action:manipulation}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#2a3444;border-radius:3px}
 
-  /* ============ ENTRANCE + SCROLL REVEAL ============ */
   @keyframes riseIn{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
   .fade-up{opacity:0;animation:riseIn .8s cubic-bezier(.16,1,.3,1) forwards}
-  .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.28s}.d4{animation-delay:.38s}.d5{animation-delay:.5s}.d6{animation-delay:.62s}
+  .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.28s}.d4{animation-delay:.38s}.d5{animation-delay:.5s}
   .reveal{opacity:0;transform:translateY(34px)}
   .reveal.visible{animation:riseIn .7s cubic-bezier(.16,1,.3,1) both}
 
-  /* ============ HEADER ============ */
   header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:14px 22px;padding-top:calc(14px + var(--safe-top));
     background:rgba(7,9,13,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
@@ -49,25 +47,21 @@
 
   .menu-wrap{position:relative;flex-shrink:0}
   .logo{background:none;border:none;color:var(--text);display:flex;align-items:center;gap:12px;
-    font-family:'Press Start 2P';font-size:.78rem;letter-spacing:1px;white-space:nowrap;
-    padding:6px 8px;border-radius:14px;transition:.25s}
+    font-family:'Press Start 2P';font-size:.78rem;letter-spacing:1px;white-space:nowrap;padding:6px 8px;border-radius:14px;transition:.25s}
   .logo:hover{background:var(--glass)}
   .logo-tile{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.1rem;
-    background:linear-gradient(160deg,var(--primary-dim),transparent);border:1px solid var(--border-glow);
-    box-shadow:0 0 18px rgba(0,230,118,.25)}
+    background:linear-gradient(160deg,var(--primary-dim),transparent);border:1px solid var(--border-glow);box-shadow:0 0 18px rgba(0,230,118,.25)}
   .caret{display:none;font-family:'Inter';font-size:.65rem;color:var(--muted);transition:.3s;margin-left:2px}
   .logo.open .caret{transform:rotate(180deg)}
 
   .dropdown{position:absolute;top:calc(100% + 10px);left:0;min-width:240px;
     background:rgba(12,15,21,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
     border:1px solid var(--border);border-radius:16px;padding:8px;
-    opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;
-    transition:.3s cubic-bezier(.16,1,.3,1);box-shadow:0 20px 40px rgba(0,0,0,.6);z-index:120}
+    opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;transition:.3s cubic-bezier(.16,1,.3,1);box-shadow:0 20px 40px rgba(0,0,0,.6);z-index:120}
   .dropdown.active{opacity:1;transform:none;pointer-events:auto}
   .dropdown::before{content:'';position:absolute;top:-6px;left:18px;width:12px;height:12px;
     background:rgba(12,15,21,.96);border-left:1px solid var(--border);border-top:1px solid var(--border);transform:rotate(45deg)}
-  .dropdown button{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:none;
-    color:var(--muted);padding:12px 14px;border-radius:10px;font-weight:600;font-size:.88rem;transition:.2s;text-align:left}
+  .dropdown button{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:none;color:var(--muted);padding:12px 14px;border-radius:10px;font-weight:600;font-size:.88rem;transition:.2s;text-align:left}
   .dropdown button:hover{background:var(--glass);color:var(--text)}
   .dd-divider{height:1px;background:var(--border);margin:6px 8px}
 
@@ -82,8 +76,7 @@
     color:var(--text);padding:10px 16px;border-radius:14px;font-weight:700;font-size:.82rem;transition:.25s}
   .cart-btn:hover{border-color:var(--border-glow);box-shadow:0 0 20px rgba(0,230,118,.15)}
   .cart-count{position:absolute;top:-8px;right:-8px;min-width:20px;height:20px;border-radius:50%;background:var(--primary);
-    color:#00160a;font-size:.7rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 5px;
-    animation:pop .4s cubic-bezier(.68,-.55,.265,1.55)}
+    color:#00160a;font-size:.7rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 5px;animation:pop .4s cubic-bezier(.68,-.55,.265,1.55)}
   @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
 
   main{max-width:1150px;margin:0 auto;padding:26px 20px 90px}
@@ -91,13 +84,10 @@
   .view.active{display:block}
   @keyframes enter{from{opacity:0}to{opacity:1}}
 
-  /* ============ HERO ============ */
   .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;overflow:hidden;position:relative;
-    background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);
-    padding:44px 42px;margin-bottom:26px;backdrop-filter:blur(14px)}
+    background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);padding:44px 42px;margin-bottom:26px;backdrop-filter:blur(14px)}
   .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(50% 60% at 78% 50%,rgba(0,230,118,.12),transparent 70%);pointer-events:none}
-  .hero-tag{display:inline-flex;gap:6px;align-items:center;background:var(--accent-dim);color:var(--accent);
-    border:1px solid rgba(167,139,250,.35);padding:6px 14px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .hero-tag{display:inline-flex;gap:6px;align-items:center;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.35);padding:6px 14px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
   .hero h1{font-size:clamp(1.55rem,5.5vw,2.6rem);font-weight:900;letter-spacing:-.03em;line-height:1.12;margin:16px 0 12px}
   .grad{background:linear-gradient(90deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   .hero p{color:var(--muted);max-width:440px;line-height:1.6;margin:0 0 22px}
@@ -112,7 +102,6 @@
   .vox.tnt{right:4%;top:30%;background:linear-gradient(180deg,#ef4444 0 32%,#7f1d1d 32%);animation-delay:2.1s;box-shadow:0 0 45px rgba(239,68,68,.35),inset 0 -16px 26px rgba(0,0,0,.4)}
   @keyframes float{0%,100%{translate:0 0}50%{translate:0 -14px}}
 
-  /* ============ BUTTONS ============ */
   .btn{border:none;border-radius:14px;font-weight:700;font-size:.9rem;padding:13px 22px;transition:.25s;display:inline-flex;align-items:center;gap:8px;justify-content:center}
   .btn-primary{background:linear-gradient(135deg,var(--primary),#00b359);color:#00160a;box-shadow:0 6px 22px rgba(0,230,118,.3)}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,230,118,.45)}
@@ -124,15 +113,20 @@
   .btn-edit{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3);padding:8px 14px;border-radius:11px;font-weight:700;font-size:.78rem}
   .btn-danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(255,92,92,.3);padding:8px 14px;border-radius:11px;font-weight:700;font-size:.78rem}
 
-  /* ============ TOOLBAR / CHIPS ============ */
   .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:14px}
-  .search{flex:1;position:relative}
+  .search{flex:1;position:relative;min-width:0}
   .search input{width:100%;padding:12px 16px 12px 42px;background:var(--glass);border:1px solid var(--border);border-radius:14px;
     color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.25s}
   .search input:focus{border-color:var(--border-glow);box-shadow:0 0 0 3px var(--primary-dim)}
   .search::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.6}
+  .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%) scale(.8);width:28px;height:28px;border-radius:50%;
+    background:var(--glass2);border:1px solid var(--border);color:var(--muted);font-size:.72rem;display:grid;place-items:center;
+    opacity:0;pointer-events:none;transition:.25s;z-index:2}
+  .search-clear:hover{color:var(--danger);border-color:rgba(255,92,92,.4);transform:translateY(-50%) scale(1.1)}
+  .search.has-text .search-clear{opacity:1;pointer-events:auto;transform:translateY(-50%) scale(1)}
+  .search.has-text input{padding-right:46px}
   .sort-select{background:var(--glass);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:14px;
-    font-family:inherit;font-size:.82rem;font-weight:600;outline:none;transition:.25s;flex-shrink:0}
+    font-family:inherit;font-size:.82rem;font-weight:600;outline:none;transition:.25s;flex-shrink:0;width:auto;max-width:46vw}
   .sort-select:focus{border-color:var(--border-glow)}
   .sort-select option{background:#0c0f15}
   .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none;margin-bottom:14px}
@@ -140,26 +134,23 @@
   .chip{border:1px solid var(--border);background:var(--glass);color:var(--muted);padding:9px 18px;border-radius:100px;font-size:.8rem;font-weight:700;transition:.25s;white-space:nowrap;flex-shrink:0}
   .chip.active{background:var(--primary-dim);color:var(--primary);border-color:var(--border-glow);box-shadow:0 0 16px rgba(0,230,118,.15)}
 
-  /* ============ CARDS ============ */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
   .card{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);
-    overflow:hidden;backdrop-filter:blur(14px);transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .3s;
-    display:flex;flex-direction:column}
+    overflow:hidden;backdrop-filter:blur(14px);transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .3s;display:flex;flex-direction:column;cursor:pointer}
   .card:hover{transform:translateY(-6px);border-color:var(--border-glow);box-shadow:0 22px 44px rgba(0,0,0,.5),0 0 32px rgba(0,230,118,.12)}
-  .thumb{height:150px;display:grid;place-items:center;font-size:3.2rem;position:relative;overflow:hidden;background:linear-gradient(160deg,#122036,#0a1220)}
+  .thumb{height:auto;aspect-ratio:16/10;display:grid;place-items:center;font-size:3.2rem;position:relative;overflow:hidden;background:linear-gradient(160deg,#122036,#0a1220)}
   .thumb .fallback{filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
   .thumb-badge{position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
     border:1px solid var(--border-glow);color:var(--primary);font-weight:800;font-size:.75rem;padding:4px 11px;border-radius:100px}
+  .thumb-badge.owned{color:var(--accent);border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.16)}
   .cat-tag{position:absolute;top:10px;left:10px;z-index:2;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
-    border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:.66rem;padding:4px 10px;border-radius:100px;
-    text-transform:uppercase;letter-spacing:.06em}
+    border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:.66rem;padding:4px 10px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em}
   .card-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:4px}
   .card-body h3{margin:0;font-size:1rem;font-weight:800;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .creator{color:var(--muted);font-size:.78rem;margin:0 0 12px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
   .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:10px}
   .price{font-weight:900;color:var(--primary);font-size:1.05rem;text-shadow:0 0 16px rgba(0,230,118,.35)}
 
-  /* ============ STUDIO ============ */
   .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
   .stat{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:18px;padding:18px 20px;backdrop-filter:blur(14px)}
   .stat .label{color:var(--muted);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
@@ -170,12 +161,11 @@
   .studio-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
   .studio-head h2{margin:0;font-size:1.2rem;font-weight:900}
 
-  .dropzone{border:1.5px dashed rgba(255,255,255,.22);border-radius:20px;padding:38px 20px;text-align:center;
-    background:var(--glass);transition:.3s;margin-bottom:22px;cursor:pointer}
+  .dropzone{border:1.5px dashed rgba(255,255,255,.22);border-radius:20px;padding:38px 20px;text-align:center;background:var(--glass);transition:.3s;margin-bottom:22px;cursor:pointer}
   .dropzone .dz-icon{font-size:2.3rem;display:block;margin-bottom:10px;transition:.3s}
   .dropzone h3{margin:0 0 6px;font-weight:800}
   .dropzone p{color:var(--muted);font-size:.8rem;margin:0}
-  .dropzone.drag{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 40px rgba(167,139,250,.2) inset,0 0 30px rgba(167,139,250,.2)}
+  .dropzone.drag{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 40px rgba(167,139,250,.2) inset}
   .dropzone.drag .dz-icon{transform:scale(1.2)}
 
   .manage{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(14px);overflow:hidden}
@@ -189,14 +179,55 @@
   .badge{padding:5px 12px;border-radius:100px;font-size:.7rem;font-weight:800;white-space:nowrap}
   .badge.pub{background:var(--primary-dim);color:var(--primary);border:1px solid rgba(0,230,118,.3)}
   .m-actions{display:flex;gap:8px}
-  .m-rev{font-weight:800;font-size:.85rem;min-width:76px;text-align:right;color:var(--primary)}
 
-  /* ============ CART DRAWER ============ */
+  .media-manager{margin-top:12px;border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--glass)}
+  .media-manager h4{margin:0 0 10px;font-size:.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:12px}
+  .media-item{position:relative;aspect-ratio:16/10;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#0a0d14}
+  .media-item img{width:100%;height:100%;object-fit:cover}
+  .media-item .media-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.7);
+    border:1px solid rgba(255,92,92,.5);color:var(--danger);font-size:.6rem;display:grid;place-items:center;transition:.2s}
+  .media-item .media-del:hover{background:var(--danger);color:#fff}
+  .yt-add{display:flex;gap:8px;margin-top:8px}
+  .yt-add input{flex:1;padding:10px 12px;font-size:.82rem}
+
+  .gallery{position:relative;width:100%;aspect-ratio:16/9;background:#0a0d14;overflow:hidden;border-radius:var(--r) var(--r) 0 0}
+  .gallery-main{width:100%;height:100%;position:relative}
+  .gallery-main img{width:100%;height:100%;object-fit:cover}
+  .gallery-main iframe{width:100%;height:100%;border:none}
+  .gallery-main .g-empty{width:100%;height:100%;display:grid;place-items:center;font-size:4rem;color:var(--muted);opacity:.3}
+  .gallery-nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.6);
+    backdrop-filter:blur(6px);border:1px solid var(--border);color:#fff;font-size:.8rem;display:grid;place-items:center;transition:.25s;z-index:4}
+  .gallery-nav:hover{background:rgba(0,0,0,.85);border-color:var(--border-glow)}
+  .gallery-nav.prev{left:10px}
+  .gallery-nav.next{right:10px}
+  .gallery-strip{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;background:rgba(0,0,0,.3)}
+  .gallery-strip::-webkit-scrollbar{display:none}
+  .g-thumb{width:60px;height:42px;border-radius:8px;overflow:hidden;flex-shrink:0;border:2px solid transparent;cursor:pointer;transition:.2s;position:relative}
+  .g-thumb.active{border-color:var(--primary);box-shadow:0 0 12px rgba(0,230,118,.3)}
+  .g-thumb img{width:100%;height:100%;object-fit:cover}
+  .g-thumb .g-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.5);color:#fff;font-size:.7rem}
+
+  .detail-modal .modal-box{max-width:760px;padding:0;overflow:hidden}
+  .detail-body{padding:22px}
+  .detail-body h2{margin:0 0 8px;font-size:1.3rem;font-weight:900}
+  .detail-meta{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  .detail-price{font-weight:900;font-size:1.2rem;color:var(--primary);text-shadow:0 0 16px rgba(0,230,118,.35)}
+  .detail-cat{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3);padding:4px 12px;border-radius:100px;font-size:.7rem;font-weight:800;text-transform:uppercase}
+  .detail-desc{color:var(--muted);font-size:.9rem;line-height:1.7;margin-bottom:20px}
+  .detail-desc p{margin:0 0 10px}
+  .detail-desc p:last-child{margin-bottom:0}
+  .desc-list{margin:0 0 10px;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+  .desc-list li{color:var(--muted);font-size:.9rem;line-height:1.55}
+  .desc-list li::marker{color:var(--primary)}
+  .detail-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .detail-actions .btn{flex:1}
+  .owned-tag{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3);padding:5px 14px;border-radius:100px;font-size:.75rem;font-weight:800}
+
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.35s;z-index:90}
   .overlay.show{opacity:1;pointer-events:auto}
   .drawer{position:fixed;top:0;right:0;height:100%;width:min(430px,100%);z-index:100;display:flex;flex-direction:column;
-    background:rgba(10,13,18,.92);backdrop-filter:blur(24px);border-left:1px solid var(--border);
-    transform:translateX(105%);transition:.5s cubic-bezier(.16,1,.3,1)}
+    background:rgba(10,13,18,.92);backdrop-filter:blur(24px);border-left:1px solid var(--border);transform:translateX(105%);transition:.5s cubic-bezier(.16,1,.3,1)}
   .drawer.open{transform:translateX(0)}
   .drawer-head{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;padding-top:calc(20px + var(--safe-top));border-bottom:1px solid var(--border)}
   .drawer-head h2{margin:0;font-size:1.15rem;font-weight:900}
@@ -223,14 +254,12 @@
   .total-row{display:flex;justify-content:space-between;margin-bottom:14px;font-weight:700;color:var(--muted)}
   .total-row .amt{font-size:1.3rem;font-weight:900;color:var(--primary)}
   .w100{width:100%}
-
   .status-box{margin-top:12px;padding:13px;border-radius:12px;font-weight:700;text-align:center;font-size:.85rem;animation:fadeIn .3s ease}
   .status-box.pending{color:var(--gold);background:var(--gold-dim);border:1px solid rgba(251,191,36,.25)}
   .status-box.success{color:var(--primary);background:var(--primary-dim);border:1px solid rgba(0,230,118,.3)}
   .status-box.error{color:var(--danger);background:var(--danger-dim);border:1px solid rgba(255,92,92,.3)}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-  /* ============ MODALS ============ */
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);z-index:200;
     justify-content:center;align-items:center;padding:18px;opacity:0;transition:.3s}
   .modal.active{display:flex;opacity:1}
@@ -241,7 +270,6 @@
   .modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent))}
   .modal-box h2{margin:0 0 20px;font-size:1.25rem;font-weight:900}
   .modal-close{position:absolute;top:16px;right:16px;z-index:5}
-
   .form-group{margin-bottom:15px}
   label{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:6px}
   input,textarea,select{width:100%;padding:12px 14px;background:var(--glass);border:1px solid var(--border);color:var(--text);
@@ -257,15 +285,10 @@
   .file-zone img.prev{display:none;max-width:100%;max-height:110px;border-radius:10px;margin-top:8px;border:1px solid var(--border)}
   .auth-toggle{text-align:center;cursor:pointer;color:var(--accent);margin-top:16px;font-weight:700;font-size:.88rem}
 
-  /* ============ MISC ============ */
   .toasts{position:fixed;top:calc(76px + var(--safe-top));right:16px;left:16px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:flex-end}
-  .toast{background:rgba(10,13,18,.95);border:1px solid var(--border);border-left:3px solid var(--primary);
-    padding:12px 18px;border-radius:12px;font-size:.85rem;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5);
-    animation:tIn .4s cubic-bezier(.16,1,.3,1);max-width:360px}
-  .toast.error{border-left-color:var(--danger)}
-  .toast.warn{border-left-color:var(--gold)}
+  .toast{background:rgba(10,13,18,.95);border:1px solid var(--border);border-left:3px solid var(--primary);padding:12px 18px;border-radius:12px;font-size:.85rem;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:tIn .4s cubic-bezier(.16,1,.3,1);max-width:360px}
+  .toast.error{border-left-color:var(--danger)}.toast.warn{border-left-color:var(--gold)}
   @keyframes tIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
-
   .skeleton{background:linear-gradient(110deg,#101623 8%,#1a2334 18%,#101623 33%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r);height:280px}
   @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)}
@@ -273,226 +296,31 @@
   .empty-state h3{color:var(--text);margin:0 0 8px;font-weight:800}
   .empty-state p{font-size:.88rem;margin:0 0 18px}
 
-  /* ============ THUMBNAIL COVER + LOADING ============ */
   .thumb,.c-thumb,.m-avatar{position:relative}
-  .thumb{height:auto;aspect-ratio:16/10}
-  .thumb img,.c-thumb img,.m-avatar img{
-    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
-    opacity:0;transition:opacity .45s ease,transform .6s cubic-bezier(.16,1,.3,1);
-  }
-  .thumb::before{content:'';position:absolute;inset:0;
-    background:linear-gradient(110deg,#101623 8%,#1a2334 18%,#101623 33%);
-    background-size:200% 100%;animation:shimmer 1.4s infinite}
+  .thumb img,.c-thumb img,.m-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
+    opacity:0;transition:opacity .45s ease,transform .6s cubic-bezier(.16,1,.3,1)}
+  .thumb::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,#101623 8%,#1a2334 18%,#101623 33%);background-size:200% 100%;animation:shimmer 1.4s infinite}
   .thumb.img-loaded::before{animation:none;opacity:0;transition:opacity .4s}
   .thumb img.loaded,.c-thumb img.loaded,.m-avatar img.loaded{opacity:1}
   .card:hover .thumb img.loaded{transform:scale(1.08)}
 
-  /* ============ MOBILE ============ */
   @media(max-width:820px){
-    nav{display:none}
-    .auth-btn{display:none}
-    .caret{display:inline-block}
+    nav{display:none}.auth-btn{display:none}.caret{display:inline-block}
     header{padding:12px 14px;padding-top:calc(12px + var(--safe-top));gap:8px}
-    .logo{font-size:.68rem;padding:4px 6px;gap:9px}
-    .logo-tile{width:34px;height:34px;font-size:1rem}
-    main{padding:18px 14px 80px}
-    .hero{padding:28px 20px;margin-bottom:20px}
-    .hero-art{display:none}
-    .cart-btn{padding:10px 14px}
-    input,textarea,select{font-size:16px}
-    .m-rev{display:none}
-    .grid{gap:14px}
+    .logo{font-size:.68rem;padding:4px 6px;gap:9px}.logo-tile{width:34px;height:34px;font-size:1rem}
+    main{padding:18px 14px 80px}.hero{padding:28px 20px;margin-bottom:20px}.hero-art{display:none}
+    .cart-btn{padding:10px 14px}input,textarea,select{font-size:16px}.grid{gap:14px}
     .toasts{left:12px;right:12px}
+    .gallery{aspect-ratio:16/10}
   }
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-
-  /* ============ PRODUCT DETAIL + OWNED STATES ============ */
-.thumb.clickable{
-  cursor:pointer;
-}
-
-.thumb.clickable::after{
-  content:'Click to view';
-  position:absolute;
-  left:50%;
-  bottom:12px;
-  transform:translateX(-50%) translateY(8px);
-  z-index:3;
-  opacity:0;
-  pointer-events:none;
-  background:rgba(0,0,0,.68);
-  border:1px solid var(--border);
-  color:var(--text);
-  font-size:.72rem;
-  font-weight:800;
-  padding:6px 12px;
-  border-radius:999px;
-  transition:.25s;
-  backdrop-filter:blur(8px);
-}
-
-.card:hover .thumb.clickable::after{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-
-.thumb-badge.owned{
-  color:var(--accent);
-  border-color:rgba(167,139,250,.45);
-  background:rgba(167,139,250,.16);
-}
-
-.detail-box{
-  max-width:760px;
-}
-
-.detail-layout{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-  align-items:start;
-}
-
-.detail-thumb{
-  position:relative;
-  width:100%;
-  aspect-ratio:16/10;
-  border-radius:18px;
-  overflow:hidden;
-  background:linear-gradient(160deg,#122036,#0a1220);
-  border:1px solid var(--border);
-}
-
-.detail-thumb img{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.detail-fallback{
-  height:100%;
-  display:grid;
-  place-items:center;
-  font-size:4rem;
-}
-
-.detail-info h2{
-  margin:0 0 8px;
-  font-size:1.5rem;
-  font-weight:900;
-  line-height:1.15;
-}
-
-.detail-desc{
-  color:var(--muted);
-  font-size:.9rem;
-  margin:0 0 16px;
-  line-height:1.65;
-}
-
-.detail-meta{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:18px;
-}
-
-.detail-pill{
-  border:1px solid var(--border);
-  background:var(--glass);
-  color:var(--muted);
-  font-size:.72rem;
-  font-weight:800;
-  padding:6px 12px;
-  border-radius:999px;
-  text-transform:uppercase;
-  letter-spacing:.06em;
-}
-
-.detail-price{
-  font-size:1.8rem;
-  font-weight:900;
-  color:var(--primary);
-  text-shadow:0 0 18px rgba(0,230,118,.35);
-  margin-bottom:16px;
-}
-
-.detail-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.owned-note{
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:14px;
-  border:1px solid rgba(167,139,250,.35);
-  background:var(--accent-dim);
-  color:var(--accent);
-  font-size:.85rem;
-  font-weight:700;
-}
-
-@media(max-width:700px){
-  .detail-layout{
-    grid-template-columns:1fr;
-  }
-}
-
-/* ============ SEARCH CLEAR BUTTON ============ */
-.search-clear{
-  position:absolute;right:10px;top:50%;transform:translateY(-50%) scale(.8);
-  width:28px;height:28px;border-radius:50%;
-  background:var(--glass2);border:1px solid var(--border);color:var(--muted);
-  font-size:.72rem;display:grid;place-items:center;
-  opacity:0;pointer-events:none;transition:.25s;z-index:2;
-}
-.search-clear:hover{color:var(--danger);border-color:rgba(255,92,92,.4);transform:translateY(-50%) scale(1.1)}
-.search.has-text .search-clear{opacity:1;pointer-events:auto;transform:translateY(-50%) scale(1)}
-.search.has-text input{padding-right:46px}
-
-/* ============ EXPANDING SEARCH ============ */
-.search{transition:flex .5s cubic-bezier(.16,1,.3,1)}
-.sort-select{transition:all .45s cubic-bezier(.16,1,.3,1)}
-
-/* when search is focused or has text: stretch full-width, collapse the sort dropdown */
-.toolbar.searching .search{flex:1 1 100%}
-.toolbar.searching .sort-select{width:0;opacity:0;padding:12px 0;border-color:transparent;pointer-events:none;transform:scale(.85)}
-.toolbar.searching .search input{
-  border-color:var(--border-glow);
-  box-shadow:0 0 0 3px var(--primary-dim),0 10px 30px rgba(0,230,118,.12);
-}
-
-/* ============ FORMATTED DESCRIPTION ============ */
-.detail-desc p{margin:0 0 10px}
-.detail-desc p:last-child{margin-bottom:0}
-.desc-list{margin:0 0 10px;padding-left:18px;display:flex;flex-direction:column;gap:6px}
-.desc-list li{color:var(--muted);font-size:.9rem;line-height:1.55}
-.desc-list li::marker{color:var(--primary)}
-
-/* ============ OVERFLOW FIX ============ */
-html,body{max-width:100%;overflow-x:hidden}
-.search{min-width:0}
-.sort-select{width:auto;flex-shrink:0;max-width:46vw}
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    });
-  }
-
 </style>
 </head>
 <body>
 
 <header>
   <div class="menu-wrap">
-    <button class="logo" id="logoBtn" onclick="toggleMenu(event)" aria-haspopup="true">
-      <div class="logo-tile">⛏️</div>MC STORE<span class="caret">▼</span>
-    </button>
+    <button class="logo" id="logoBtn" onclick="toggleMenu(event)"><div class="logo-tile">⛏️</div>MC STORE<span class="caret">▼</span></button>
     <div class="dropdown" id="logoMenu">
       <button onclick="switchView('store');closeMenu()"><span>🧭</span> Explore</button>
       <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>🛠️</span> Creator Studio</button>
@@ -501,13 +329,11 @@ html,body{max-width:100%;overflow-x:hidden}
       <button id="mAuth" onclick="openAuthModal();closeMenu()"><span>🔑</span> Login / Sign Up</button>
     </div>
   </div>
-
   <nav>
     <button data-view="store" class="active" onclick="switchView('store',this)">Explore</button>
     <button data-view="dashboard" id="navDashboard" style="display:none" onclick="switchView('dashboard',this)">Studio</button>
     <button data-view="profile" id="navProfile" style="display:none" onclick="switchView('profile',this)">Library</button>
   </nav>
-
   <div class="header-right">
     <button class="auth-btn" id="authBtn" onclick="openAuthModal()">Login</button>
     <button class="cart-btn" onclick="openCart()">🛒 Cart<span class="cart-count" id="cartCount">0</span></button>
@@ -515,7 +341,6 @@ html,body{max-width:100%;overflow-x:hidden}
 </header>
 
 <main>
-  <!-- ================= STORE ================= -->
   <section id="storeView" class="view active">
     <div class="hero">
       <div>
@@ -526,29 +351,23 @@ html,body{max-width:100%;overflow-x:hidden}
           <button class="btn btn-primary" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">Browse Addons</button>
           <button class="btn btn-ghost" onclick="heroCreatorClick()">Become a Creator</button>
         </div>
-        <div class="hero-stats fade-up d5"><span><b>100%</b> verified creators</span><span><b>Instant</b> downloads</span><span><b>PromptPay</b> secured</span></div>
+        <div class="hero-stats fade-up d5"><span><b>100%</b> verified</span><span><b>Instant</b> downloads</span><span><b>PromptPay</b> secured</span></div>
       </div>
       <div class="hero-art fade-up d4"><div class="vox grass"></div><div class="vox emerald"></div><div class="vox tnt"></div></div>
     </div>
-
     <div class="toolbar reveal">
       <div class="search">
-  <input id="searchInput" placeholder="Search addons..." oninput="applyFilters()">
-  <button class="search-clear" id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
-</div>
+        <input id="searchInput" placeholder="Search addons..." oninput="applyFilters()">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+      </div>
       <select id="sortSelect" class="sort-select" onchange="setSort(this.value)">
-        <option value="new">Newest</option>
-        <option value="priceAsc">Price ↑</option>
-        <option value="priceDesc">Price ↓</option>
+        <option value="new">Newest</option><option value="priceAsc">Price ↑</option><option value="priceDesc">Price ↓</option>
       </select>
     </div>
-    <div class="chips reveal" id="catChips" style="animation-delay:.1s"></div>
-    <div id="productsGrid" class="grid">
-      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
-    </div>
+    <div class="chips reveal" id="catChips"></div>
+    <div id="productsGrid" class="grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
 
-  <!-- ================= STUDIO ================= -->
   <section id="dashboardView" class="view">
     <div class="stats">
       <div class="stat reveal"><div class="label">Total Revenue</div><div class="num" id="statRevenue">฿0</div><div class="delta">lifetime earnings</div>
@@ -557,39 +376,29 @@ html,body{max-width:100%;overflow-x:hidden}
         <svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline id="sparkDl" points="" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round"/></svg></div>
       <div class="stat reveal" style="animation-delay:.2s"><div class="label">Active Addons</div><div class="num" id="statActive">0</div><div class="delta">live in the store</div></div>
     </div>
-
     <div class="dropzone reveal" id="dz" onclick="document.getElementById('dzFile').click()">
-      <span class="dz-icon">📦</span>
-      <h3>Drag & drop your addon here</h3>
-      <p>.mcaddon • .mcpack • .mcworld • .zip — or click to browse</p>
+      <span class="dz-icon">📦</span><h3>Drag & drop your addon here</h3><p>.mcaddon • .mcpack • .mcworld • .zip — or click to browse</p>
       <input type="file" id="dzFile" hidden>
     </div>
-
     <div class="studio-head reveal"><h2>Your Addons</h2><button class="btn btn-primary btn-sm" onclick="openProductModal()">+ New Addon</button></div>
     <div class="manage" id="creatorList"></div>
   </section>
 
-  <!-- ================= LIBRARY ================= -->
   <section id="profileView" class="view">
     <div class="studio-head reveal"><h2>My Purchased Addons</h2></div>
     <div id="libraryGrid" class="grid"></div>
   </section>
 </main>
 
-<!-- ================= CART DRAWER ================= -->
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Your Cart 🛒</h2><button class="x" onclick="closeCart()">✕</button></div>
   <div class="drawer-body">
     <div id="cartItems"></div>
-    <div class="qr-box">
-      <img src="/qrcode.jpg" alt="Payment QR">
-      <p><b>Scan to pay with PromptPay</b><br>Pay the exact total (<b>฿<span id="cartTotalInline">0</span></b>), then upload your slip below.</p>
-    </div>
+    <div class="qr-box"><img src="/qrcode.jpg" alt="QR"><p><b>Scan to pay with PromptPay</b><br>Pay the exact total (<b>฿<span id="cartTotalInline">0</span></b>), then upload your slip below.</p></div>
     <div class="slip-zone" id="slipZone" onclick="document.getElementById('slipFile').click()">
       <p id="slipHint">📄 Drag & drop payment slip here</p>
-      <img id="slipPrev" class="prev" alt="slip preview">
-      <input type="file" id="slipFile" accept="image/*" hidden>
+      <img id="slipPrev" class="prev" alt="slip"><input type="file" id="slipFile" accept="image/*" hidden>
     </div>
   </div>
   <div class="drawer-foot">
@@ -599,30 +408,22 @@ html,body{max-width:100%;overflow-x:hidden}
   </div>
 </aside>
 
-<!-- ================= AUTH MODAL ================= -->
 <div id="authModal" class="modal" onclick="if(event.target===this)closeModal('authModal')">
   <div class="modal-box">
     <button class="x modal-close" onclick="closeModal('authModal')">✕</button>
     <h2 id="authTitle">Sign In</h2>
-    <div id="signUpFields" style="display:none">
-      <div class="form-group">
-        <label>Profile</label>
-        <input type="text" id="authUsername" placeholder="Username / Creator Name">
-        <input type="text" id="authIgn" placeholder="Minecraft IGN" style="margin-top:8px">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Credentials</label>
+    <div id="signUpFields" style="display:none"><div class="form-group"><label>Profile</label>
+      <input type="text" id="authUsername" placeholder="Username / Creator Name">
+      <input type="text" id="authIgn" placeholder="Minecraft IGN" style="margin-top:8px"></div></div>
+    <div class="form-group"><label>Credentials</label>
       <input type="email" id="authEmail" placeholder="Email Address">
       <input type="password" id="authPassword" placeholder="Password" style="margin-top:8px">
-      <input type="password" id="authConfirmPassword" placeholder="Confirm Password" style="display:none;margin-top:8px">
-    </div>
+      <input type="password" id="authConfirmPassword" placeholder="Confirm Password" style="display:none;margin-top:8px"></div>
     <button class="btn btn-primary w100" id="authSubmit" onclick="handleAuth()">Submit</button>
     <p class="auth-toggle" id="authToggleText" onclick="toggleAuthMode()">Need an account? Sign Up</p>
   </div>
 </div>
 
-<!-- ================= PRODUCT MODAL ================= -->
 <div id="productModal" class="modal" onclick="if(event.target===this)closeModal('productModal')">
   <div class="modal-box">
     <button class="x modal-close" onclick="closeModal('productModal')">✕</button>
@@ -630,51 +431,49 @@ html,body{max-width:100%;overflow-x:hidden}
     <form id="productForm">
       <input type="hidden" id="editProductId">
       <div class="form-group"><label>Addon Name</label><input type="text" id="pName" placeholder="e.g. Epic Swords Pack" required></div>
-            <div class="form-group">
-        <label>Description</label>
+      <div class="form-group"><label>Description</label>
         <textarea id="pDesc" rows="4" placeholder="Describe your addon...&#10;&#10;- feature one&#10;- feature two"></textarea>
-        <p class="hint">Line breaks are kept • start a line with "- " for bullet points</p>
-      </div>
+        <p class="hint">Line breaks kept • start a line with "- " for bullets</p></div>
       <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div><label>Price (THB)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
-        <div><label>Category</label>
-          <select id="pCategory">
-  <option>Addons</option>
-  <option>Worlds</option>
-  <option>Items</option>
-  <option>Textures</option>
-  <option>Others</option>
-</select>
-</div>
+        <div><label>Category</label><select id="pCategory"><option>Addons</option><option>Worlds</option><option>Items</option><option>Textures</option><option>Other</option></select></div>
       </div>
-      <div class="form-group">
-        <label>Thumbnail</label>
+      <div class="form-group"><label>Thumbnail</label>
         <div class="file-zone" id="pThumbZone" onclick="event.stopPropagation();document.getElementById('pThumb').click()">
-          <p id="thumbHint">🖼️ Click or drop an image</p>
-          <img id="thumbPrev" class="prev" alt="thumbnail preview">
-        </div>
-        <input type="file" id="pThumb" accept="image/*" hidden>
-        <p class="hint">Recommended 16:9 ratio</p>
-      </div>
-      <div class="form-group">
-        <label>Addon File</label>
+          <p id="thumbHint">🖼️ Click or drop an image</p><img id="thumbPrev" class="prev" alt="thumb"></div>
+        <input type="file" id="pThumb" accept="image/*" hidden><p class="hint">Recommended 16:9 ratio</p></div>
+      <div class="form-group"><label>Addon File</label>
         <div class="file-zone" id="pFileZone" onclick="event.stopPropagation();document.getElementById('pFile').click()">
-          <p id="fileHint">📦 Click or drop your addon file</p>
-        </div>
-        <input type="file" id="pFile" hidden>
-        <p class="hint">.mcaddon, .mcpack, .mcworld, .zip (Max 4MB on Vercel)</p>
-        <p class="file-error" id="fileError"></p>
-      </div>
+          <p id="fileHint">📦 Click or drop your addon file</p></div>
+        <input type="file" id="pFile" hidden><p class="hint">.mcaddon, .mcpack, .mcworld, .zip (Max 4MB)</p>
+        <p class="file-error" id="fileError"></p></div>
       <button type="submit" class="btn btn-primary w100">Save & Publish</button>
     </form>
+    <div class="media-manager" id="mediaManager" style="display:none">
+      <h4>📸 Preview Gallery</h4>
+      <div class="media-grid" id="mediaGrid"></div>
+      <div class="file-zone" id="previewZone" onclick="event.stopPropagation();document.getElementById('previewFiles').click()">
+        <p>🖼️ Add preview images (max 5 at once)</p></div>
+      <input type="file" id="previewFiles" accept="image/*" multiple hidden>
+      <div class="yt-add">
+        <input type="text" id="ytUrl" placeholder="YouTube URL (paste link)">
+        <button type="button" class="btn btn-sm btn-ghost" onclick="addYouTube()">+ Video</button>
+      </div>
+      <p class="hint">Up to 8 total items (images + videos) per addon</p>
+    </div>
   </div>
 </div>
 
-<!-- ================= PRODUCT DETAIL MODAL ================= -->
-<div id="detailModal" class="modal" onclick="if(event.target===this)closeModal('detailModal')">
-  <div class="modal-box detail-box">
-    <button class="x modal-close" onclick="closeModal('detailModal')">✕</button>
-    <div id="detailContent"></div>
+<div id="detailModal" class="modal detail-modal" onclick="if(event.target===this)closeModal('detailModal')">
+  <div class="modal-box">
+    <button class="x modal-close" style="top:10px;right:10px;z-index:10;position:absolute" onclick="closeModal('detailModal')">✕</button>
+    <div class="gallery" id="detailGallery">
+      <div class="gallery-main" id="galleryMain"></div>
+      <button class="gallery-nav prev" onclick="galleryNav(-1)">◂</button>
+      <button class="gallery-nav next" onclick="galleryNav(1)">▸</button>
+    </div>
+    <div class="gallery-strip" id="galleryStrip"></div>
+    <div class="detail-body" id="detailBody"></div>
   </div>
 </div>
 
@@ -685,17 +484,13 @@ html,body{max-width:100%;overflow-x:hidden}
   const SUPABASE_ANON_KEY = 'sb_publishable_2vycFL8nvwoEpWCW3oEYBQ_RqEnIIJF';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const MAIN_CATS = ['Addons', 'Worlds', 'Textures', 'Items'];
+  const MAIN_CATS = ['Addons','Worlds','Items','Textures'];
   const CATS = ['All', ...MAIN_CATS, 'Other'];
-  const normCat = c => {
-    if (!c) return 'Other';
-    if (c === 'Add-ons') return 'Addons';
-    return MAIN_CATS.includes(c) ? c : 'Other';
-  };
+  const normCat = c => MAIN_CATS.includes(c) ? c : 'Other';
 
   let currentUser = null, isSignUp = false, allProducts = [], currentSort = 'new', currentCategory = 'All';
   let cart = JSON.parse(localStorage.getItem('mc_cart') || '[]');
-  let ownedProductIds = new Set();
+  let galleryItems = [], galleryIdx = 0;
   let _userPurchases = null;
 
   const $ = id => document.getElementById(id);
@@ -711,17 +506,12 @@ html,body{max-width:100%;overflow-x:hidden}
       if (bullet) {
         if (!inList) { html += '<ul class="desc-list">'; inList = true; }
         html += `<li>${esc(bullet[1])}</li>`;
-      } else if (line === '') {
-        close();
-      } else {
-        close();
-        html += `<p>${esc(line)}</p>`;
-      }
+      } else if (line === '') { close(); }
+      else { close(); html += `<p>${esc(line)}</p>`; }
     }
     close();
     return html || '<p>No description available</p>';
   }
-
 
   function showToast(msg, type = 'success') {
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
@@ -732,77 +522,15 @@ html,body{max-width:100%;overflow-x:hidden}
     setTimeout(() => t.remove(), 2800);
   }
 
-    async function refreshOwnedIds() {
-    ownedProductIds = new Set();
-    _userPurchases = null;
-
-    if (!currentUser) return;
-
-    const session = (await supabaseClient.auth.getSession()).data.session;
-    if (!session) return;
-
-    try {
-      const res = await fetch('/api/user/library', {
-        headers: { 'Authorization': `Bearer ${session.access_token}` }
-      });
-      if (!res.ok) return;
-
-      const purchases = await res.json();
-      if (!Array.isArray(purchases)) return;
-
-      _userPurchases = purchases.map(item => item.products?.id || item.product_id).filter(Boolean);
-      ownedProductIds = new Set(_userPurchases.map(String));
-    } catch (err) {
-      console.warn('Could not refresh owned products:', err);
-    }
-  }
-
-
-      async function getUserPurchases() {
-    if (_userPurchases !== null) return _userPurchases;
-    if (!currentUser) return [];
-    try {
-      const session = (await supabaseClient.auth.getSession()).data.session;
-      if (!session) return [];
-      const res = await fetch('/api/user/library', {
-        headers: { 'Authorization': `Bearer ${session.access_token}` }
-      });
-      if (!res.ok) return [];
-      const purchases = await res.json();
-      if (!Array.isArray(purchases)) return [];
-      _userPurchases = purchases.map(item => item.products?.id || item.product_id).filter(Boolean);
-      ownedProductIds = new Set(_userPurchases.map(String));
-      return _userPurchases;
-    } catch (err) {
-      console.warn('Could not fetch purchases:', err);
-      return [];
-    }
-  }
-
-  /* ---------- SCROLL REVEAL ---------- */
   const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (en.isIntersecting) { en.target.classList.add('visible'); io.unobserve(en.target); }
-    });
+    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('visible'); io.unobserve(en.target); } });
   }, { threshold: .1, rootMargin: '0px 0px -30px 0px' }) : null;
+  function observeReveals(root) { (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); }); }
 
-  function observeReveals(root) {
-    (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => {
-      if (io) io.observe(el); else el.classList.add('visible');
-    });
-  }
-
-  /* ---------- LOGO DROPDOWN ---------- */
-  function toggleMenu(e) {
-    e.stopPropagation();
-    const open = $('logoMenu').classList.contains('active');
-    closeMenu();
-    if (!open) { $('logoMenu').classList.add('active'); $('logoBtn').classList.add('open'); }
-  }
+  function toggleMenu(e) { e.stopPropagation(); const o = $('logoMenu').classList.contains('active'); closeMenu(); if (!o) { $('logoMenu').classList.add('active'); $('logoBtn').classList.add('open'); } }
   function closeMenu() { $('logoMenu').classList.remove('active'); $('logoBtn').classList.remove('open'); }
   document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) closeMenu(); });
 
-  /* ---------- NAVIGATION ---------- */
   function switchView(name, btn) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     $(name + 'View').classList.add('active');
@@ -816,22 +544,6 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   function heroCreatorClick() { currentUser ? switchView('dashboard') : openAuthModal(); }
 
-/* ---------- EXPANDING SEARCH + CLEAR ---------- */
-function updateSearchState() {
-  const hasText = $('searchInput').value.trim().length > 0;
-  const active = document.activeElement === $('searchInput') || hasText;
-  document.querySelector('.toolbar').classList.toggle('searching', active);
-  document.querySelector('.search').classList.toggle('has-text', hasText);
-}
-function clearSearch() {
-  $('searchInput').value = '';
-  applyFilters();
-  updateSearchState();
-  $('searchInput').focus();
-}
-['focus', 'blur', 'input'].forEach(ev => $('searchInput').addEventListener(ev, updateSearchState));
-
-  /* ---------- CATEGORY CHIPS ---------- */
   function buildChips() {
     $('catChips').innerHTML = CATS.map(c => `<button class="chip${c === currentCategory ? ' active' : ''}" data-cat="${c}">${c === 'All' ? '✨ All' : c}</button>`).join('');
     $('catChips').querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
@@ -841,23 +553,43 @@ function clearSearch() {
     }));
   }
 
-  /* ---------- STORE ---------- */
+  function updateSearchState() {
+    const hasText = $('searchInput').value.trim().length > 0;
+    document.querySelector('.search').classList.toggle('has-text', hasText);
+  }
+  function clearSearch() { $('searchInput').value = ''; applyFilters(); updateSearchState(); $('searchInput').focus(); }
+  ['focus', 'blur', 'input'].forEach(ev => $('searchInput').addEventListener(ev, updateSearchState));
+
   async function loadStoreProducts() {
     const grid = $('productsGrid');
     grid.innerHTML = '<div class="skeleton"></div>'.repeat(4);
     try {
-            const res = await fetch('/api/products');
+      const res = await fetch('/api/products');
       allProducts = await res.json();
       await getUserPurchases();
       applyFilters();
     } catch (err) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch products. Please refresh.</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch products.</p></div>`;
     }
   }
-
-  
-  
   function setSort(v) { currentSort = v; applyFilters(); }
+
+  async function getUserPurchases() {
+    if (_userPurchases !== null) return _userPurchases;
+    if (!currentUser) return [];
+    try {
+      const session = (await supabaseClient.auth.getSession()).data.session;
+      if (!session) return [];
+      const res = await fetch('/api/user/library', { headers: { 'Authorization': `Bearer ${session.access_token}` } });
+      if (!res.ok) return [];
+      const purchases = await res.json();
+      if (!Array.isArray(purchases)) return [];
+      _userPurchases = purchases.map(p => p.products?.id || p.product_id).filter(Boolean);
+      return _userPurchases;
+    } catch { return []; }
+  }
+
+  function isOwned(id) { return Array.isArray(_userPurchases) && _userPurchases.includes(id); }
 
   function applyFilters() {
     const q = $('searchInput').value.toLowerCase();
@@ -870,10 +602,10 @@ function clearSearch() {
     const grid = $('productsGrid');
     grid.innerHTML = '';
     if (!list.length) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>No addons found</h3><p>Try a different search or category, or be the first creator to upload one!</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>No addons found</h3><p>Try a different search or category!</p></div>`;
       return;
     }
-        list.forEach((p, i) => {
+    list.forEach((p, i) => {
       const owned = isOwned(p.id);
       const card = document.createElement('div');
       card.className = 'card reveal';
@@ -904,124 +636,108 @@ function clearSearch() {
     wireThumb(grid);
   }
 
-  /* ---------- THUMBNAIL LOADING ---------- */
+  async function openProductDetail(p) {
+    galleryItems = []; galleryIdx = 0;
+    if (p.thumbnail_url) galleryItems.push({ url: p.thumbnail_url, type: 'image' });
+    try {
+      const res = await fetch(`/api/products/${p.id}/media`);
+      const media = await res.json();
+      media.forEach(m => galleryItems.push({ url: m.media_url, type: m.media_type }));
+    } catch {}
+    renderGallery();
+
+    const owned = isOwned(p.id);
+    $('detailBody').innerHTML = `
+      <div class="detail-meta">
+        <span class="detail-price">฿${parseFloat(p.price).toFixed(2)}</span>
+        <span class="detail-cat">${esc(normCat(p.category))}</span>
+        ${owned ? '<span class="owned-tag">✓ Owned</span>' : ''}
+      </div>
+      <h2>${esc(p.name)}</h2>
+      <div class="detail-desc">${formatDesc(p.description)}</div>
+      <div class="detail-actions">
+        ${owned
+          ? `<button class="btn btn-primary" onclick="secureDownload('${p.id}','${esc(p.name)}');closeModal('detailModal')">⬇️ Download</button>
+             <button class="btn btn-ghost" onclick="closeModal('detailModal');switchView('profile')">📚 Library</button>`
+          : `<button class="btn btn-primary" onclick="addToCart('${p.id}','${esc(p.name)}',${parseFloat(p.price)},'${p.thumbnail_url || ''}');closeModal('detailModal')">🛒 Add to Cart</button>`}
+      </div>`;
+    $('detailModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function renderGallery() {
+    const main = $('galleryMain'), strip = $('galleryStrip');
+    if (!galleryItems.length) {
+      main.innerHTML = '<div class="g-empty">📦</div>';
+      strip.innerHTML = '';
+      strip.style.display = 'none';
+      return;
+    }
+    const item = galleryItems[galleryIdx];
+    if (item.type === 'video') {
+      main.innerHTML = `<iframe src="${item.url}?autoplay=0" allowfullscreen loading="lazy"></iframe>`;
+    } else {
+      main.innerHTML = `<img src="${item.url}" alt="Preview">`;
+    }
+    strip.style.display = galleryItems.length > 1 ? 'flex' : 'none';
+    strip.innerHTML = galleryItems.map((g, i) => `
+      <div class="g-thumb${i === galleryIdx ? ' active' : ''}" data-idx="${i}">
+        ${g.type === 'video'
+          ? `<img src="https://img.youtube.com/vi/${g.url.split('/embed/')[1]}/mqdefault.jpg" alt="vid"><div class="g-play">▶</div>`
+          : `<img src="${g.url}" alt="thumb">`}
+      </div>`).join('');
+    strip.querySelectorAll('.g-thumb').forEach(t => t.addEventListener('click', () => { galleryIdx = parseInt(t.dataset.idx); renderGallery(); }));
+    document.querySelectorAll('.gallery-nav').forEach(n => n.style.display = galleryItems.length > 1 ? 'grid' : 'none');
+  }
+
+  function galleryNav(dir) {
+    if (!galleryItems.length) return;
+    galleryIdx = (galleryIdx + dir + galleryItems.length) % galleryItems.length;
+    renderGallery();
+  }
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { if (e.target.closest('.gallery')) touchStartX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (!e.target.closest('.gallery')) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) galleryNav(diff > 0 ? 1 : -1);
+  }, { passive: true });
+
   function wireThumb(root) {
     (root || document).querySelectorAll('.thumb img, .c-thumb img, .m-avatar img').forEach(img => {
       const box = img.parentElement;
-      const ok   = () => { img.classList.add('loaded'); box.classList.add('img-loaded'); };
+      const ok = () => { img.classList.add('loaded'); box.classList.add('img-loaded'); };
       const fail = () => box.classList.add('img-loaded');
       if (img.complete) { img.naturalWidth ? ok() : fail(); }
-      else {
-        img.addEventListener('load', ok, { once: true });
-        img.addEventListener('error', fail, { once: true });
-      }
+      else { img.addEventListener('load', ok, { once: true }); img.addEventListener('error', fail, { once: true }); }
     });
   }
-  
-  function openProductDetail(p) {
-  const owned = isOwned(p.id);
-  const category = normCat(p.category);
-  const price = parseFloat(p.price || 0);
 
-  $('detailContent').innerHTML = `
-    <div class="detail-layout">
-      <div class="detail-thumb">
-        ${p.thumbnail_url
-          ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}">`
-          : `<div class="detail-fallback">📦</div>`
-        }
-      </div>
-
-      <div class="detail-info">
-        <div class="detail-meta">
-          <span class="detail-pill">${esc(category)}</span>
-          ${owned ? `<span class="detail-pill" style="color:var(--accent);border-color:rgba(167,139,250,.45)">Owned</span>` : ''}
-        </div>
-
-        <h2>${esc(p.name)}</h2>
-                <div class="detail-desc">${formatDesc(p.description)}</div>
-
-        <div class="detail-price">฿${price.toFixed(2)}</div>
-
-        <div class="detail-actions">
-          ${
-            owned
-              ? `
-                <button class="btn btn-ghost w100" disabled>✅ Owned</button>
-                <button class="btn btn-primary w100" id="detailLibraryBtn">Open Library</button>
-              `
-              : `
-                <button class="btn btn-primary w100" id="detailAddBtn">Add to Cart</button>
-              `
-          }
-        </div>
-
-        ${
-          owned
-            ? `<div class="owned-note">You already own this addon. You can download it from your Library.</div>`
-            : ''
-        }
-      </div>
-    </div>
-  `;
-
-  $('detailModal').classList.add('active');
-  document.body.style.overflow = 'hidden';
-
-    const addBtn = $('detailAddBtn');
-  if (addBtn) {
-    addBtn.onclick = () => {
-      if (isOwned(p.id)) {
-        showToast('You already own this addon', 'warn');
-        return;
-      }
-      addToCart(p.id, p.name, price, p.thumbnail_url);
-      closeModal('detailModal');
-    };
-  }
-
-  const libraryBtn = $('detailLibraryBtn');
-  if (libraryBtn) {
-    libraryBtn.onclick = () => {
-      closeModal('detailModal');
-      switchView('profile');
-    };
-  }
-}
-
-  /* ---------- CART ---------- */
   function saveCart() { localStorage.setItem('mc_cart', JSON.stringify(cart)); }
-
-    function isOwned(id) { return Array.isArray(_userPurchases) && _userPurchases.includes(id); }
-
   function addToCart(id, name, price, thumb) {
-    if (isOwned(id)) { showToast('You already own this addon — it\'s in your Library', 'warn'); return; }
+    if (isOwned(id)) { showToast('You already own this addon', 'warn'); return; }
     if (cart.some(i => i.id === id)) { showToast('Already in cart', 'warn'); openCart(); return; }
     cart.push({ id, name, price, thumb }); saveCart(); renderCart(); openCart();
     showToast(`Added "${name}" to cart`);
   }
-
   function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); renderCart(); }
-
   function renderCart() {
-    const count = cart.length;
-    const badge = $('cartCount');
-    badge.style.display = count ? 'flex' : 'none';
-    badge.textContent = count;
+    const count = cart.length, badge = $('cartCount');
+    badge.style.display = count ? 'flex' : 'none'; badge.textContent = count;
     const total = cart.reduce((s, i) => s + parseFloat(i.price), 0);
     $('cartTotal').textContent = total.toFixed(2);
     $('cartTotalInline').textContent = total.toFixed(2);
     $('cartItems').innerHTML = count ? cart.map((i, idx) => `
       <div class="c-item" style="animation-delay:${idx * 0.05}s">
         <div class="c-thumb">${i.thumb ? `<img src="${i.thumb}" alt="">` : '📦'}</div>
-        <div class="c-info"><b>${esc(i.name)}</b><span>฿${i.price.toFixed(2)}</span></div>
+        <div class="c-info"><b>${esc(i.name)}</b><span>฿${parseFloat(i.price).toFixed(2)}</span></div>
         <button class="c-rm" data-id="${i.id}">Remove</button>
       </div>`).join('')
       : '<p style="color:var(--muted);text-align:center;padding:26px 0;font-size:.85rem">Your cart is empty</p>';
     $('cartItems').querySelectorAll('.c-rm').forEach(b => b.addEventListener('click', () => removeFromCart(b.dataset.id)));
     wireThumb($('cartItems'));
   }
-
   function openCart() { $('drawer').classList.add('open'); $('overlay').classList.add('show'); document.body.style.overflow = 'hidden'; }
   function closeCart() { $('drawer').classList.remove('open'); $('overlay').classList.remove('show'); document.body.style.overflow = ''; }
 
@@ -1032,42 +748,23 @@ function clearSearch() {
     if (!currentUser) { showToast('Please login to checkout', 'warn'); openAuthModal(); return; }
     const slip = $('slipFile').files[0];
     if (!slip) return showToast('Please upload your payment slip', 'warn');
-
     const session = (await supabaseClient.auth.getSession()).data.session;
-    const fd = new FormData();
-    fd.append('slip', slip);
-    fd.append('productIds', JSON.stringify(cart.map(i => i.id)));
-
+    const fd = new FormData(); fd.append('slip', slip); fd.append('productIds', JSON.stringify(cart.map(i => i.id)));
     btn.disabled = true; btn.textContent = '⏳ Verifying...';
     status.className = 'status-box pending'; status.textContent = '⏳ Verifying payment slip...';
     try {
-      const res = await fetch('/api/verify-cart-payment', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${session.access_token}` },
-        body: fd
-      });
+      const res = await fetch('/api/verify-cart-payment', { method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd });
       const data = await res.json();
       if (data.success) {
-cart = [];
-saveCart();
-renderCart();
-await refreshOwnedIds();
-if (allProducts.length) applyFilters();
-
+        cart = []; saveCart(); renderCart(); _userPurchases = null;
         status.className = 'status-box success';
-        status.innerHTML = `🎉 Payment verified! Your addons are in your Library.<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">Go to Library →</button>`;
+        status.innerHTML = `🎉 Payment verified!<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">Go to Library →</button>`;
         showToast('Payment successful!');
-      } else {
-        status.className = 'status-box error'; status.textContent = data.message || 'Verification failed';
-        showToast(data.message || 'Verification failed', 'error');
-      }
-    } catch (err) {
-      status.className = 'status-box error'; status.textContent = 'Network error. Try again.';
-      showToast('Network error', 'error');
-    } finally { btn.disabled = false; btn.textContent = 'Verify Payment'; }
+      } else { status.className = 'status-box error'; status.textContent = data.message || 'Verification failed'; showToast(data.message || 'Failed', 'error'); }
+    } catch { status.className = 'status-box error'; status.textContent = 'Network error.'; showToast('Network error', 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'Verify Payment'; }
   });
 
-  /* ---------- DRAG & DROP HELPERS ---------- */
   function bindDropZone(zone, onFile) {
     ['dragenter', 'dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('drag'); }));
     ['dragleave', 'drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('drag'); }));
@@ -1078,30 +775,24 @@ if (allProducts.length) applyFilters();
     r.onload = e => { imgEl.src = e.target.result; imgEl.style.display = 'block'; if (hintEl) hintEl.textContent = '✅ ' + file.name; };
     r.readAsDataURL(file);
   }
-  function assignFile(input, file) {
-    const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
-    input.dispatchEvent(new Event('change'));
-  }
+  function assignFile(input, file) { const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files; input.dispatchEvent(new Event('change')); }
 
   bindDropZone($('slipZone'), f => { assignFile($('slipFile'), f); previewImage(f, $('slipPrev'), $('slipHint')); });
   $('slipFile').addEventListener('change', function () { if (this.files[0]) previewImage(this.files[0], $('slipPrev'), $('slipHint')); });
 
-  /* ---------- STUDIO ---------- */
   bindDropZone($('dz'), f => { openProductModal(); assignFile($('pFile'), f); });
   $('dzFile').addEventListener('change', function () { if (this.files[0]) { openProductModal(); assignFile($('pFile'), this.files[0]); this.value = ''; } });
 
   async function loadCreatorStats() {
-    const session = (await supabaseClient.auth.getSession()).data.session;
-    if (!session) return;
+    const session = (await supabaseClient.auth.getSession()).data.session; if (!session) return;
     try {
       const res = await fetch('/api/creator/stats', { headers: { 'Authorization': `Bearer ${session.access_token}` } });
-      const s = await res.json();
-      if (s.success === false) return;
+      const s = await res.json(); if (s.success === false) return;
       $('statRevenue').textContent = '฿' + parseFloat(s.revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
       $('statDownloads').textContent = (s.downloads || 0).toLocaleString();
       $('statActive').textContent = s.active || 0;
       buildSpark($('sparkRev'), s.series); buildSpark($('sparkDl'), s.series);
-    } catch (e) { /* stats optional */ }
+    } catch {}
   }
   function buildSpark(el, series) {
     if (!series?.length) return;
@@ -1110,17 +801,13 @@ if (allProducts.length) applyFilters();
   }
 
   async function loadCreatorProducts() {
-    const session = (await supabaseClient.auth.getSession()).data.session;
-    if (!session) return;
+    const session = (await supabaseClient.auth.getSession()).data.session; if (!session) return;
     const box = $('creatorList');
     try {
       const res = await fetch('/api/creator/products', { headers: { 'Authorization': `Bearer ${session.access_token}` } });
       const products = await res.json();
       window._creatorProducts = {}; products.forEach(p => window._creatorProducts[p.id] = p);
-      if (!products.length) {
-        box.innerHTML = `<div class="empty-state"><div class="icon">🛠️</div><h3>No addons yet</h3><p>Drop your first addon above to start selling!</p></div>`;
-        return;
-      }
+      if (!products.length) { box.innerHTML = `<div class="empty-state"><div class="icon">🛠️</div><h3>No addons yet</h3><p>Drop your first addon above!</p></div>`; return; }
       box.innerHTML = products.map((p, i) => `
         <div class="m-row reveal" style="animation-delay:${i * 0.07}s">
           <div class="m-avatar">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="">` : '📦'}</div>
@@ -1131,157 +818,194 @@ if (allProducts.length) applyFilters();
             <button class="btn-danger" onclick="deleteProduct('${p.id}')">Delete</button>
           </div>
         </div>`).join('');
-      observeReveals(box);
-      wireThumb(box);
-    } catch (err) {
-      box.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch your addons.</p></div>`;
-    }
+      observeReveals(box); wireThumb(box);
+    } catch { box.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3></div>`; }
   }
 
   function openProductModal() {
     $('editProductId').value = '';
     $('modalProductTitle').textContent = 'Upload New Addon';
-    $('productForm').reset();
-    $('pCategory').value = 'Addons';
+    $('productForm').reset(); $('pCategory').value = 'Addons';
     $('fileHint').textContent = '📦 Click or drop your addon file';
     $('thumbHint').textContent = '🖼️ Click or drop an image';
-    $('thumbPrev').style.display = 'none';
-    $('fileError').style.display = 'none';
-    $('productModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
+    $('thumbPrev').style.display = 'none'; $('fileError').style.display = 'none';
+    $('mediaManager').style.display = 'none';
+    $('productModal').classList.add('active'); document.body.style.overflow = 'hidden';
   }
-  function openEditProduct(id) {
+
+  async function openEditProduct(id) {
     const p = window._creatorProducts?.[id]; if (!p) return;
     $('editProductId').value = id;
     $('modalProductTitle').textContent = 'Edit Addon';
-    $('pName').value = p.name || '';
-    $('pDesc').value = p.description || '';
-    $('pPrice').value = p.price || '';
-    $('pCategory').value = normCat(p.category);
+    $('pName').value = p.name || ''; $('pDesc').value = p.description || '';
+    $('pPrice').value = p.price || ''; $('pCategory').value = normCat(p.category);
     $('fileHint').textContent = '📦 Leave empty to keep current file';
-    $('fileError').style.display = 'none';
-    $('productModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
+    $('fileError').style.display = 'none'; $('thumbPrev').style.display = 'none';
+    $('mediaManager').style.display = 'block';
+    await loadMediaManager(id);
+    $('productModal').classList.add('active'); document.body.style.overflow = 'hidden';
   }
+
+  async function loadMediaManager(productId) {
+    const grid = $('mediaGrid');
+    grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">Loading...</p>';
+    try {
+      const res = await fetch(`/api/products/${productId}/media`);
+      const media = await res.json();
+      if (!media.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">No previews yet</p>'; return; }
+      grid.innerHTML = media.map(m => `
+        <div class="media-item">
+          ${m.media_type === 'video'
+            ? `<img src="https://img.youtube.com/vi/${m.media_url.split('/embed/')[1]}/mqdefault.jpg" alt="vid">`
+            : `<img src="${m.media_url}" alt="preview">`}
+          <button class="media-del" data-mid="${m.id}" onclick="deleteMedia('${$('editProductId').value}','${m.id}')">✕</button>
+        </div>`).join('');
+    } catch { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">Failed to load</p>'; }
+  }
+
+  $('previewFiles').addEventListener('change', async function () {
+    const productId = $('editProductId').value;
+    if (!productId || !this.files.length) return;
+    const session = (await supabaseClient.auth.getSession()).data.session;
+    const fd = new FormData();
+    for (const f of this.files) fd.append('previews', f);
+    showToast('Uploading previews...');
+    try {
+      const res = await fetch(`/api/creator/products/${productId}/media`, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
+      });
+      const data = await res.json();
+      if (data.success) { showToast(`${data.added} preview(s) added!`); loadMediaManager(productId); }
+      else showToast(data.message || 'Upload failed', 'error');
+    } catch { showToast('Upload failed', 'error'); }
+    this.value = '';
+  });
+
+  async function addYouTube() {
+    const productId = $('editProductId').value;
+    const url = $('ytUrl').value.trim();
+    if (!productId || !url) return showToast('Enter a YouTube URL first', 'warn');
+    const session = (await supabaseClient.auth.getSession()).data.session;
+    const fd = new FormData();
+    fd.append('youtube_urls', JSON.stringify([url]));
+    try {
+      const res = await fetch(`/api/creator/products/${productId}/media`, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
+      });
+      const data = await res.json();
+      if (data.success) { showToast('Video added!'); $('ytUrl').value = ''; loadMediaManager(productId); }
+      else showToast(data.message || 'Failed', 'error');
+    } catch { showToast('Failed', 'error'); }
+  }
+
+  async function deleteMedia(productId, mediaId) {
+    if (!confirm('Remove this preview?')) return;
+    const session = (await supabaseClient.auth.getSession()).data.session;
+    try {
+      const res = await fetch(`/api/creator/products/${productId}/media/${mediaId}`, {
+        method: 'DELETE', headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      const data = await res.json();
+      if (data.success) { showToast('Removed!'); loadMediaManager(productId); }
+      else showToast(data.message || 'Failed', 'error');
+    } catch { showToast('Failed', 'error'); }
+  }
+
+  bindDropZone($('previewZone'), f => {
+    const dt = new DataTransfer(); dt.items.add(f);
+    $('previewFiles').files = dt.files;
+    $('previewFiles').dispatchEvent(new Event('change'));
+  });
 
   bindDropZone($('pFileZone'), f => assignFile($('pFile'), f));
   bindDropZone($('pThumbZone'), f => assignFile($('pThumb'), f));
   $('pFile').addEventListener('change', function () {
-    const err = $('fileError');
-    if (!this.files[0]) return;
+    const err = $('fileError'); if (!this.files[0]) return;
     $('fileHint').textContent = '📦 ' + this.files[0].name;
     const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
     const ext = this.files[0].name.slice(this.files[0].name.lastIndexOf('.')).toLowerCase();
-    if (!allowed.includes(ext)) {
-      err.textContent = `❌ Invalid file type "${ext}". Allowed: ${allowed.join(', ')}`;
-      err.style.display = 'block'; this.value = ''; $('fileHint').textContent = '📦 Click or drop your addon file';
-    } else err.style.display = 'none';
+    if (!allowed.includes(ext)) { err.textContent = `❌ Invalid type "${ext}"`; err.style.display = 'block'; this.value = ''; $('fileHint').textContent = '📦 Click or drop your addon file'; }
+    else err.style.display = 'none';
   });
   $('pThumb').addEventListener('change', function () { if (this.files[0]) previewImage(this.files[0], $('thumbPrev'), $('thumbHint')); });
 
   $('productForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    const original = btn.textContent;
+    const btn = e.target.querySelector('button[type="submit"]'), original = btn.textContent;
     btn.disabled = true; btn.textContent = '⏳ Saving...';
     try {
       const id = $('editProductId').value;
       const session = (await supabaseClient.auth.getSession()).data.session;
-      if (!session) { showToast('Please log in first', 'error'); return; }
-
+      if (!session) { showToast('Please log in', 'error'); return; }
       const fd = new FormData();
-      fd.append('name', $('pName').value.trim());
-      fd.append('description', $('pDesc').value.trim());
-      fd.append('price', $('pPrice').value);
-      fd.append('category', $('pCategory').value);
+      fd.append('name', $('pName').value.trim()); fd.append('description', $('pDesc').value.trim());
+      fd.append('price', $('pPrice').value); fd.append('category', $('pCategory').value);
       if ($('pThumb').files[0]) fd.append('thumbnail', $('pThumb').files[0]);
       if ($('pFile').files[0]) fd.append('productFile', $('pFile').files[0]);
-      if (!id && !$('pFile').files[0]) { showToast('Please upload an addon file', 'error'); return; }
-
+      if (!id && !$('pFile').files[0]) { showToast('Upload an addon file', 'error'); return; }
       const res = await fetch(id ? `/api/creator/products/${id}` : '/api/creator/products', {
-        method: id ? 'PUT' : 'POST',
-        headers: { 'Authorization': `Bearer ${session.access_token}` },
-        body: fd
+        method: id ? 'PUT' : 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
       });
       const data = await res.json();
-      if (data.success) { closeModal('productModal'); loadCreatorProducts(); loadCreatorStats(); showToast(id ? 'Addon updated!' : 'Addon published!'); }
-      else showToast(data.message || 'Failed to save', 'error');
-    } catch (err) { showToast('Upload failed', 'error'); }
+      if (data.success) { closeModal('productModal'); loadCreatorProducts(); loadCreatorStats(); showToast(id ? 'Updated!' : 'Published!'); }
+      else showToast(data.message || 'Failed', 'error');
+    } catch { showToast('Upload failed', 'error'); }
     finally { btn.disabled = false; btn.textContent = original; }
   });
 
   async function deleteProduct(id) {
-    if (!confirm('Delete this addon? This cannot be undone.')) return;
+    if (!confirm('Delete this addon?')) return;
+    const session = (await supabaseClient.auth.getSession()).data.session;
     try {
-      const session = (await supabaseClient.auth.getSession()).data.session;
       const res = await fetch(`/api/creator/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${session.access_token}` } });
       const data = await res.json();
-      if (data.success) { loadCreatorProducts(); loadCreatorStats(); showToast('Addon deleted'); }
-      else showToast(data.message || 'Failed to delete', 'error');
-    } catch (err) { showToast('Delete failed', 'error'); }
+      if (data.success) { loadCreatorProducts(); loadCreatorStats(); showToast('Deleted'); }
+      else showToast(data.message || 'Failed', 'error');
+    } catch { showToast('Failed', 'error'); }
   }
 
-  /* ---------- LIBRARY ---------- */
   async function loadUserLibrary() {
-    const session = (await supabaseClient.auth.getSession()).data.session;
-    if (!session) return;
+    const session = (await supabaseClient.auth.getSession()).data.session; if (!session) return;
     const grid = $('libraryGrid');
     grid.innerHTML = '<div class="skeleton"></div>'.repeat(2);
     try {
       const res = await fetch('/api/user/library', { headers: { 'Authorization': `Bearer ${session.access_token}` } });
       const purchases = await res.json();
+      _userPurchases = purchases.map(p => p.products?.id || p.product_id).filter(Boolean);
       grid.innerHTML = '';
       if (!purchases.length) {
-        grid.innerHTML = `<div class="empty-state"><div class="icon">📚</div><h3>No purchases yet</h3><p>Browse the store and buy your first addon!</p><button class="btn btn-primary btn-sm" onclick="switchView('store')">Browse Store</button></div>`;
+        grid.innerHTML = `<div class="empty-state"><div class="icon">📚</div><h3>No purchases yet</h3><button class="btn btn-primary btn-sm" onclick="switchView('store')">Browse Store</button></div>`;
         return;
       }
-            purchases.forEach((item, i) => {
+      purchases.forEach((item, i) => {
         const p = item.products || item;
-        const card = document.createElement('div');
-        card.className = 'card reveal';
+        const card = document.createElement('div'); card.className = 'card reveal';
         card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
         card.innerHTML = `
           <div class="thumb">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}">` : `<span class="fallback">📦</span>`}
-            <div class="thumb-badge" style="color:var(--muted);border-color:var(--border)">${new Date(item.created_at).toLocaleDateString()}</div>
-          </div>
-          <div class="card-body">
-            <h3>${esc(p.name)}</h3>
-            <p class="creator">Purchased and ready to download</p>
-            <div class="card-foot"><button class="btn btn-primary btn-sm w100">⬇️ Download</button></div>
-          </div>`;
+            <div class="thumb-badge" style="color:var(--muted);border-color:var(--border)">${new Date(item.created_at).toLocaleDateString()}</div></div>
+          <div class="card-body"><h3>${esc(p.name)}</h3><p class="creator">Purchased</p>
+            <div class="card-foot"><button class="btn btn-primary btn-sm w100">⬇️ Download</button></div></div>`;
         card.querySelector('button').addEventListener('click', () => secureDownload(p.id, p.name));
         grid.appendChild(card);
       });
-      observeReveals(grid);
-      wireThumb(grid);
-    } catch (err) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch your library.</p></div>`;
-    }
+      observeReveals(grid); wireThumb(grid);
+    } catch { grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3></div>`; }
   }
 
   async function secureDownload(id, name) {
+    showToast(`Generating link for ${name}...`);
+    const session = (await supabaseClient.auth.getSession()).data.session;
     try {
-      showToast(`Generating download link for ${name}...`);
-      const session = (await supabaseClient.auth.getSession()).data.session;
-      const res = await fetch('/api/downloads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({ productId: id })
-      });
+      const res = await fetch('/api/downloads', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` }, body: JSON.stringify({ productId: id }) });
       const data = await res.json();
-      if (data.success) {
-        const a = document.createElement('a');
-        a.href = data.url; a.download = name;
-        document.body.appendChild(a); a.click(); a.remove();
-        showToast('Download started!');
-      } else showToast(data.message || 'Download failed', 'error');
-    } catch (err) { showToast('Network error during download', 'error'); }
+      if (data.success) { const a = document.createElement('a'); a.href = data.url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); showToast('Download started!'); }
+      else showToast(data.message || 'Failed', 'error');
+    } catch { showToast('Network error', 'error'); }
   }
 
-  /* ---------- AUTH ---------- */
   function openAuthModal() { $('authModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
   function closeModal(id) { $(id).classList.remove('active'); document.body.style.overflow = ''; }
-
   function toggleAuthMode() {
     isSignUp = !isSignUp;
     $('authTitle').textContent = isSignUp ? 'Create Account' : 'Sign In';
@@ -1289,56 +1013,36 @@ if (allProducts.length) applyFilters();
     $('signUpFields').style.display = isSignUp ? 'block' : 'none';
     $('authConfirmPassword').style.display = isSignUp ? 'block' : 'none';
   }
-
   async function handleAuth() {
     const email = $('authEmail').value.trim(), password = $('authPassword').value;
-    const btn = $('authSubmit'); const original = btn.textContent;
-    if (!email || !password) return showToast('Please fill in all fields', 'error');
+    const btn = $('authSubmit'), original = btn.textContent;
+    if (!email || !password) return showToast('Fill in all fields', 'error');
     btn.disabled = true; btn.textContent = '⏳ Processing...';
     try {
       if (isSignUp) {
-        const username = $('authUsername').value.trim();
-        const ign = $('authIgn').value.trim();
-        const confirm = $('authConfirmPassword').value;
-        if (!username) return showToast('Please enter a username', 'error');
+        const username = $('authUsername').value.trim(), ign = $('authIgn').value.trim(), confirm = $('authConfirmPassword').value;
+        if (!username) return showToast('Enter a username', 'error');
         if (password !== confirm) return showToast('Passwords do not match', 'error');
-        if (password.length < 6) return showToast('Password must be 6+ characters', 'error');
+        if (password.length < 6) return showToast('Password must be 6+', 'error');
         const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username, minecraft_ign: ign || 'Steve' } } });
-        if (error) showToast(error.message, 'error');
-        else { showToast(`Welcome, ${username}!`); toggleAuthMode(); }
+        if (error) showToast(error.message, 'error'); else { showToast(`Welcome, ${username}!`); toggleAuthMode(); }
       } else {
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) showToast(error.message, 'error');
-        else { closeModal('authModal'); showToast('Signed in!'); }
+        if (error) showToast(error.message, 'error'); else { closeModal('authModal'); showToast('Signed in!'); }
       }
     } finally { btn.disabled = false; btn.textContent = original; }
   }
-
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  currentUser = session?.user || null;
-  updateAuthUI();
-
-  await refreshOwnedIds();
-
-  if (currentUser) {
-    loadCreatorProducts();
-    loadCreatorStats();
-    loadUserLibrary();
-  }
-
-  if (allProducts.length) applyFilters();
-});
-
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    currentUser = session?.user || null; _userPurchases = null; updateAuthUI();
+    if (currentUser) { loadCreatorProducts(); loadCreatorStats(); loadUserLibrary(); }
+  });
   function updateAuthUI() {
     const name = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'User';
-    const btn = $('authBtn');
-    const logged = !!currentUser;
-
+    const btn = $('authBtn'), logged = !!currentUser;
     $('navDashboard').style.display = logged ? 'inline-block' : 'none';
     $('navProfile').style.display = logged ? 'inline-block' : 'none';
     if (logged) { btn.textContent = '👤 ' + name; btn.classList.add('logged'); btn.onclick = () => { supabaseClient.auth.signOut(); showToast('Signed out'); }; }
     else { btn.textContent = 'Login'; btn.classList.remove('logged'); btn.onclick = openAuthModal; }
-
     $('mDashboard').style.display = logged ? 'flex' : 'none';
     $('mProfile').style.display = logged ? 'flex' : 'none';
     $('mDivider').style.display = logged ? 'block' : 'none';
@@ -1346,18 +1050,14 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (logged) { mA.innerHTML = `<span>🚪</span> Logout (${esc(name)})`; mA.onclick = () => { supabaseClient.auth.signOut(); closeMenu(); showToast('Signed out'); }; }
     else { mA.innerHTML = `<span>🔑</span> Login / Sign Up`; mA.onclick = () => { openAuthModal(); closeMenu(); }; }
   }
-
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id));
-      closeCart(); closeMenu();
-    }
+    if (e.key === 'Escape') { document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id)); closeCart(); closeMenu(); }
+    if (e.key === 'ArrowLeft' && $('detailModal').classList.contains('active')) galleryNav(-1);
+    if (e.key === 'ArrowRight' && $('detailModal').classList.contains('active')) galleryNav(1);
   });
 
-  buildChips();
-  observeReveals(document);
-  renderCart();
-  loadStoreProducts();
+  buildChips(); observeReveals(document); renderCart(); loadStoreProducts();
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
 </script>
 </body>
 </html>
