@@ -84,10 +84,11 @@
   .view.active{display:block}
   @keyframes enter{from{opacity:0}to{opacity:1}}
 
-  .landing{position:fixed;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  .landing{position:absolute;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;overflow:hidden;padding:40px 20px 80px;padding-top:calc(64px + var(--safe-top));
-    pointer-events:none;will-change:opacity}
-  .landing-spacer{height:70dvh}
+    pointer-events:none;will-change:opacity,transform;transition:opacity .4s ease,transform .4s ease}
+  .landing.hidden{opacity:0;transform:translateY(-60px);pointer-events:none}
+  .landing-spacer{height:85dvh;min-height:500px}
   #storeView{position:relative;z-index:1}
   .landing-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:orb 12s ease-in-out infinite;pointer-events:none}
   .orb1{width:360px;height:360px;background:var(--primary);top:-100px;left:-100px}
@@ -674,7 +675,7 @@
     const spacerH = spacer ? spacer.offsetHeight : window.innerHeight;
     const p = Math.min(window.scrollY / (spacerH * 0.9), 1);
     l.style.opacity = String(1 - p);
-    l.style.visibility = p >= 1 ? 'hidden' : 'visible';
+    l.classList.toggle('hidden', p >= 0.95);
   }, { passive: true });
 
   function toggleMenu(e) { e.stopPropagation(); const o = $('logoMenu').classList.contains('active'); closeMenu(); if (!o) { $('logoMenu').classList.add('active'); $('logoBtn').classList.add('open'); } }
