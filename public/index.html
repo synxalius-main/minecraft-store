@@ -494,6 +494,14 @@
   let _userPurchases = null;
 
   const $ = id => document.getElementById(id);
+
+function formatPrice(value) {
+  if (!value || value === '') return '';
+  const num = parseFloat(value);
+  if (isNaN(num)) return '';
+  return num.toFixed(2);
+}
+
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   function formatDesc(text) {
@@ -939,7 +947,7 @@
       if (!session) { showToast('Please log in', 'error'); return; }
       const fd = new FormData();
       fd.append('name', $('pName').value.trim()); fd.append('description', $('pDesc').value.trim());
-      fd.append('price', $('pPrice').value); fd.append('category', $('pCategory').value);
+      fd.append('price', formatPrice($('pPrice').value) || '0.00');  fd.append('category', $('pCategory').value);
       if ($('pThumb').files[0]) fd.append('thumbnail', $('pThumb').files[0]);
       if ($('pFile').files[0]) fd.append('productFile', $('pFile').files[0]);
       if (!id && !$('pFile').files[0]) { showToast('Upload an addon file', 'error'); return; }
@@ -1056,7 +1064,7 @@
     if (e.key === 'ArrowRight' && $('detailModal').classList.contains('active')) galleryNav(1);
   });
 
-  buildChips(); observeReveals(document); renderCart(); loadStoreProducts();
+  // Auto-format price on blur   $('pPrice').addEventListener('blur', function() {     this.value = formatPrice(this.value);   });    buildChips(); observeReveals(document); renderCart(); loadStoreProducts();
   if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
 </script>
 </body>
