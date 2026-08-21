@@ -26,6 +26,13 @@
   button{font-family:inherit;cursor:pointer;touch-action:manipulation}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#2a3444;border-radius:3px}
 
+  /* ============ ENTRANCE + SCROLL REVEAL ============ */
+  @keyframes riseIn{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
+  .fade-up{opacity:0;animation:riseIn .8s cubic-bezier(.16,1,.3,1) forwards}
+  .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.28s}.d4{animation-delay:.38s}.d5{animation-delay:.5s}.d6{animation-delay:.62s}
+  .reveal{opacity:0;transform:translateY(34px)}
+  .reveal.visible{animation:riseIn .7s cubic-bezier(.16,1,.3,1) both}
+
   /* ============ HEADER ============ */
   header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:14px 22px;padding-top:calc(14px + var(--safe-top));
@@ -75,7 +82,7 @@
   main{max-width:1150px;margin:0 auto;padding:26px 20px 90px}
   .view{display:none;animation:enter .5s cubic-bezier(.16,1,.3,1)}
   .view.active{display:block}
-  @keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes enter{from{opacity:0}to{opacity:1}}
 
   /* ============ HERO ============ */
   .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;overflow:hidden;position:relative;
@@ -111,27 +118,34 @@
   .btn-danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(255,92,92,.3);padding:8px 14px;border-radius:11px;font-weight:700;font-size:.78rem}
 
   /* ============ TOOLBAR / CHIPS ============ */
-  .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
-  .search{flex:1;min-width:100%;position:relative}
+  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+  .search{flex:1;position:relative}
   .search input{width:100%;padding:12px 16px 12px 42px;background:var(--glass);border:1px solid var(--border);border-radius:14px;
     color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.25s}
   .search input:focus{border-color:var(--border-glow);box-shadow:0 0 0 3px var(--primary-dim)}
   .search::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.6}
-  .chips{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{border:1px solid var(--border);background:var(--glass);color:var(--muted);padding:9px 16px;border-radius:100px;font-size:.8rem;font-weight:600;transition:.25s}
-  .chip.active{background:var(--primary-dim);color:var(--primary);border-color:var(--border-glow)}
+  .sort-select{background:var(--glass);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:14px;
+    font-family:inherit;font-size:.82rem;font-weight:600;outline:none;transition:.25s;flex-shrink:0}
+  .sort-select:focus{border-color:var(--border-glow)}
+  .sort-select option{background:#0c0f15}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none;margin-bottom:14px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{border:1px solid var(--border);background:var(--glass);color:var(--muted);padding:9px 18px;border-radius:100px;font-size:.8rem;font-weight:700;transition:.25s;white-space:nowrap;flex-shrink:0}
+  .chip.active{background:var(--primary-dim);color:var(--primary);border-color:var(--border-glow);box-shadow:0 0 16px rgba(0,230,118,.15)}
 
   /* ============ CARDS ============ */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
   .card{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);
-    overflow:hidden;backdrop-filter:blur(14px);transition:.35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;
-    animation:cardIn .5s cubic-bezier(.16,1,.3,1) backwards}
-  @keyframes cardIn{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
+    overflow:hidden;backdrop-filter:blur(14px);transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .3s;
+    display:flex;flex-direction:column}
   .card:hover{transform:translateY(-6px);border-color:var(--border-glow);box-shadow:0 22px 44px rgba(0,0,0,.5),0 0 32px rgba(0,230,118,.12)}
   .thumb{height:150px;display:grid;place-items:center;font-size:3.2rem;position:relative;overflow:hidden;background:linear-gradient(160deg,#122036,#0a1220)}
   .thumb .fallback{filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
   .thumb-badge{position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
     border:1px solid var(--border-glow);color:var(--primary);font-weight:800;font-size:.75rem;padding:4px 11px;border-radius:100px}
+  .cat-tag{position:absolute;top:10px;left:10px;z-index:2;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
+    border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:.66rem;padding:4px 10px;border-radius:100px;
+    text-transform:uppercase;letter-spacing:.06em}
   .card-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:4px}
   .card-body h3{margin:0;font-size:1rem;font-weight:800;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .creator{color:var(--muted);font-size:.78rem;margin:0 0 12px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -223,10 +237,11 @@
 
   .form-group{margin-bottom:15px}
   label{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:6px}
-  input,textarea{width:100%;padding:12px 14px;background:var(--glass);border:1px solid var(--border);color:var(--text);
+  input,textarea,select{width:100%;padding:12px 14px;background:var(--glass);border:1px solid var(--border);color:var(--text);
     border-radius:12px;font-family:inherit;font-size:.92rem;transition:.25s;outline:none}
-  input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-dim)}
+  input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-dim)}
   input::placeholder,textarea::placeholder{color:#4b5568}
+  select option{background:#0c0f15}
   .hint{font-size:.72rem;color:var(--muted);margin-top:5px}
   .file-error{color:var(--danger);font-size:.78rem;margin-top:6px;display:none;font-weight:600}
   .file-zone{border:1.5px dashed rgba(255,255,255,.22);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:.3s}
@@ -251,7 +266,7 @@
   .empty-state h3{color:var(--text);margin:0 0 8px;font-weight:800}
   .empty-state p{font-size:.88rem;margin:0 0 18px}
 
-  /* ============ THUMBNAIL COVER + LOADING POLISH ============ */
+  /* ============ THUMBNAIL COVER + LOADING ============ */
   .thumb,.c-thumb,.m-avatar{position:relative}
   .thumb{height:auto;aspect-ratio:16/10}
   .thumb img,.c-thumb img,.m-avatar img{
@@ -277,8 +292,7 @@
     .hero{padding:28px 20px;margin-bottom:20px}
     .hero-art{display:none}
     .cart-btn{padding:10px 14px}
-    .search{min-width:100%}
-    input,textarea{font-size:16px}
+    input,textarea,select{font-size:16px}
     .m-rev{display:none}
     .grid{gap:14px}
     .toasts{left:12px;right:12px}
@@ -319,26 +333,27 @@
   <section id="storeView" class="view active">
     <div class="hero">
       <div>
-        <span class="hero-tag">✦ Featured Drop</span>
-        <h1>Level up your <span class="grad">Minecraft</span> world</h1>
-        <p>Hand-crafted addons, textures and worlds from the community. Pay with PromptPay, download instantly.</p>
-        <div class="hero-actions">
+        <span class="hero-tag fade-up d1">✦ Featured Drop</span>
+        <h1 class="fade-up d2">Level up your <span class="grad">Minecraft</span> world</h1>
+        <p class="fade-up d3">Hand-crafted addons, textures and worlds from the community. Pay with PromptPay, download instantly.</p>
+        <div class="hero-actions fade-up d4">
           <button class="btn btn-primary" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">Browse Addons</button>
           <button class="btn btn-ghost" onclick="heroCreatorClick()">Become a Creator</button>
         </div>
-        <div class="hero-stats"><span><b>100%</b> verified creators</span><span><b>Instant</b> downloads</span><span><b>PromptPay</b> secured</span></div>
+        <div class="hero-stats fade-up d5"><span><b>100%</b> verified creators</span><span><b>Instant</b> downloads</span><span><b>PromptPay</b> secured</span></div>
       </div>
-      <div class="hero-art"><div class="vox grass"></div><div class="vox emerald"></div><div class="vox tnt"></div></div>
+      <div class="hero-art fade-up d4"><div class="vox grass"></div><div class="vox emerald"></div><div class="vox tnt"></div></div>
     </div>
 
-    <div class="toolbar">
+    <div class="toolbar reveal">
       <div class="search"><input id="searchInput" placeholder="Search addons..." oninput="applyFilters()"></div>
-      <div class="chips" id="sortChips">
-        <button class="chip active" data-sort="new" onclick="setSort('new',this)">Newest</button>
-        <button class="chip" data-sort="priceAsc" onclick="setSort('priceAsc',this)">Price ↑</button>
-        <button class="chip" data-sort="priceDesc" onclick="setSort('priceDesc',this)">Price ↓</button>
-      </div>
+      <select id="sortSelect" class="sort-select" onchange="setSort(this.value)">
+        <option value="new">Newest</option>
+        <option value="priceAsc">Price ↑</option>
+        <option value="priceDesc">Price ↓</option>
+      </select>
     </div>
+    <div class="chips reveal" id="catChips" style="animation-delay:.1s"></div>
     <div id="productsGrid" class="grid">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
     </div>
@@ -347,27 +362,27 @@
   <!-- ================= STUDIO ================= -->
   <section id="dashboardView" class="view">
     <div class="stats">
-      <div class="stat"><div class="label">Total Revenue</div><div class="num" id="statRevenue">฿0</div><div class="delta">lifetime earnings</div>
+      <div class="stat reveal"><div class="label">Total Revenue</div><div class="num" id="statRevenue">฿0</div><div class="delta">lifetime earnings</div>
         <svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline id="sparkRev" points="" fill="none" stroke="#00e676" stroke-width="3" stroke-linecap="round"/></svg></div>
-      <div class="stat"><div class="label">Downloads</div><div class="num" id="statDownloads">0</div><div class="delta purple">verified purchases</div>
+      <div class="stat reveal" style="animation-delay:.1s"><div class="label">Downloads</div><div class="num" id="statDownloads">0</div><div class="delta purple">verified purchases</div>
         <svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline id="sparkDl" points="" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round"/></svg></div>
-      <div class="stat"><div class="label">Active Addons</div><div class="num" id="statActive">0</div><div class="delta">live in the store</div></div>
+      <div class="stat reveal" style="animation-delay:.2s"><div class="label">Active Addons</div><div class="num" id="statActive">0</div><div class="delta">live in the store</div></div>
     </div>
 
-    <div class="dropzone" id="dz" onclick="document.getElementById('dzFile').click()">
+    <div class="dropzone reveal" id="dz" onclick="document.getElementById('dzFile').click()">
       <span class="dz-icon">📦</span>
       <h3>Drag & drop your addon here</h3>
       <p>.mcaddon • .mcpack • .mcworld • .zip — or click to browse</p>
       <input type="file" id="dzFile" hidden>
     </div>
 
-    <div class="studio-head"><h2>Your Addons</h2><button class="btn btn-primary btn-sm" onclick="openProductModal()">+ New Addon</button></div>
+    <div class="studio-head reveal"><h2>Your Addons</h2><button class="btn btn-primary btn-sm" onclick="openProductModal()">+ New Addon</button></div>
     <div class="manage" id="creatorList"></div>
   </section>
 
   <!-- ================= LIBRARY ================= -->
   <section id="profileView" class="view">
-    <div class="studio-head"><h2>My Purchased Addons</h2></div>
+    <div class="studio-head reveal"><h2>My Purchased Addons</h2></div>
     <div id="libraryGrid" class="grid"></div>
   </section>
 </main>
@@ -427,7 +442,13 @@
       <input type="hidden" id="editProductId">
       <div class="form-group"><label>Addon Name</label><input type="text" id="pName" placeholder="e.g. Epic Swords Pack" required></div>
       <div class="form-group"><label>Description</label><textarea id="pDesc" rows="3" placeholder="Describe your addon..."></textarea></div>
-      <div class="form-group"><label>Price (THB)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
+      <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label>Price (THB)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
+        <div><label>Category</label>
+          <select id="pCategory">
+            <option>Items</option><option>Worlds</option><option>Mobs</option><option>Textures</option><option>Other</option>
+          </select></div>
+      </div>
       <div class="form-group">
         <label>Thumbnail</label>
         <div class="file-zone" id="pThumbZone" onclick="event.stopPropagation();document.getElementById('pThumb').click()">
@@ -458,7 +479,11 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_2vycFL8nvwoEpWCW3oEYBQ_RqEnIIJF';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let currentUser = null, isSignUp = false, allProducts = [], currentSort = 'new';
+  const MAIN_CATS = ['Worlds', 'Mobs', 'Items', 'Textures'];
+  const CATS = ['All', ...MAIN_CATS, 'Other'];
+  const normCat = c => MAIN_CATS.includes(c) ? c : 'Other';
+
+  let currentUser = null, isSignUp = false, allProducts = [], currentSort = 'new', currentCategory = 'All';
   let cart = JSON.parse(localStorage.getItem('mc_cart') || '[]');
 
   const $ = id => document.getElementById(id);
@@ -471,6 +496,19 @@
     t.innerHTML = `<span>${icon}</span> ${esc(msg)}`;
     $('toastContainer').appendChild(t);
     setTimeout(() => t.remove(), 2800);
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) { en.target.classList.add('visible'); io.unobserve(en.target); }
+    });
+  }, { threshold: .1, rootMargin: '0px 0px -30px 0px' }) : null;
+
+  function observeReveals(root) {
+    (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => {
+      if (io) io.observe(el); else el.classList.add('visible');
+    });
   }
 
   /* ---------- LOGO DROPDOWN ---------- */
@@ -492,9 +530,20 @@
     if (name === 'store') loadStoreProducts();
     if (name === 'dashboard') { loadCreatorProducts(); loadCreatorStats(); }
     if (name === 'profile') loadUserLibrary();
+    observeReveals($(name + 'View'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function heroCreatorClick() { currentUser ? switchView('dashboard') : openAuthModal(); }
+
+  /* ---------- CATEGORY CHIPS ---------- */
+  function buildChips() {
+    $('catChips').innerHTML = CATS.map(c => `<button class="chip${c === currentCategory ? ' active' : ''}" data-cat="${c}">${c === 'All' ? '✨ All' : c}</button>`).join('');
+    $('catChips').querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+      currentCategory = b.dataset.cat;
+      $('catChips').querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x === b));
+      applyFilters();
+    }));
+  }
 
   /* ---------- STORE ---------- */
   async function loadStoreProducts() {
@@ -509,16 +558,12 @@
     }
   }
 
-  function setSort(s, btn) {
-    currentSort = s;
-    document.querySelectorAll('#sortChips .chip').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    applyFilters();
-  }
+  function setSort(v) { currentSort = v; applyFilters(); }
 
   function applyFilters() {
     const q = $('searchInput').value.toLowerCase();
     let list = allProducts.filter(p => (p.name + ' ' + (p.description || '')).toLowerCase().includes(q));
+    if (currentCategory !== 'All') list = list.filter(p => normCat(p.category) === currentCategory);
     if (currentSort === 'priceAsc') list.sort((a, b) => a.price - b.price);
     if (currentSort === 'priceDesc') list.sort((a, b) => b.price - a.price);
     if (currentSort === 'new') list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -526,16 +571,17 @@
     const grid = $('productsGrid');
     grid.innerHTML = '';
     if (!list.length) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>No addons found</h3><p>Try a different search, or be the first creator to upload one!</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>No addons found</h3><p>Try a different search or category, or be the first creator to upload one!</p></div>`;
       return;
     }
     list.forEach((p, i) => {
       const card = document.createElement('div');
-      card.className = 'card';
-      card.style.animationDelay = `${Math.min(i, 8) * 0.05}s`;
+      card.className = 'card reveal';
+      card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
       card.innerHTML = `
         <div class="thumb">
           ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}" loading="lazy">` : `<span class="fallback">📦</span>`}
+          <div class="cat-tag">${esc(normCat(p.category))}</div>
           <div class="thumb-badge">฿${parseFloat(p.price).toFixed(2)}</div>
         </div>
         <div class="card-body">
@@ -549,10 +595,11 @@
       card.querySelector('.btn-sm').addEventListener('click', () => addToCart(p.id, p.name, parseFloat(p.price), p.thumbnail_url));
       grid.appendChild(card);
     });
+    observeReveals(grid);
     wireThumb(grid);
   }
 
-  /* ---------- THUMBNAIL LOADING (shimmer → fade-in → hover zoom) ---------- */
+  /* ---------- THUMBNAIL LOADING ---------- */
   function wireThumb(root) {
     (root || document).querySelectorAll('.thumb img, .c-thumb img, .m-avatar img').forEach(img => {
       const box = img.parentElement;
@@ -690,16 +737,17 @@
         box.innerHTML = `<div class="empty-state"><div class="icon">🛠️</div><h3>No addons yet</h3><p>Drop your first addon above to start selling!</p></div>`;
         return;
       }
-      box.innerHTML = products.map(p => `
-        <div class="m-row">
+      box.innerHTML = products.map((p, i) => `
+        <div class="m-row reveal" style="animation-delay:${i * 0.07}s">
           <div class="m-avatar">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="">` : '📦'}</div>
-          <div class="m-info"><b>${esc(p.name)}</b><span>฿${parseFloat(p.price).toFixed(2)} • ${esc(p.description || 'no description')}</span></div>
+          <div class="m-info"><b>${esc(p.name)}</b><span>${esc(normCat(p.category))} • ฿${parseFloat(p.price).toFixed(2)}</span></div>
           <span class="badge pub">Published</span>
           <div class="m-actions">
             <button class="btn-edit" onclick="openEditProduct('${p.id}')">Edit</button>
             <button class="btn-danger" onclick="deleteProduct('${p.id}')">Delete</button>
           </div>
         </div>`).join('');
+      observeReveals(box);
       wireThumb(box);
     } catch (err) {
       box.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch your addons.</p></div>`;
@@ -710,6 +758,7 @@
     $('editProductId').value = '';
     $('modalProductTitle').textContent = 'Upload New Addon';
     $('productForm').reset();
+    $('pCategory').value = 'Items';
     $('fileHint').textContent = '📦 Click or drop your addon file';
     $('thumbHint').textContent = '🖼️ Click or drop an image';
     $('thumbPrev').style.display = 'none';
@@ -724,6 +773,7 @@
     $('pName').value = p.name || '';
     $('pDesc').value = p.description || '';
     $('pPrice').value = p.price || '';
+    $('pCategory').value = normCat(p.category);
     $('fileHint').textContent = '📦 Leave empty to keep current file';
     $('fileError').style.display = 'none';
     $('productModal').classList.add('active');
@@ -759,6 +809,7 @@
       fd.append('name', $('pName').value.trim());
       fd.append('description', $('pDesc').value.trim());
       fd.append('price', $('pPrice').value);
+      fd.append('category', $('pCategory').value);
       if ($('pThumb').files[0]) fd.append('thumbnail', $('pThumb').files[0]);
       if ($('pFile').files[0]) fd.append('productFile', $('pFile').files[0]);
       if (!id && !$('pFile').files[0]) { showToast('Please upload an addon file', 'error'); return; }
@@ -803,8 +854,8 @@
       purchases.forEach((item, i) => {
         const p = item.products;
         const card = document.createElement('div');
-        card.className = 'card';
-        card.style.animationDelay = `${Math.min(i, 8) * 0.05}s`;
+        card.className = 'card reveal';
+        card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
         card.innerHTML = `
           <div class="thumb">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}">` : `<span class="fallback">📦</span>`}
             <div class="thumb-badge" style="color:var(--muted);border-color:var(--border)">${new Date(item.created_at).toLocaleDateString()}</div>
@@ -817,6 +868,7 @@
         card.querySelector('button').addEventListener('click', () => secureDownload(p.id, p.name));
         grid.appendChild(card);
       });
+      observeReveals(grid);
       wireThumb(grid);
     } catch (err) {
       grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch your library.</p></div>`;
@@ -889,13 +941,11 @@
     const btn = $('authBtn');
     const logged = !!currentUser;
 
-    /* desktop nav */
     $('navDashboard').style.display = logged ? 'inline-block' : 'none';
     $('navProfile').style.display = logged ? 'inline-block' : 'none';
     if (logged) { btn.textContent = '👤 ' + name; btn.classList.add('logged'); btn.onclick = () => { supabaseClient.auth.signOut(); showToast('Signed out'); }; }
     else { btn.textContent = 'Login'; btn.classList.remove('logged'); btn.onclick = openAuthModal; }
 
-    /* logo dropdown */
     $('mDashboard').style.display = logged ? 'flex' : 'none';
     $('mProfile').style.display = logged ? 'flex' : 'none';
     $('mDivider').style.display = logged ? 'block' : 'none';
@@ -911,6 +961,8 @@
     }
   });
 
+  buildChips();
+  observeReveals(document);
   renderCart();
   loadStoreProducts();
 </script>
