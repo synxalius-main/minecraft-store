@@ -105,57 +105,61 @@ app.get('/api/products/:id/media', async (req, res) => {
 app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews', 5), async (req, res) => {
   try {
     const productId = req.params.id;
-
-    // Verify ownership
     const { data: product } = await supabase
       .from('products').select('id, creator_id').eq('id', productId).single();
     if (!product || product.creator_id !== req.user.id) {
       return res.status(403).json({ success: false, message: 'Not your product' });
     }
 
-    // Check existing count
-    const { count } = await supabase
-      .from('product_media')
-      .select('id', { count: 'exact', head: true })
-      .eq('product_id', productId);
-    
+    const files = req.files || [];
     const youtubeUrls = req.body.youtube_urls
       ? (typeof req.body.youtube_urls === 'string' ? JSON.parse(req.body.youtube_urls) : req.body.youtube_urls)
       : [];
 
-    const totalNew = (req.files?.length || 0) + youtubeUrls.length;
+    // Vercel caps total request at ~4.5MB — guard against huge phone photos
+    const totalBytes = files.reduce((s, f) => s + f.size, 0);
+    if (totalBytes > 4 * 1024 * 1024) {
+      return res.status(400).json({ success: false, message: 'Images too large. Keep total under 4MB (use smaller screenshots).' });
+    }
+
+    const { count } = await supabase
+      .from('product_media')
+      .select('id', { count: 'exact', head: true })
+      .eq('product_id', productId);
+
+    const totalNew = files.length + youtubeUrls.length;
     if ((count || 0) + totalNew > 8) {
       return res.status(400).json({ success: false, message: 'Max 8 preview items per product' });
     }
 
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const skipped = files.filter(f => !allowed.includes(f.mimetype)).length;
+
     const inserts = [];
     let sortBase = (count || 0);
 
-    // Upload image files
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!allowed.includes(file.mimetype)) continue;
+    for (const file of files) {
+      if (!allowed.includes(file.mimetype)) continue;
 
-        const ext = file.originalname.split('.').pop();
-        const fileName = `previews/${productId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from('addons')
-          .upload(fileName, file.buffer, { contentType: file.mimetype, upsert: false });
-        if (upErr) throw upErr;
+      const ext = file.originalname.split('.').pop().toLowerCase();
+      const fileName = `previews/${productId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
 
-        const { data: pub } = supabase.storage.from('addons').getPublicUrl(fileName);
-        inserts.push({
-          product_id: productId,
-          media_url: pub.publicUrl,
-          media_type: 'image',
-          sort_order: sortBase++
-        });
-      }
+      // ✅ PUBLIC 'thumbnails' bucket so previews actually display
+      const { error: upErr } = await supabase.storage
+        .from('thumbnails')
+        .upload(fileName, file.buffer, { contentType: file.mimetype });
+      if (upErr) throw upErr;
+
+      const { data: pub } = supabase.storage.from('thumbnails').getPublicUrl(fileName);
+      inserts.push({
+        product_id: productId,
+        media_url: pub.publicUrl,
+        media_type: 'image',
+        sort_order: sortBase++
+      });
     }
 
-    // Add YouTube videos
-    for (const url of youtubeUrls) {
+    for (const url of youtube.Urls) {
       const videoId = extractYouTubeId(url);
       if (!videoId) continue;
       inserts.push({
@@ -171,8 +175,8 @@ app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews'
       if (error) throw error;
     }
 
-    res.json({ success: true, added: inserts.length });
-  } catch (err) {
+    res.json({ success: true, added: inserts.length, skipped });
+  } catch (err) { Find
     res.status(500).json({ success: false, message: err.message });
   }
 });
