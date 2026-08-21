@@ -717,10 +717,6 @@ html,body{max-width:100%;overflow-x:hidden}
     $('toastContainer').appendChild(t);
     setTimeout(() => t.remove(), 2800);
   }
-  
-  function isOwned(productId) {
-  return ownedProductIds.has(String(productId));
-}
 
 async function refreshOwnedIds() {
   ownedProductIds = new Set();
@@ -814,10 +810,10 @@ function clearSearch() {
     const grid = $('productsGrid');
     grid.innerHTML = '<div class="skeleton"></div>'.repeat(4);
     try {
-      const res = await fetch('/api/products');
+            const res = await fetch('/api/products');
       allProducts = await res.json();
-if (currentUser) await refreshOwnedIds();
-applyFilters();
+      await getUserPurchases();
+      applyFilters();
     } catch (err) {
       grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch products. Please refresh.</p></div>`;
     }
