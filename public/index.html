@@ -84,7 +84,93 @@
   .view.active{display:block}
   @keyframes enter{from{opacity:0}to{opacity:1}}
 
-  /* --- LIST VIEW STYLES (FIXED) --- */
+  /* --- INTRO PAGE STYLES --- */
+  #introView{position:fixed;inset:0;z-index:100;background:var(--bg);overflow-y:auto;overflow-x:hidden}
+  
+  .intro-hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 20px 80px;position:relative}
+  
+  .hero-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.5;animation:orb 15s ease-in-out infinite;pointer-events:none}
+  .hero-orb-1{width:400px;height:400px;background:var(--primary);top:-150px;left:-150px;animation-delay:0s}
+  .hero-orb-2{width:350px;height:350px;background:var(--accent);bottom:-100px;right:-100px;animation-delay:5s}
+  .hero-orb-3{width:300px;height:300px;background:var(--gold);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:10s;opacity:.3}
+  @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.1)}66%{transform:translate(-20px,20px) scale(.9)}}
+  
+  .hero-icon{font-size:5rem;margin-bottom:24px;animation:float 6s ease-in-out infinite;filter:drop-shadow(0 0 40px rgba(0,230,118,.5))}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+  
+  .hero-title{font-family:'Press Start 2P';font-size:clamp(1.8rem,8vw,3.5rem);margin:0 0 20px;letter-spacing:2px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    line-height:1.3;text-shadow:0 0 60px rgba(0,230,118,.3)}
+  
+  .hero-subtitle{font-size:1.25rem;color:var(--muted);max-width:600px;margin:0 auto 40px;line-height:1.8}
+  
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:60px}
+  
+  .btn-hero{padding:16px 32px;border-radius:16px;font-weight:800;font-size:1rem;transition:all .3s;display:inline-flex;align-items:center;gap:10px;border:none;cursor:pointer}
+  .btn-hero-primary{background:linear-gradient(135deg,var(--primary),#00b359);color:#00160a;box-shadow:0 10px 40px rgba(0,230,118,.4)}
+  .btn-hero-primary:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,230,118,.5)}
+  .btn-hero-secondary{background:var(--glass);color:var(--text);border:2px solid var(--border)}
+  .btn-hero-secondary:hover{border-color:var(--border-glow);background:var(--glass2)}
+  
+  .hero-scroll{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:8px;animation:bounce 2s infinite}
+  @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+  
+  /* Features Section */
+  .intro-section{padding:100px 20px;max-width:1200px;margin:0 auto}
+  .section-title{text-align:center;margin-bottom:60px}
+  .section-title h2{font-size:2.2rem;font-weight:900;margin:0 0 16px;background:linear-gradient(135deg,var(--text),var(--muted));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .section-title p{color:var(--muted);font-size:1.1rem;max-width:600px;margin:0 auto}
+  
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+  .feature-card{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:24px;padding:32px;transition:all .4s;position:relative;overflow:hidden}
+  .feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transition:transform .4s}
+  .feature-card:hover{transform:translateY(-8px);border-color:var(--border-glow);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .feature-card:hover::before{transform:scaleX(1)}
+  .feature-icon{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;font-size:2rem;margin-bottom:20px;background:var(--primary-dim);border:1px solid var(--border-glow)}
+  .feature-card h3{font-size:1.3rem;font-weight:800;margin:0 0 12px}
+  .feature-card p{color:var(--muted);line-height:1.7;margin:0}
+  
+  /* How It Works */
+  .steps-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:32px;margin-top:60px}
+  .step-card{text-align:center;padding:40px 24px;border-radius:24px;background:var(--glass);border:1px solid var(--border);position:relative;transition:all .3s}
+  .step-card:hover{transform:translateY(-4px);border-color:var(--border-glow)}
+  .step-number{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font-size:1.5rem;font-weight:900;color:#071018;margin:0 auto 20px}
+  .step-card h3{font-size:1.2rem;font-weight:800;margin:0 0 12px}
+  .step-card p{color:var(--muted);font-size:.95rem;line-height:1.6;margin:0}
+  
+  /* Stats Section */
+  .stats-section{background:linear-gradient(180deg,var(--glass2),transparent);padding:80px 20px}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;max-width:1000px;margin:0 auto}
+  .stat-card{text-align:center;padding:32px;border-radius:20px;background:var(--glass);border:1px solid var(--border)}
+  .stat-value{font-size:3rem;font-weight:900;color:var(--primary);margin-bottom:8px;text-shadow:0 0 30px rgba(0,230,118,.4)}
+  .stat-label{color:var(--muted);font-size:1rem;font-weight:600}
+  
+  /* Featured Preview */
+  .featured-preview{padding:100px 20px}
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:40px}
+  
+  /* Community CTA */
+  .community-cta{padding:100px 20px;text-align:center;background:linear-gradient(180deg,transparent,var(--glass2))}
+  .cta-box{max-width:700px;margin:0 auto;padding:60px 40px;border-radius:32px;background:linear-gradient(135deg,var(--primary-dim),var(--accent-dim));border:1px solid var(--border)}
+  .cta-box h2{font-size:2rem;font-weight:900;margin:0 0 16px}
+  .cta-box p{color:var(--muted);font-size:1.1rem;margin:0 0 32px}
+  
+  /* Hide intro button */
+  .hide-intro{position:fixed;top:20px;right:20px;z-index:101;background:var(--glass);border:1px solid var(--border);color:var(--muted);padding:10px 16px;border-radius:12px;font-size:.85rem;cursor:pointer;transition:all .3s}
+  .hide-intro:hover{color:var(--text);border-color:var(--border-glow)}
+  
+  /* Store Content & List View */
+  .landing{position:fixed;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;overflow:hidden;padding-top:calc(64px + var(--safe-top));pointer-events:none;will-change:opacity}
+  .landing-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:orb 12s ease-in-out infinite;pointer-events:none}
+  .orb1{width:360px;height:360px;background:var(--primary);top:-100px;left:-100px}
+  .orb2{width:320px;height:320px;background:var(--accent);bottom:-80px;right:-80px;animation-delay:4s}
+  
+  .store-content{position:relative;z-index:1;padding-top:16px}
+  
+  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:14px;position:sticky;top:calc(64px + var(--safe-top));z-index:40;
+    background:rgba(7,9,13,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    padding:10px 6px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  
   .grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -207,26 +293,6 @@
     white-space: nowrap;
   }
 
-  @media(max-width: 820px) {
-    .thumb { width: 100px; }
-    .card { min-height: 100px; }
-    .card-body { padding: 12px; }
-    .title-row h3 { font-size: .95rem; }
-  }
-  /* ---------------------------------- */
-
-  .landing{position:fixed;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;overflow:hidden;padding-top:calc(64px + var(--safe-top));pointer-events:none;will-change:opacity}
-  .landing-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:orb 12s ease-in-out infinite;pointer-events:none}
-  .orb1{width:360px;height:360px;background:var(--primary);top:-100px;left:-100px}
-  .orb2{width:320px;height:320px;background:var(--accent);bottom:-80px;right:-80px;animation-delay:4s}
-  @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,26px) scale(1.1)}}
-  
-  .store-content{position:relative;z-index:1;padding-top:16px}
-  
-  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:14px;position:sticky;top:calc(64px + var(--safe-top));z-index:40;
-    background:rgba(7,9,13,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    padding:10px 6px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
-  
   .btn{border:none;border-radius:12px;font-weight:700;font-size:.85rem;padding:10px 18px;transition:.25s;display:inline-flex;align-items:center;gap:8px;justify-content:center}
   .btn-primary{background:linear-gradient(135deg,var(--primary),#00b359);color:#00160a;box-shadow:0 6px 22px rgba(0,230,118,.3)}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,230,118,.45)}
@@ -242,7 +308,7 @@
   .search input{width:100%;padding:12px 16px 12px 42px;background:var(--glass);border:1px solid var(--border);border-radius:14px;
     color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.25s}
   .search input:focus{border-color:var(--border-glow);box-shadow:0 0 0 3px var(--primary-dim)}
-  .search::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.6}
+  .search::before{content:'';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.6}
   .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%) scale(.8);width:28px;height:28px;border-radius:50%;
     background:var(--glass2);border:1px solid var(--border);color:var(--muted);font-size:.72rem;display:grid;place-items:center;
     opacity:0;pointer-events:none;transition:.25s;z-index:2}
@@ -449,6 +515,18 @@
     .gallery{aspect-ratio:16/10}
     .modal{padding:0;align-items:flex-end}
     .detail-modal .modal-box{max-height:100dvh;height:100dvh;border-radius:0;max-width:100%}
+    
+    .thumb { width: 100px; }
+    .card { min-height: 100px; }
+    .card-body { padding: 12px; }
+    .title-row h3 { font-size: .95rem; }
+    
+    .hero-title{font-size:1.5rem}
+    .hero-subtitle{font-size:1rem}
+    .intro-section{padding:60px 20px}
+    .section-title h2{font-size:1.6rem}
+    .feature-card{padding:24px}
+    .step-card{padding:30px 20px}
   }
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -460,8 +538,8 @@
     <button class="logo" id="logoBtn" onclick="toggleMenu(event)"><div class="logo-tile">⛏️</div>MC STORE<span class="caret">▼</span></button>
     <div class="dropdown" id="logoMenu">
       <button onclick="switchView('store');closeMenu()"><span>🧭</span> สำรวจ</button>
-      <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>🛠️</span> สตูดิโอผู้สร้าง</button>
-      <button id="mProfile" style="display:none" onclick="switchView('profile');closeMenu()"><span></span> คลังของฉัน</button>
+      <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>️</span> สตูดิโอผู้สร้าง</button>
+      <button id="mProfile" style="display:none" onclick="switchView('profile');closeMenu()"><span>📚</span> คลังของฉัน</button>
       <button id="mAccount" style="display:none" onclick="switchView('account');closeMenu()"><span>👤</span> โปรไฟล์</button>
       <div class="dd-divider" id="mDivider" style="display:none"></div>
       <button id="mAuth" onclick="openAuthModal();closeMenu()"><span>🔑</span> เข้าสู่ระบบ / สมัครสมาชิก</button>
@@ -475,12 +553,164 @@
   </nav>
   <div class="header-right">
     <button class="auth-btn" id="authBtn" onclick="openAuthModal()">เข้าสู่ระบบ</button>
-    <button class="cart-btn" onclick="openCart()"> ตะกร้า<span class="cart-count" id="cartCount">0</span></button>
+    <button class="cart-btn" onclick="openCart()">🛒 ตะกร้า<span class="cart-count" id="cartCount">0</span></button>
   </div>
 </header>
 
 <main>
-  <section id="storeView" class="view active">
+  <!-- INTRO PAGE -->
+  <section id="introView" class="view active">
+    <button class="hide-intro" onclick="showStore()">ข้าม →</button>
+    
+    <!-- Hero Section -->
+    <div class="intro-hero">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+      
+      <div class="hero-icon fade-up d1">⛏️</div>
+      <h1 class="hero-title fade-up d2">MC STORE</h1>
+      <p class="hero-subtitle fade-up d3">ตลาดกลางแอดออน Minecraft ที่ใหญ่ที่สุดในไทย<br>ดาวน์โหลดง่าย ปลอดภัย จ่ายผ่าน PromptPay</p>
+      
+      <div class="hero-cta fade-up d4">
+        <button class="btn-hero btn-hero-primary" onclick="showStore()">
+          <span>🧭</span> เริ่มสำรวจร้านค้า
+        </button>
+        <button class="btn-hero btn-hero-secondary" onclick="scrollToSection('features')">
+          <span></span> เรียนรู้เพิ่มเติม
+        </button>
+      </div>
+      
+      <div class="hero-scroll">
+        <span>เลื่อนลงเพื่อดูเพิ่มเติม</span>
+        <span style="font-size:1.5rem">↓</span>
+      </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="intro-section" id="features">
+      <div class="section-title reveal">
+        <h2>ทำไมต้อง MC Store?</h2>
+        <p>แพลตฟอร์มที่ออกแบบมาเพื่อชุมชน Minecraft โดยเฉพาะ</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon">✅</div>
+          <h3>ผู้สร้างยืนยันตัวตน</h3>
+          <p>ทุกแอดออนมาจากผู้สร้างที่ผ่านการตรวจสอบ ไม่มีไวรัสหรือมัลแวร์แฝง ปลอดภัย 100%</p>
+        </div>
+        
+        <div class="feature-card reveal" style="animation-delay:.1s">
+          <div class="feature-icon">⚡</div>
+          <h3>ดาวน์โหลดทันที</h3>
+          <p>ชำระเงินเสร็จ รับไฟล์ทันที ไม่ต้องรอ ไม่ต้องกดรับของ ระบบอัตโนมัติ 24/7</p>
+        </div>
+        
+        <div class="feature-card reveal" style="animation-delay:.2s">
+          <div class="feature-icon">🔒</div>
+          <h3>ชำระเงินปลอดภัย</h3>
+          <p>รองรับ PromptPay ตรวจสอบสลิปอัตโนมัติ ไม่ต้องส่งเลขที่บัญชีให้วุ่นวาย</p>
+        </div>
+        
+        <div class="feature-card reveal" style="animation-delay:.3s">
+          <div class="feature-icon">🎁</div>
+          <h3>มีแอดออนฟรี</h3>
+          <p>มีแอดออนคุณภาพให้ดาวน์โหลดฟรีมากมาย ไม่ต้องเสียเงินก็สนุกได้</p>
+        </div>
+        
+        <div class="feature-card reveal" style="animation-delay:.4s">
+          <div class="feature-icon">📚</div>
+          <h3>คลังส่วนตัว</h3>
+          <p>เข้าถึงแอดออนที่ซื้อแล้วได้ตลอดชีพ ดาวน์โหลดซ้ำได้ไม่จำกัด</p>
+        </div>
+        
+        <div class="feature-card reveal" style="animation-delay:.5s">
+          <div class="feature-icon">🛠️</div>
+          <h3>สำหรับผู้สร้าง</h3>
+          <p>ขายแอดออนของคุณเอง รับรายได้จริง ระบบจัดการง่าย มี Dashboard ครบครัน</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- How It Works -->
+    <div class="intro-section" style="background:linear-gradient(180deg,var(--glass),transparent)">
+      <div class="section-title reveal">
+        <h2>วิธีใช้งาน</h2>
+        <p>เพียง 3 ขั้นตอน ก็เริ่มสนุกกับแอดออนใหม่ๆ ได้แล้ว</p>
+      </div>
+      
+      <div class="steps-container">
+        <div class="step-card reveal">
+          <div class="step-number">1</div>
+          <h3>ค้นหาแอดออน</h3>
+          <p>เรียกดูแอดออนจากหมวดหมู่ต่างๆ หรือใช้ช่องค้นหาเพื่อหาสิ่งที่คุณต้องการ</p>
+        </div>
+        
+        <div class="step-card reveal" style="animation-delay:.1s">
+          <div class="step-number">2</div>
+          <h3>ชำระเงิน</h3>
+          <p>สแกน QR PromptPay โอนเงิน แล้วอัปโหลดสลิป ระบบจะตรวจสอบอัตโนมัติ</p>
+        </div>
+        
+        <div class="step-card reveal" style="animation-delay:.2s">
+          <div class="step-number">3</div>
+          <h3>ดาวน์โหลด</h3>
+          <p>รับไฟล์ทันทีหลังตรวจสอบเสร็จ นำไปใส่ใน Minecraft และเริ่มเล่น!</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card reveal">
+          <div class="stat-value" data-target="500">0</div>
+          <div class="stat-label">แอดออน</div>
+        </div>
+        <div class="stat-card reveal" style="animation-delay:.1s">
+          <div class="stat-value" data-target="50">0</div>
+          <div class="stat-label">ผู้สร้าง</div>
+        </div>
+        <div class="stat-card reveal" style="animation-delay:.2s">
+          <div class="stat-value" data-target="10000">0</div>
+          <div class="stat-label">ดาวน์โหลด</div>
+        </div>
+        <div class="stat-card reveal" style="animation-delay:.3s">
+          <div class="stat-value" data-target="1000">0</div>
+          <div class="stat-label">ผู้ใช้</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Featured Preview -->
+    <div class="featured-preview">
+      <div class="section-title reveal">
+        <h2>แอดออนยอดนิยม</h2>
+        <p>ตัวอย่างแอดออนที่น่าสนใจจากร้านค้าของเรา</p>
+      </div>
+      
+      <div class="preview-grid" id="featuredPreview">
+        <div class="skeleton" style="height:280px"></div>
+        <div class="skeleton" style="height:280px"></div>
+        <div class="skeleton" style="height:280px"></div>
+      </div>
+    </div>
+    
+    <!-- Community CTA -->
+    <div class="community-cta">
+      <div class="cta-box reveal">
+        <h2>พร้อมเริ่มผจญภัยหรือยัง?</h2>
+        <p>เข้าร่วมชุมชน Minecraft ที่ใหญ่ที่สุดในไทย<br>ค้นหาแอดออนใหม่ๆ และอัปเกรดประสบการณ์การเล่นของคุณ</p>
+        <button class="btn-hero btn-hero-primary" onclick="showStore()">
+          <span>🧭</span> เข้าสู่ MC Store
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORE VIEW -->
+  <section id="storeView" class="view">
     <section id="landing" class="landing">
       <div class="landing-orb orb1"></div><div class="landing-orb orb2"></div>
     </section>
@@ -509,7 +739,7 @@
       <div class="stat reveal" style="animation-delay:.2s"><div class="label">แอดออนที่ขายอยู่</div><div class="num" id="statActive">0</div><div class="delta">เปิดขายในร้าน</div></div>
     </div>
     <div class="dropzone reveal" id="dz" onclick="document.getElementById('dzFile').click()">
-      <span class="dz-icon"></span><h3>ลาก&วางแอดออนของคุณที่นี่</h3><p>.mcaddon • .mcpack • .mcworld • .zip — หรือคลิกเพื่อเลือกไฟล์</p>
+      <span class="dz-icon">📦</span><h3>ลาก&วางแอดออนของคุณที่นี่</h3><p>.mcaddon • .mcpack • .mcworld • .zip — หรือคลิกเพื่อเลือกไฟล์</p>
       <input type="file" id="dzFile" hidden>
     </div>
     <div class="studio-head reveal"><h2>แอดออนของคุณ</h2><button class="btn btn-primary btn-sm" onclick="openProductModal()">+ เพิ่มแอดออน</button></div>
@@ -652,7 +882,7 @@
     <div class="gallery" id="detailGallery">
       <div class="gallery-main" id="galleryMain"></div>
       <button class="gallery-nav prev" onclick="galleryNav(-1)">◂</button>
-      <button class="gallery-nav next" onclick="galleryNav(1)">▸</button>
+      <button class="gallery-nav next" onclick="galleryNav(1)"></button>
     </div>
     <div class="gallery-strip" id="galleryStrip"></div>
     <div class="detail-body" id="detailBody"></div>
@@ -677,6 +907,72 @@
   let _userPurchases = null;
   let selectedRole = 'member';
   let pendingPreviews = [], pendingYouTube = [];
+
+  // Intro page functions
+  function showStore() {
+    document.getElementById('introView').classList.remove('active');
+    document.getElementById('storeView').classList.add('active');
+    document.querySelector('nav [data-view="store"]').classList.add('active');
+    loadStoreProducts();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Animate stats counter
+  function animateStats() {
+    const stats = document.querySelectorAll('.stat-value');
+    stats.forEach(stat => {
+      const target = parseInt(stat.dataset.target);
+      const duration = 2000;
+      const step = target / (duration / 16);
+      let current = 0;
+      
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          stat.textContent = target >= 1000 ? (target/1000).toFixed(0) + 'k+' : target + '+';
+          clearInterval(timer);
+        } else {
+          stat.textContent = Math.floor(current);
+        }
+      }, 16);
+    });
+  }
+
+  // Load featured preview
+  async function loadFeaturedPreview() {
+    try {
+      const res = await fetch('/api/products');
+      const products = await res.json();
+      const featured = products.slice(0, 3);
+      
+      const grid = $('featuredPreview');
+      grid.innerHTML = featured.map(p => `
+        <div class="card reveal" style="cursor:default">
+          <div class="thumb">
+            ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}" loading="lazy">` : `<span class="fallback">📦</span>`}
+            <div class="cat-tag">${esc(CAT_LABELS[normCat(p.category)] || normCat(p.category))}</div>
+          </div>
+          <div class="card-body">
+            <h3>${esc(p.name)}</h3>
+            <p class="creator">${esc(p.description || 'ไม่มีคำอธิบาย')}</p>
+            <div class="card-foot">
+              <span class="price">${parseFloat(p.price) === 0 ? 'ฟรี' : `฿${parseFloat(p.price).toFixed(2)}`}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      observeReveals(grid);
+      wireThumb(grid);
+    } catch (err) {
+      console.error('Failed to load featured:', err);
+    }
+  }
 
   function ytId(url){ const m = String(url).match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : ''; }
 
@@ -752,9 +1048,24 @@
   }
 
   const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
-    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('visible'); io.unobserve(en.target); } });
+    entries.forEach(en => { 
+      if (en.isIntersecting) { 
+        en.target.classList.add('visible'); 
+        io.unobserve(en.target);
+        // Trigger stats animation when stats section is visible
+        if (en.target.querySelector('.stat-value')) {
+          animateStats();
+        }
+      }
+    });
   }, { threshold: .1, rootMargin: '0px 0px -30px 0px' }) : null;
-  function observeReveals(root) { (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); }); }
+  
+  function observeReveals(root) { 
+    (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => { 
+      if (io) io.observe(el); 
+      else el.classList.add('visible'); 
+    }); 
+  }
 
   window.addEventListener('scroll', () => {
     const l = $('landing');
@@ -912,7 +1223,7 @@
 
   function isOwned(id) { return Array.isArray(_userPurchases) && _userPurchases.includes(id); }
 
-  // --- UPDATED APPLY FILTERS FUNCTION ---
+  // --- UPDATED APPLY FILTERS FUNCTION WITH LIST VIEW ---
   function applyFilters() {
     const q = $('searchInput').value.toLowerCase();
     let list = allProducts.filter(p => (p.name + ' ' + (p.description || '')).toLowerCase().includes(q));
@@ -1019,7 +1330,7 @@
   function renderGallery() {
     const main = $('galleryMain'), strip = $('galleryStrip');
     if (!galleryItems.length) {
-      main.innerHTML = '<div class="g-empty"></div>';
+      main.innerHTML = '<div class="g-empty">📦</div>';
       strip.innerHTML = '';
       strip.style.display = 'none';
       return;
@@ -1123,7 +1434,7 @@
     const session = await ensureSession();
     if (!session) return;
     const fd = new FormData(); fd.append('slip', slip); fd.append('productIds', JSON.stringify(cart.map(i => i.id)));
-    btn.disabled = true; btn.textContent = '⏳ กำลังตรวจสอบ...';
+    btn.disabled = true; btn.textContent = ' กำลังตรวจสอบ...';
     status.className = 'status-box pending'; status.textContent = '⏳ กำลังตรวจสอบสลิป...';
     try {
       const res = await fetch('/api/verify-cart-payment', { method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd });
@@ -1131,7 +1442,7 @@
       if (data.success) {
         cart = []; saveCart(); renderCart(); _userPurchases = null;
         status.className = 'status-box success';
-        status.innerHTML = ` ตรวจสอบการชำระแล้ว! แอดออนอยู่ในคลังของคุณ<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">ไปที่คลัง →</button>`;
+        status.innerHTML = `🎉 ตรวจสอบการชำระแล้ว! แอดออนอยู่ในคลังของคุณ<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">ไปที่คลัง →</button>`;
         showToast('ชำระเงินสำเร็จ!');
       } else { status.className = 'status-box error'; status.textContent = data.message || 'ตรวจสอบไม่ผ่าน'; showToast(data.message || 'ตรวจสอบไม่ผ่าน', 'error'); }
     } catch { status.className = 'status-box error'; status.textContent = 'เครือข่ายขัดข้อง ลองใหม่อีกครั้ง'; showToast('เครือข่ายขัดข้อง', 'error'); }
@@ -1187,7 +1498,7 @@
       if (!products.length) { box.innerHTML = `<div class="empty-state"><div class="icon">🛠️</div><h3>ยังไม่มีแอดออน</h3><p>วางแอดออนแรกของคุณด้านบนเลย!</p></div>`; return; }
       box.innerHTML = products.map((p, i) => `
         <div class="m-row reveal" style="animation-delay:${i * 0.07}s">
-          <div class="m-avatar">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="">` : ''}</div>
+          <div class="m-avatar">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="">` : '📦'}</div>
           <div class="m-info"><b>${esc(p.name)}</b><span>${esc(CAT_LABELS[normCat(p.category)] || normCat(p.category))} • ฿${parseFloat(p.price).toFixed(2)}</span></div>
           <span class="badge pub">เปิดขายแล้ว</span>
           <div class="m-actions">
@@ -1372,14 +1683,14 @@
               <p class="creator">ซื้อเมื่อ ${new Date(item.created_at).toLocaleDateString('th-TH')} • พร้อมดาวน์โหลด</p>
             </div>
             <div class="card-foot">
-              <button class="btn btn-primary btn-sm" style="max-width: 200px;" onclick="secureDownload('${p.id}', '${esc(p.name)}')">️ ดาวน์โหลด</button>
+              <button class="btn btn-primary btn-sm" style="max-width: 200px;" onclick="secureDownload('${p.id}', '${esc(p.name)}')">⬇️ ดาวน์โหลด</button>
             </div>
           </div>
         `;
         grid.appendChild(card);
       });
       observeReveals(grid); wireThumb(grid);
-    } catch { grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3></div>`; }
+    } catch { grid.innerHTML = `<div class="empty-state"><div class="icon">️</div><h3>โหลดไม่สำเร็จ</h3></div>`; }
   }
 
   async function secureDownload(id, name) {
@@ -1461,10 +1772,12 @@
     this.value = formatPrice(this.value);
   });
 
+  // Initialize
   buildChips();
   observeReveals(document);
   renderCart();
-  loadStoreProducts();
+  loadFeaturedPreview();
+  
   if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
 </script>
 </body>
