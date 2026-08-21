@@ -1146,6 +1146,41 @@
   let currentCheckoutStep = 1;
   let uploadedSlip = null;
 
+  // --- AUTH INITIALIZATION FIX ---
+  async function initAuth() {
+    // 1. Check if user is already logged in from local storage
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (session) {
+      currentUser = session.user;
+      console.log("Session restored for:", currentUser.email);
+      updateAuthUI();
+      // Load protected data if logged in
+      loadCreatorProducts(); 
+      loadUserLibrary();
+    }
+
+    // 2. Listen for future changes (login/logout)
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      console.log("Auth Event:", event);
+      if (event === 'SIGNED_IN') {
+        currentUser = session.user;
+        updateAuthUI();
+        closeModal('authModal');
+        showToast(`ยินดีต้อนรับ, ${currentUser.user_metadata?.username || 'User'}!`);
+        loadCreatorProducts(); 
+        loadUserLibrary();
+      } else if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        window._creatorProducts = {};
+        _userPurchases = null;
+        updateAuthUI();
+        showToast('ออกจากระบบแล้ว');
+      }
+    });
+  }
+  // -------------------------------
+
   // Intro page functions
   function showStore() {
     document.getElementById('introView').classList.remove('active');
@@ -1184,7 +1219,10 @@
   // Load featured preview
   async function loadFeaturedPreview() {
     try {
+      // Note: This will fail if you don't have a backend running at /api/products
+      // For demo purposes, we might want to mock this or handle the error gracefully
       const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('API not available');
       const products = await res.json();
       const featured = products.slice(0, 3);
       
@@ -1209,6 +1247,7 @@
       wireThumb(grid);
     } catch (err) {
       console.error('Failed to load featured:', err);
+      $('featuredPreview').innerHTML = '<div class="empty-state"><p>ไม่สามารถโหลดข้อมูลตัวอย่างได้ (ต้องเชื่อมต่อ API)</p></div>';
     }
   }
 
@@ -1434,10 +1473,12 @@
     grid.innerHTML = '<div class="skeleton"></div>'.repeat(4);
     try {
       const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('API Error');
       allProducts = await res.json();
       await getUserPurchases();
       applyFilters();
     } catch (err) {
+      console.error(err);
       grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3><p>ดึงข้อมูลสินค้าไม่สำเร็จ ลองรีเฟรชหน้าดูนะ</p></div>`;
     }
   }
@@ -1523,8 +1564,10 @@
     if (p.thumbnail_url) galleryItems.push({ url: p.thumbnail_url, type: 'image' });
     try {
       const res = await fetch(`/api/products/${p.id}/media`);
-      const media = await res.json();
-      media.forEach(m => galleryItems.push({ url: m.media_url, type: m.media_type }));
+      if(res.ok) {
+        const media = await res.json();
+        media.forEach(m => galleryItems.push({ url: m.media_url, type: m.media_type }));
+      }
     } catch {}
     renderGallery();
 
@@ -2150,29 +2193,45 @@
       }
     } finally { btn.disabled = false; btn.textContent = original; }
   }
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    currentUser = session?.user || null;
-    _userPurchases = null;
-    if (!currentUser) window._creatorProducts = {};
-    updateAuthUI();
-    if (currentUser) { loadCreatorProducts(); loadCreatorStats(); loadUserLibrary(); }
-  });
+  
   function updateAuthUI() {
     const name = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'User';
     const btn = $('authBtn'), logged = !!currentUser, creator = isCreator();
+    
+    // Safety check if elements exist
+    if(!btn) return;
+
     $('navDashboard').style.display = logged && creator ? 'inline-block' : 'none';
     $('navProfile').style.display = logged ? 'inline-block' : 'none';
     $('navAccount').style.display = logged ? 'inline-block' : 'none';
-    if (logged) { btn.textContent = '👤 ' + name; btn.classList.add('logged'); btn.onclick = () => { supabaseClient.auth.signOut(); showToast('ออกจากระบบแล้ว'); }; }
-    else { btn.textContent = 'เข้าสู่ระบบ'; btn.classList.remove('logged'); btn.onclick = openAuthModal; }
+    
+    if (logged) { 
+      btn.textContent = '👤 ' + name; 
+      btn.classList.add('logged'); 
+      btn.onclick = () => { supabaseClient.auth.signOut(); showToast('ออกจากระบบแล้ว'); }; 
+    }
+    else { 
+      btn.textContent = 'เข้าสู่ระบบ'; 
+      btn.classList.remove('logged'); 
+      btn.onclick = openAuthModal; 
+    }
+    
     $('mDashboard').style.display = logged && creator ? 'flex' : 'none';
     $('mProfile').style.display = logged ? 'flex' : 'none';
     $('mAccount').style.display = logged ? 'flex' : 'none';
     $('mDivider').style.display = logged ? 'block' : 'none';
+    
     const mA = $('mAuth');
-    if (logged) { mA.innerHTML = `<span>🚪</span> ออกจากระบบ (${esc(name)})`; mA.onclick = () => { supabaseClient.auth.signOut(); closeMenu(); showToast('ออกจากระบบแล้ว'); }; }
-    else { mA.innerHTML = `<span>🔑</span> เข้าสู่ระบบ / สมัครสมาชิก`; mA.onclick = () => { openAuthModal(); closeMenu(); }; }
+    if (logged) { 
+      mA.innerHTML = `<span>🚪</span> ออกจากระบบ (${esc(name)})`; 
+      mA.onclick = () => { supabaseClient.auth.signOut(); closeMenu(); showToast('ออกจากระบบแล้ว'); }; 
+    }
+    else { 
+      mA.innerHTML = `<span>🔑</span> เข้าสู่ระบบ / สมัครสมาชิก`; 
+      mA.onclick = () => { openAuthModal(); closeMenu(); }; 
+    }
   }
+
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id)); closeCart(); closeMenu(); }
     if (e.key === 'ArrowLeft' && $('detailModal').classList.contains('active')) galleryNav(-1);
@@ -2188,6 +2247,9 @@
   observeReveals(document);
   renderCart();
   loadFeaturedPreview();
+  
+  // START AUTH CHECK
+  initAuth();
   
   if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
 </script>
