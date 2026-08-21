@@ -183,8 +183,10 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
     const updates = {
       name: name ? name.trim() : existing.name,
       description: description !== undefined ? description.trim() : existing.description,
-      price: price !== undefined ? parseFloat(price) : existing.price
+      price: price !== undefined ? parseFloat(price) : existing.price,
+      category: req.body.category ? req.body.category.trim() : existing.category
     };
+
 
     if (productFile) {
       const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
