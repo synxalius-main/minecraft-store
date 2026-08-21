@@ -88,7 +88,7 @@
     .landing{position:fixed;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;overflow:hidden;padding:40px 20px 80px;padding-top:calc(64px + var(--safe-top));
     pointer-events:none;will-change:opacity}
-  .landing-spacer{height:100dvh}
+    .landing-spacer{height:70dvh}
   #storeView{position:relative;z-index:1}
   .landing-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:orb 12s ease-in-out infinite;pointer-events:none}
   .orb1{width:360px;height:360px;background:var(--primary);top:-100px;left:-100px}
@@ -585,8 +585,46 @@
   let currentUser = null, isSignUp = false, allProducts = [], currentSort = 'new', currentCategory = 'All';
   let cart = JSON.parse(localStorage.getItem('mc_cart') || '[]');
   let galleryItems = [], galleryIdx = 0;
-  let _userPurchases = null;
+    let _userPurchases = null;
   let selectedRole = 'member';
+  let pendingPreviews = [], pendingYouTube = [];
+
+  function ytId(url){ const m = String(url).match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : ''; }
+
+  function renderPendingMedia() {
+    const grid = $('mediaGrid');
+    let html = '';
+    pendingPreviews.forEach((f, i) => {
+      html += `<div class="media-item"><img src="${URL.createObjectURL(f)}" alt="preview"><button class="media-del" data-type="p" data-idx="${i}">✕</button></div>`;
+    });
+    pendingYouTube.forEach((u, i) => {
+      html += `<div class="media-item"><img src="https://img.youtube.com/vi/${ytId(u)}/mqdefault.jpg" alt="vid"><div class="g-play">▶</div><button class="media-del" data-type="y" data-idx="${i}">✕</button></div>`;
+    });
+    grid.innerHTML = html || '<p style="color:var(--muted);font-size:.8rem">ยังไม่มีภาพตัวอย่าง — เพิ่มได้ก่อนบันทึก</p>';
+    grid.querySelectorAll('.media-del').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.type === 'p') pendingPreviews.splice(+b.dataset.idx, 1);
+      else pendingYouTube.splice(+b.dataset.idx, 1);
+      renderPendingMedia();
+    }));
+  }
+
+  async function uploadPreviewsNow(productId, files, ytUrls) {
+    const session = await ensureSession();
+    if (!session) return false;
+    const fd = new FormData();
+    if (files) for (const f of files) fd.append('previews', f);
+    if (ytUrls && ytUrls.length) fd.append('youtube_urls', JSON.stringify(ytUrls));
+    try {
+      const res = await fetch(`/api/creator/products/${productId}/media`, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
+      });
+      const data = await res.json();
+      if (data.success) return true;
+      showToast(data.message || 'อัปโหลดตัวอย่างไม่สำเร็จ', 'error');
+    } catch { showToast('อัปโหลดตัวอย่างไม่สำเร็จ', 'error'); }
+    return false;
+  }
+
 
   const $ = id => document.getElementById(id);
 
@@ -630,12 +668,14 @@
   }, { threshold: .1, rootMargin: '0px 0px -30px 0px' }) : null;
   function observeReveals(root) { (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); }); }
 
-      window.addEventListener('scroll', () => {
+        window.addEventListener('scroll', () => {
     const l = $('landing');
     if (!l || !$('storeView').classList.contains('active')) return;
-    const spacerH = window.innerHeight; // ใช้ความสูงหน้าจอแทน
-    const p = Math.min(window.scrollY / (spacerH * 0.6), 1);
-    l.style.opacity = String(Math.max(1 - p * 1.5, 0));
+    const spacer = document.querySelector('.landing-spacer');
+    const spacerH = spacer ? spacer.offsetHeight : window.innerHeight;
+    const p = Math.min(window.scrollY / (spacerH * 0.9), 1);
+    l.style.opacity = String(1 - p); // จางหายพอดีตอนเลื่อนพ้น ไม่มีช่วงจอดำ
+    l.style.visibility = p >= 1 ? 'hidden' : 'visible';
   }, { passive: true });
 
   function toggleMenu(e) { e.stopPropagation(); const o = $('logoMenu').classList.contains('active'); closeMenu(); if (!o) { $('logoMenu').classList.add('active'); $('logoBtn').classList.add('open'); } }
@@ -1074,9 +1114,10 @@
     $('pName').value = p.name || ''; $('pDesc').value = p.description || '';
     $('pPrice').value = formatPrice(p.price) || ''; $('pCategory').value = normCat(p.category);
     $('fileHint').textContent = '📦 เว้นว่างไว้เพื่อใช้ไฟล์เดิม';
-    $('fileError').style.display = 'none'; $('thumbPrev').style.display = 'none';
-    $('mediaManager').style.display = 'block';
-    await loadMediaManager(id);
+    $('fileError').style.display = 'none';     $('thumbPrev').style.display = 'none'; $('fileError').style.display = 'none';
+    pendingPreviews = []; pendingYouTube = [];
+    renderPendingMedia();
+    $('mediaManager').style.display = 'block'; // แสดงส่วน preview ตอนสร้างใหม่ด้วย
     $('productModal').classList.add('active'); document.body.style.overflow = 'hidden';
   }
 
@@ -1097,39 +1138,28 @@
     } catch { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">โหลดไม่สำเร็จ</p>'; }
   }
 
-  $('previewFiles').addEventListener('change', async function () {
+    $('previewFiles').addEventListener('change', async function () {
+    if (!this.files.length) return;
     const productId = $('editProductId').value;
-    if (!productId || !this.files.length) return;
-    const session = (await supabaseClient.auth.getSession()).data.session;
-    const fd = new FormData();
-    for (const f of this.files) fd.append('previews', f);
-    showToast('กำลังอัปโหลดรูปตัวอย่าง...');
-    try {
-      const res = await fetch(`/api/creator/products/${productId}/media`, {
-        method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
-      });
-      const data = await res.json();
-      if (data.success) { showToast(`เพิ่มรูปตัวอย่าง ${data.added} รูปแล้ว!`); loadMediaManager(productId); }
-      else showToast(data.message || 'อัปโหลดไม่สำเร็จ', 'error');
-    } catch { showToast('อัปโหลดไม่สำเร็จ', 'error'); }
+    if (productId) {
+      showToast('กำลังอัปโหลดรูปตัวอย่าง...');
+      if (await uploadPreviewsNow(productId, this.files, null)) { showToast('เพิ่มรูปตัวอย่างแล้ว!'); loadMediaManager(productId); }
+    } else {
+      for (const f of this.files) pendingPreviews.push(f); // สินค้าใหม่ → คิวไว้ อัปโหลดหลังบันทึก
+      renderPendingMedia();
+    }
     this.value = '';
   });
 
-  async function addYouTube() {
-    const productId = $('editProductId').value;
+    async function addYouTube() {
     const url = $('ytUrl').value.trim();
-    if (!productId || !url) return showToast('ใส่ลิงก์ YouTube ก่อนนะ', 'warn');
-    const session = (await supabaseClient.auth.getSession()).data.session;
-    const fd = new FormData();
-    fd.append('youtube_urls', JSON.stringify([url]));
-    try {
-      const res = await fetch(`/api/creator/products/${productId}/media`, {
-        method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
-      });
-      const data = await res.json();
-      if (data.success) { showToast('เพิ่มวิดีโอแล้ว!'); $('ytUrl').value = ''; loadMediaManager(productId); }
-      else showToast(data.message || 'ล้มเหลว', 'error');
-    } catch { showToast('ล้มเหลว', 'error'); }
+    if (!url || !ytId(url)) return showToast('วางลิงก์ YouTube ที่ถูกต้องก่อนนะ', 'warn');
+    const productId = $('editProductId').value;
+    if (productId) {
+      if (await uploadPreviewsNow(productId, null, [url])) { showToast('เพิ่มวิดีโอแล้ว!'); $('ytUrl').value = ''; loadMediaManager(productId); }
+    } else {
+      pendingYouTube.push(url); $('ytUrl').value = ''; renderPendingMedia();
+    }
   }
 
   async function deleteMedia(productId, mediaId) {
@@ -1139,8 +1169,16 @@
       const res = await fetch(`/api/creator/products/${productId}/media/${mediaId}`, {
         method: 'DELETE', headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
-      const data = await res.json();
-      if (data.success) { showToast('ลบแล้ว!'); loadMediaManager(productId); }
+            const data = await res.json();
+      if (data.success) {
+        const pid = id || data.product?.id;
+        if (pid && (pendingPreviews.length || pendingYouTube.length)) {
+          await uploadPreviewsNow(pid, pendingPreviews, pendingYouTube); // อัปโหลดตัวอย่างที่คิวไว้
+        }
+        pendingPreviews = []; pendingYouTube = [];
+        closeModal('productModal'); loadCreatorProducts(); loadCreatorStats();
+        showToast(id ? 'อัปเดตแล้ว!' : 'เผยแพร่แล้ว!');
+      }
       else showToast(data.message || 'ล้มเหลว', 'error');
     } catch { showToast('ล้มเหลว', 'error'); }
   }
