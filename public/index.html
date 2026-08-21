@@ -1064,7 +1064,7 @@ function formatPrice(value) {
     if (e.key === 'ArrowRight' && $('detailModal').classList.contains('active')) galleryNav(1);
   });
 
-  // Auto-format price on blur   $('pPrice').addEventListener('blur', function() {     this.value = formatPrice(this.value);   });    buildChips(); observeReveals(document); renderCart(); loadStoreProducts();
+  // Auto-format price on blur   $('pPrice').addEventListener('blur', function() {     this.value = formatPrice(this.value);   });    buildChips();   observeReveals(document);   renderCart();   loadStoreProducts();
   if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
 </script>
 </body>
