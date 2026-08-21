@@ -2169,30 +2169,43 @@
     $('authConfirmPassword').style.display = isSignUp ? 'block' : 'none';
   }
   async function handleAuth() {
-    const email = $('authEmail').value.trim(), password = $('authPassword').value;
-    const btn = $('authSubmit'), original = btn.textContent;
-    if (!email || !password) return showToast('กรอกข้อมูลให้ครบ', 'error');
-    btn.disabled = true; btn.textContent = '⏳ กำลังดำเนินการ...';
-    try {
-      if (isSignUp) {
-        const username = $('authUsername').value.trim(), ign = $('authIgn').value.trim(), confirm = $('authConfirmPassword').value;
-        const phone = $('authPhone').value.trim();
-        if (!username) return showToast('ใส่ชื่อผู้ใช้', 'error');
-        if (!phone || !/^0\d{8,9}$/.test(phone)) return showToast('กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)', 'error');
-        if (!$('authTerms').checked) return showToast('กรุณายอมรับข้อตกลงการใช้งาน', 'error');
-        if (password !== confirm) return showToast('รหัสผ่านไม่ตรงกัน', 'error');
-        if (password.length < 6) return showToast('รหัสผ่านต้องอย่างน้อย 6 ตัว', 'error');
-        const { error } = await supabaseClient.auth.signUp({
-          email, password,
-          options: { data: { username, minecraft_ign: ign || 'Steve', phone, role: selectedRole, terms_accepted: true } }
-        });
-        if (error) showToast(error.message, 'error'); else { showToast(`ยินดีต้อนรับ, ${username}!`); toggleAuthMode(); }
+  const email = $('authEmail').value.trim(), password = $('authPassword').value;
+  const btn = $('authSubmit'), original = btn.textContent;
+  if (!email || !password) return showToast('กรอกข้อมูลให้ครบ', 'error');
+  btn.disabled = true; btn.textContent = '⏳ กำลังดำเนินการ...';
+  try {
+    if (isSignUp) {
+      // ... sign-up logic stays the same ...
+      const username = $('authUsername').value.trim(), ign = $('authIgn').value.trim(), confirm = $('authConfirmPassword').value;
+      const phone = $('authPhone').value.trim();
+      if (!username) return showToast('ใส่ชื่อผู้ใช้', 'error');
+      if (!phone || !/^0\d{8,9}$/.test(phone)) return showToast('กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)', 'error');
+      if (!$('authTerms').checked) return showToast('กรุณายอมรับข้อตกลงการใช้งาน', 'error');
+      if (password !== confirm) return showToast('รหัสผ่านไม่ตรงกัน', 'error');
+      if (password.length < 6) return showToast('รหัสผ่านต้องอย่างน้อย 6 ตัว', 'error');
+      const { error } = await supabaseClient.auth.signUp({
+        email, password,
+        options: { data: { username, minecraft_ign: ign || 'Steve', phone, role: selectedRole, terms_accepted: true } }
+      });
+      if (error) showToast(error.message, 'error'); else { showToast(`ยินดีต้อนรับ, ${username}!`); toggleAuthMode(); }
+    } else {
+      // FIX: Capture the session data directly from the response
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        showToast(error.message, 'error');
       } else {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) showToast(error.message, 'error'); else { closeModal('authModal'); showToast('เข้าสู่ระบบแล้ว!'); }
+        // FIX: Immediately set currentUser and update UI — don't wait for onAuthStateChange
+        currentUser = data.user;
+        updateAuthUI();
+        closeModal('authModal');
+        showToast('เข้าสู่ระบบแล้ว!');
+        // FIX: Also load protected data immediately
+        loadCreatorProducts();
+        loadUserLibrary();
       }
-    } finally { btn.disabled = false; btn.textContent = original; }
-  }
+    }
+  } finally { btn.disabled = false; btn.textContent = original; }
+}
   
   function updateAuthUI() {
     const name = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'User';
