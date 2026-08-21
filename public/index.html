@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-fapp-title" content="MC Store">
+  <meta name="apple-mobile-web-app-title" content="MC Store"> 
 <style>
   :root{
     --bg:#07090d; --glass:rgba(255,255,255,.05); --glass2:rgba(255,255,255,.08);
@@ -478,8 +478,11 @@ html,body{max-width:100%;overflow-x:hidden}
 .search{min-width:0}
 .sort-select{width:auto;flex-shrink:0;max-width:46vw}
 
-.thumb-badge.owned{color:var(--accent);border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.16)}
-
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
 
 </style>
 </head>
@@ -729,7 +732,7 @@ html,body{max-width:100%;overflow-x:hidden}
     setTimeout(() => t.remove(), 2800);
   }
 
-  async function refreshOwnedIds() {
+    async function refreshOwnedIds() {
     ownedProductIds = new Set();
     _userPurchases = null;
 
@@ -742,6 +745,7 @@ html,body{max-width:100%;overflow-x:hidden}
       const res = await fetch('/api/user/library', {
         headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
+      if (!res.ok) return;
 
       const purchases = await res.json();
       if (!Array.isArray(purchases)) return;
@@ -753,15 +757,19 @@ html,body{max-width:100%;overflow-x:hidden}
     }
   }
 
-  async function getUserPurchases() {
+
+      async function getUserPurchases() {
     if (_userPurchases !== null) return _userPurchases;
     if (!currentUser) return [];
     try {
       const session = (await supabaseClient.auth.getSession()).data.session;
+      if (!session) return [];
       const res = await fetch('/api/user/library', {
         headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
+      if (!res.ok) return [];
       const purchases = await res.json();
+      if (!Array.isArray(purchases)) return [];
       _userPurchases = purchases.map(item => item.products?.id || item.product_id).filter(Boolean);
       ownedProductIds = new Set(_userPurchases.map(String));
       return _userPurchases;
@@ -846,14 +854,9 @@ function clearSearch() {
       grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch products. Please refresh.</p></div>`;
     }
   }
+
   
-    if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    });
-  }
-
-
+  
   function setSort(v) { currentSort = v; applyFilters(); }
 
   function applyFilters() {
@@ -965,9 +968,13 @@ function clearSearch() {
   $('detailModal').classList.add('active');
   document.body.style.overflow = 'hidden';
 
-  const addBtn = $('detailAddBtn');
+    const addBtn = $('detailAddBtn');
   if (addBtn) {
     addBtn.onclick = () => {
+      if (isOwned(p.id)) {
+        showToast('You already own this addon', 'warn');
+        return;
+      }
       addToCart(p.id, p.name, price, p.thumbnail_url);
       closeModal('detailModal');
     };
@@ -1001,7 +1008,7 @@ function clearSearch() {
     const badge = $('cartCount');
     badge.style.display = count ? 'flex' : 'none';
     badge.textContent = count;
-    const total = cart.reduce((s, i) => s + i.price, 0);
+    const total = cart.reduce((s, i) => s + parseFloat(i.price), 0);
     $('cartTotal').textContent = total.toFixed(2);
     $('cartTotalInline').textContent = total.toFixed(2);
     $('cartItems').innerHTML = count ? cart.map((i, idx) => `
@@ -1228,8 +1235,8 @@ if (allProducts.length) applyFilters();
         grid.innerHTML = `<div class="empty-state"><div class="icon">📚</div><h3>No purchases yet</h3><p>Browse the store and buy your first addon!</p><button class="btn btn-primary btn-sm" onclick="switchView('store')">Browse Store</button></div>`;
         return;
       }
-      purchases.forEach((item, i) => {
-        const p = item.products;
+            purchases.forEach((item, i) => {
+        const p = item.products || item;
         const card = document.createElement('div');
         card.className = 'card reveal';
         card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
