@@ -342,9 +342,8 @@
 
   @media(max-width:820px){
     nav{display:none}.auth-btn{display:none}.caret{display:inline-block}
-    header{height:calc(56px + var(--safe-top));padding:0 14px;padding-top:var(--safe-top);gap:8px}     .toolbar{top:calc(56px + var(--safe-top))}     .landing{padding-top:calc(56px + var(--safe-top))}
-    .logo{font-size:.68rem;padding:4px 6px;gap:9px}.logo-tile{width:34px;height:34px;font-size:1rem}
-    main{padding:18px 14px 80px}.landing{min-height:calc(100dvh - 70px)}
+    header{height:calc(56px + var(--safe-top));padding:0 14px;padding-top:var(--safe-top);gap:8px}     .toolbar{top:calc(56px + var(--safe-top))}         .landing{padding-top:calc(56px + var(--safe-top))}
+    .logo{font-size:.68rem;padding:4px 6px;gap:9px}.
     .cart-btn{padding:10px 14px}input,textarea,select{font-size:16px}.grid{gap:14px}
     .toasts{left:12px;right:12px}
     .gallery{aspect-ratio:16/10}
@@ -630,11 +629,12 @@
   }, { threshold: .1, rootMargin: '0px 0px -30px 0px' }) : null;
   function observeReveals(root) { (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); }); }
 
-    window.addEventListener('scroll', () => {
+      window.addEventListener('scroll', () => {
     const l = $('landing');
     if (!l || !$('storeView').classList.contains('active')) return;
-    const p = Math.min(window.scrollY / (l.offsetHeight * 0.7), 1);
-    l.style.opacity = String(Math.max(1 - p * 1.2, 0)); // ค่อยจางแล้วเลื่อนหายไป ไม่ค้างจอ
+    const spacerH = window.innerHeight; // ใช้ความสูงหน้าจอแทน
+    const p = Math.min(window.scrollY / (spacerH * 0.6), 1);
+    l.style.opacity = String(Math.max(1 - p * 1.5, 0));
   }, { passive: true });
 
   function toggleMenu(e) { e.stopPropagation(); const o = $('logoMenu').classList.contains('active'); closeMenu(); if (!o) { $('logoMenu').classList.add('active'); $('logoBtn').classList.add('open'); } }
