@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Minecraft Explore</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -465,6 +465,11 @@
 .desc-list{margin:0 0 10px;padding-left:18px;display:flex;flex-direction:column;gap:6px}
 .desc-list li{color:var(--muted);font-size:.9rem;line-height:1.55}
 .desc-list li::marker{color:var(--primary)}
+
+/* ============ OVERFLOW FIX ============ */
+html,body{max-width:100%;overflow-x:hidden}
+.search{min-width:0}
+.sort-select{width:auto;flex-shrink:0;max-width:46vw}
 
 
 </style>
