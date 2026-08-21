@@ -435,6 +435,18 @@
   }
 }
 
+/* ============ EXPANDING SEARCH ============ */
+.search{transition:flex .5s cubic-bezier(.16,1,.3,1)}
+.sort-select{transition:all .45s cubic-bezier(.16,1,.3,1)}
+
+/* when search is focused or has text: stretch full-width, collapse the sort dropdown */
+.toolbar.searching .search{flex:1 1 100%}
+.toolbar.searching .sort-select{width:0;opacity:0;padding:12px 0;border-color:transparent;pointer-events:none;transform:scale(.85)}
+.toolbar.searching .search input{
+  border-color:var(--border-glow);
+  box-shadow:0 0 0 3px var(--primary-dim),0 10px 30px rgba(0,230,118,.12);
+}
+
 
 </style>
 </head>
