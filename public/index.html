@@ -79,31 +79,10 @@
     color:#00160a;font-size:.7rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 5px;animation:pop .4s cubic-bezier(.68,-.55,.265,1.55)}
   @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
 
-  main{max-width:1150px;margin:0 auto;padding:26px 20px 90px}
+  main{max-width:1150px;margin:0 auto;padding:10px 20px 90px}
   .view{display:none;animation:enter .5s cubic-bezier(.16,1,.3,1)}
   .view.active{display:block}
   @keyframes enter{from{opacity:0}to{opacity:1}}
-
-  .landing{position:absolute;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;overflow:hidden;padding:40px 20px 80px;padding-top:calc(64px + var(--safe-top));
-    pointer-events:none;will-change:opacity,transform;transition:opacity .4s ease,transform .4s ease}
-  .landing.hidden{opacity:0;transform:translateY(-60px);pointer-events:none}
-  .landing-spacer{height:85dvh;min-height:500px}
-  #storeView{position:relative;z-index:1}
-  .landing-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:orb 12s ease-in-out infinite;pointer-events:none}
-  .orb1{width:360px;height:360px;background:var(--primary);top:-100px;left:-100px}
-  .orb2{width:320px;height:320px;background:var(--accent);bottom:-80px;right:-80px;animation-delay:4s}
-  @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,26px) scale(1.1)}}
-  .landing-logo{font-size:4.2rem;filter:drop-shadow(0 0 30px rgba(0,230,118,.4));animation:float 5s ease-in-out infinite}
-  .landing h1{font-family:'Press Start 2P';font-size:clamp(1.3rem,6vw,2.6rem);margin:20px 0 12px;letter-spacing:2px;
-    background:linear-gradient(90deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .landing-tag{color:var(--muted);max-width:560px;line-height:1.9;margin:0 auto;font-size:.95rem}
-  .landing-feats{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap;justify-content:center}
-  .feat-pill{background:var(--glass);border:1px solid var(--border);border-radius:100px;padding:8px 16px;font-size:.78rem;color:var(--muted);font-weight:600}
-  .scroll-hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:.78rem;
-    display:flex;flex-direction:column;align-items:center;gap:6px}
-  .scroll-hint .arrow{color:var(--primary);animation:bounce 1.6s infinite}
-  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
 
   .btn{border:none;border-radius:14px;font-weight:700;font-size:.9rem;padding:13px 22px;transition:.25s;display:inline-flex;align-items:center;gap:8px;justify-content:center}
   .btn-primary{background:linear-gradient(135deg,var(--primary),#00b359);color:#00160a;box-shadow:0 6px 22px rgba(0,230,118,.3)}
@@ -116,7 +95,7 @@
   .btn-edit{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3);padding:8px 14px;border-radius:11px;font-weight:700;font-size:.78rem}
   .btn-danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(255,92,92,.3);padding:8px 14px;border-radius:11px;font-weight:700;font-size:.78rem}
 
-  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:14px;position:sticky;top:calc(64px + var(--safe-top));z-index:40;
+  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:10px;position:sticky;top:calc(64px + var(--safe-top));z-index:40;
     background:rgba(7,9,13,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     padding:10px 6px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
   .search{flex:1;position:relative;min-width:0}
@@ -134,11 +113,12 @@
     font-family:inherit;font-size:.82rem;font-weight:600;outline:none;transition:.25s;flex-shrink:0;width:auto;max-width:46vw}
   .sort-select:focus{border-color:var(--border-glow)}
   .sort-select option{background:#0c0f15}
-  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none;margin-bottom:14px}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none;margin-bottom:10px}
   .chips::-webkit-scrollbar{display:none}
   .chip{border:1px solid var(--border);background:var(--glass);color:var(--muted);padding:9px 18px;border-radius:100px;font-size:.8rem;font-weight:700;transition:.25s;white-space:nowrap;flex-shrink:0}
   .chip.active{background:var(--primary-dim);color:var(--primary);border-color:var(--border-glow);box-shadow:0 0 16px rgba(0,230,118,.15)}
 
+  .store-content{padding-top:0}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
   .card{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);
     overflow:hidden;backdrop-filter:blur(14px);transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .3s;display:flex;flex-direction:column;cursor:pointer}
@@ -322,7 +302,7 @@
   .toast{background:rgba(10,13,18,.95);border:1px solid var(--border);border-left:3px solid var(--primary);padding:12px 18px;border-radius:12px;font-size:.85rem;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:tIn .4s cubic-bezier(.16,1,.3,1);max-width:360px}
   .toast.error{border-left-color:var(--danger)}.toast.warn{border-left-color:var(--gold)}
   @keyframes tIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
-  .skeleton{background:linear-gradient(110deg,#101623 8%,#1a2334 18%,#101623 33%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r);height:280px}
+  .skeleton{background:linear-gradient(110deg,#101623 8%,#1a2334 18%,#101623 33%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r);height:280px;margin-bottom:0}
   @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)}
   .empty-state .icon{font-size:3rem;margin-bottom:14px;opacity:.5}
@@ -342,7 +322,6 @@
     nav{display:none}.auth-btn{display:none}.caret{display:inline-block}
     header{height:calc(56px + var(--safe-top));padding:0 14px;padding-top:var(--safe-top);gap:8px}
     .toolbar{top:calc(56px + var(--safe-top))}
-    .landing{padding-top:calc(56px + var(--safe-top))}
     .logo{font-size:.68rem;padding:4px 6px;gap:9px}
     .logo-tile{width:34px;height:34px;font-size:1rem}
     .cart-btn{padding:10px 14px}input,textarea,select{font-size:16px}.grid{gap:14px}
@@ -382,21 +361,6 @@
 
 <main>
   <section id="storeView" class="view active">
-    <section id="landing" class="landing">
-      <div class="landing-orb orb1"></div><div class="landing-orb orb2"></div>
-      <div class="landing-logo fade-up d1">⛏️</div>
-      <h1 class="fade-up d2">MC STORE</h1>
-      <p class="landing-tag fade-up d3">แหล่งรวมแอดออน Minecraft จากคอมมูนิตี้ เพื่อคอมมูนิตี้<br>ซื้อ-ขายปลอดภัย จ่ายผ่าน PromptPay ตรวจสอบสลิปอัตโนมัติ และดาวน์โหลดได้ทันทีหลังชำระเงิน</p>
-      <div class="landing-feats fade-up d4">
-        <span class="feat-pill">✅ ผู้สร้างยืนยันตัวตน</span>
-        <span class="feat-pill">⚡ ดาวน์โหลดทันที</span>
-        <span class="feat-pill">🔒 PromptPay ปลอดภัย</span>
-        <span class="feat-pill">🎁 มีแอดออนฟรีให้รับ</span>
-      </div>
-      <div class="scroll-hint">เลื่อนลงเพื่อสำรวจ<span class="arrow">▼</span></div>
-    </section>
-    <div class="landing-spacer"></div>
-
     <div class="store-content">
       <div id="exploreTop" class="toolbar reveal">
         <div class="search">
@@ -669,13 +633,7 @@
   function observeReveals(root) { (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); }); }
 
   window.addEventListener('scroll', () => {
-    const l = $('landing');
-    if (!l || !$('storeView').classList.contains('active')) return;
-    const spacer = document.querySelector('.landing-spacer');
-    const spacerH = spacer ? spacer.offsetHeight : window.innerHeight;
-    const p = Math.min(window.scrollY / (spacerH * 0.9), 1);
-    l.style.opacity = String(1 - p);
-    l.classList.toggle('hidden', p >= 0.95);
+    // Landing section removed - no scroll handling needed
   }, { passive: true });
 
   function toggleMenu(e) { e.stopPropagation(); const o = $('logoMenu').classList.contains('active'); closeMenu(); if (!o) { $('logoMenu').classList.add('active'); $('logoBtn').classList.add('open'); } }
