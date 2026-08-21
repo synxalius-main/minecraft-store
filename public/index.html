@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Minecraft Explore</title>
+<title>MC Store — ร้านแอดออน Minecraft</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&family=Noto+Sans+Thai:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#07090d">
@@ -26,7 +26,7 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth}
-  body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;
+  body{margin:0;font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;
     background-image:radial-gradient(60% 40% at 15% 0%,rgba(0,230,118,.07),transparent 60%),
                      radial-gradient(50% 35% at 85% 10%,rgba(167,139,250,.07),transparent 60%);
     overflow-x:hidden;-webkit-font-smoothing:antialiased}
@@ -87,10 +87,10 @@
   .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;overflow:hidden;position:relative;
     background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);padding:44px 42px;margin-bottom:26px;backdrop-filter:blur(14px)}
   .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(50% 60% at 78% 50%,rgba(0,230,118,.12),transparent 70%);pointer-events:none}
-  .hero-tag{display:inline-flex;gap:6px;align-items:center;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.35);padding:6px 14px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-  .hero h1{font-size:clamp(1.55rem,5.5vw,2.6rem);font-weight:900;letter-spacing:-.03em;line-height:1.12;margin:16px 0 12px}
+  .hero-tag{display:inline-flex;gap:6px;align-items:center;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.35);padding:6px 14px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em}
+  .hero h1{font-size:clamp(1.55rem,5.5vw,2.6rem);font-weight:900;letter-spacing:-.03em;line-height:1.2;margin:16px 0 12px}
   .grad{background:linear-gradient(90deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .hero p{color:var(--muted);max-width:440px;line-height:1.6;margin:0 0 22px}
+  .hero p{color:var(--muted);max-width:440px;line-height:1.7;margin:0 0 22px}
   .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
   .hero-actions .btn{flex:1 1 auto;justify-content:center}
   .hero-stats{margin-top:22px;color:var(--muted);font-size:.8rem;display:flex;gap:14px 18px;flex-wrap:wrap}
@@ -144,7 +144,7 @@
     border:1px solid var(--border-glow);color:var(--primary);font-weight:800;font-size:.75rem;padding:4px 11px;border-radius:100px}
   .thumb-badge.owned{color:var(--accent);border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.16)}
   .cat-tag{position:absolute;top:10px;left:10px;z-index:2;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
-    border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:.66rem;padding:4px 10px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em}
+    border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:.66rem;padding:4px 10px;border-radius:100px}
   .card-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:4px}
   .card-body h3{margin:0;font-size:1rem;font-weight:800;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .creator{color:var(--muted);font-size:.78rem;margin:0 0 12px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -181,7 +181,7 @@
   .m-actions{display:flex;gap:8px}
 
   .media-manager{margin-top:12px;border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--glass)}
-  .media-manager h4{margin:0 0 10px;font-size:.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .media-manager h4{margin:0 0 10px;font-size:.82rem;font-weight:800;color:var(--muted)}
   .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:12px}
   .media-item{position:relative;aspect-ratio:16/10;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#0a0d14}
   .media-item img{width:100%;height:100%;object-fit:cover}
@@ -213,7 +213,7 @@
   .detail-body h2{margin:0 0 8px;font-size:1.3rem;font-weight:900}
   .detail-meta{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
   .detail-price{font-weight:900;font-size:1.2rem;color:var(--primary);text-shadow:0 0 16px rgba(0,230,118,.35)}
-  .detail-cat{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3);padding:4px 12px;border-radius:100px;font-size:.7rem;font-weight:800;text-transform:uppercase}
+  .detail-cat{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3);padding:4px 12px;border-radius:100px;font-size:.7rem;font-weight:800}
   .detail-desc{color:var(--muted);font-size:.9rem;line-height:1.7;margin-bottom:20px}
   .detail-desc p{margin:0 0 10px}
   .detail-desc p:last-child{margin-bottom:0}
@@ -322,21 +322,21 @@
   <div class="menu-wrap">
     <button class="logo" id="logoBtn" onclick="toggleMenu(event)"><div class="logo-tile">⛏️</div>MC STORE<span class="caret">▼</span></button>
     <div class="dropdown" id="logoMenu">
-      <button onclick="switchView('store');closeMenu()"><span>🧭</span> Explore</button>
-      <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>🛠️</span> Creator Studio</button>
-      <button id="mProfile" style="display:none" onclick="switchView('profile');closeMenu()"><span>📚</span> My Library</button>
+      <button onclick="switchView('store');closeMenu()"><span>🧭</span> สำรวจ</button>
+      <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>🛠️</span> สตูดิโอผู้สร้าง</button>
+      <button id="mProfile" style="display:none" onclick="switchView('profile');closeMenu()"><span>📚</span> คลังของฉัน</button>
       <div class="dd-divider" id="mDivider" style="display:none"></div>
-      <button id="mAuth" onclick="openAuthModal();closeMenu()"><span>🔑</span> Login / Sign Up</button>
+      <button id="mAuth" onclick="openAuthModal();closeMenu()"><span>🔑</span> เข้าสู่ระบบ / สมัครสมาชิก</button>
     </div>
   </div>
   <nav>
-    <button data-view="store" class="active" onclick="switchView('store',this)">Explore</button>
-    <button data-view="dashboard" id="navDashboard" style="display:none" onclick="switchView('dashboard',this)">Studio</button>
-    <button data-view="profile" id="navProfile" style="display:none" onclick="switchView('profile',this)">Library</button>
+    <button data-view="store" class="active" onclick="switchView('store',this)">สำรวจ</button>
+    <button data-view="dashboard" id="navDashboard" style="display:none" onclick="switchView('dashboard',this)">สตูดิโอ</button>
+    <button data-view="profile" id="navProfile" style="display:none" onclick="switchView('profile',this)">คลัง</button>
   </nav>
   <div class="header-right">
-    <button class="auth-btn" id="authBtn" onclick="openAuthModal()">Login</button>
-    <button class="cart-btn" onclick="openCart()">🛒 Cart<span class="cart-count" id="cartCount">0</span></button>
+    <button class="auth-btn" id="authBtn" onclick="openAuthModal()">เข้าสู่ระบบ</button>
+    <button class="cart-btn" onclick="openCart()">🛒 ตะกร้า<span class="cart-count" id="cartCount">0</span></button>
   </div>
 </header>
 
@@ -344,24 +344,24 @@
   <section id="storeView" class="view active">
     <div class="hero">
       <div>
-        <span class="hero-tag fade-up d1">✦ Featured Drop</span>
-        <h1 class="fade-up d2">Level up your <span class="grad">Minecraft</span> world</h1>
-        <p class="fade-up d3">Hand-crafted addons, textures and worlds from the community. Pay with PromptPay, download instantly.</p>
+        <span class="hero-tag fade-up d1">✦ สินค้าแนะนำ</span>
+        <h1 class="fade-up d2">อัปเกรดโลก <span class="grad">Minecraft</span> ของคุณ</h1>
+        <p class="fade-up d3">แอดออน เทกซ์เจอร์ และโลก สร้างด้วยใจจากคอมมูนิตี้ จ่ายด้วย PromptPay ดาวน์โหลดได้ทันที</p>
         <div class="hero-actions fade-up d4">
-          <button class="btn btn-primary" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">Browse Addons</button>
-          <button class="btn btn-ghost" onclick="heroCreatorClick()">Become a Creator</button>
+          <button class="btn btn-primary" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">เลือกชมแอดออน</button>
+          <button class="btn btn-ghost" onclick="heroCreatorClick()">สมัครเป็นผู้สร้าง</button>
         </div>
-        <div class="hero-stats fade-up d5"><span><b>100%</b> verified</span><span><b>Instant</b> downloads</span><span><b>PromptPay</b> secured</span></div>
+        <div class="hero-stats fade-up d5"><span><b>100%</b> ผู้สร้างยืนยันตัวตน</span><span><b>ดาวน์โหลด</b> ทันที</span><span><b>PromptPay</b> ปลอดภัย</span></div>
       </div>
       <div class="hero-art fade-up d4"><div class="vox grass"></div><div class="vox emerald"></div><div class="vox tnt"></div></div>
     </div>
     <div class="toolbar reveal">
       <div class="search">
-        <input id="searchInput" placeholder="Search addons..." oninput="applyFilters()">
+        <input id="searchInput" placeholder="ค้นหาแอดออน..." oninput="applyFilters()">
         <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
       </div>
       <select id="sortSelect" class="sort-select" onchange="setSort(this.value)">
-        <option value="new">Newest</option><option value="priceAsc">Price ↑</option><option value="priceDesc">Price ↓</option>
+        <option value="new">ใหม่ล่าสุด</option><option value="priceAsc">ราคา ↑</option><option value="priceDesc">ราคา ↓</option>
       </select>
     </div>
     <div class="chips reveal" id="catChips"></div>
@@ -370,40 +370,40 @@
 
   <section id="dashboardView" class="view">
     <div class="stats">
-      <div class="stat reveal"><div class="label">Total Revenue</div><div class="num" id="statRevenue">฿0</div><div class="delta">lifetime earnings</div>
+      <div class="stat reveal"><div class="label">รายได้รวม</div><div class="num" id="statRevenue">฿0</div><div class="delta">รายได้สะสมทั้งหมด</div>
         <svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline id="sparkRev" points="" fill="none" stroke="#00e676" stroke-width="3" stroke-linecap="round"/></svg></div>
-      <div class="stat reveal" style="animation-delay:.1s"><div class="label">Downloads</div><div class="num" id="statDownloads">0</div><div class="delta purple">verified purchases</div>
+      <div class="stat reveal" style="animation-delay:.1s"><div class="label">ยอดดาวน์โหลด</div><div class="num" id="statDownloads">0</div><div class="delta purple">คำสั่งซื้อที่ตรวจสอบแล้ว</div>
         <svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline id="sparkDl" points="" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round"/></svg></div>
-      <div class="stat reveal" style="animation-delay:.2s"><div class="label">Active Addons</div><div class="num" id="statActive">0</div><div class="delta">live in the store</div></div>
+      <div class="stat reveal" style="animation-delay:.2s"><div class="label">แอดออนที่ขายอยู่</div><div class="num" id="statActive">0</div><div class="delta">เปิดขายในร้าน</div></div>
     </div>
     <div class="dropzone reveal" id="dz" onclick="document.getElementById('dzFile').click()">
-      <span class="dz-icon">📦</span><h3>Drag & drop your addon here</h3><p>.mcaddon • .mcpack • .mcworld • .zip — or click to browse</p>
+      <span class="dz-icon">📦</span><h3>ลาก&วางแอดออนของคุณที่นี่</h3><p>.mcaddon • .mcpack • .mcworld • .zip — หรือคลิกเพื่อเลือกไฟล์</p>
       <input type="file" id="dzFile" hidden>
     </div>
-    <div class="studio-head reveal"><h2>Your Addons</h2><button class="btn btn-primary btn-sm" onclick="openProductModal()">+ New Addon</button></div>
+    <div class="studio-head reveal"><h2>แอดออนของคุณ</h2><button class="btn btn-primary btn-sm" onclick="openProductModal()">+ เพิ่มแอดออน</button></div>
     <div class="manage" id="creatorList"></div>
   </section>
 
   <section id="profileView" class="view">
-    <div class="studio-head reveal"><h2>My Purchased Addons</h2></div>
+    <div class="studio-head reveal"><h2>แอดออนที่ซื้อแล้ว</h2></div>
     <div id="libraryGrid" class="grid"></div>
   </section>
 </main>
 
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
 <aside class="drawer" id="drawer">
-  <div class="drawer-head"><h2>Your Cart 🛒</h2><button class="x" onclick="closeCart()">✕</button></div>
+  <div class="drawer-head"><h2>ตะกร้าของคุณ 🛒</h2><button class="x" onclick="closeCart()">✕</button></div>
   <div class="drawer-body">
     <div id="cartItems"></div>
-    <div class="qr-box"><img src="/qrcode.jpg" alt="QR"><p><b>Scan to pay with PromptPay</b><br>Pay the exact total (<b>฿<span id="cartTotalInline">0</span></b>), then upload your slip below.</p></div>
+    <div class="qr-box"><img src="/qrcode.jpg" alt="QR"><p><b>สแกนจ่ายด้วย PromptPay</b><br>โอนให้ตรงยอด (<b>฿<span id="cartTotalInline">0</span></b>) แล้วอัปโหลดสลิปด้านล่าง</p></div>
     <div class="slip-zone" id="slipZone" onclick="document.getElementById('slipFile').click()">
-      <p id="slipHint">📄 Drag & drop payment slip here</p>
+      <p id="slipHint">📄 ลาก&วางสลิปโอนเงินที่นี่</p>
       <img id="slipPrev" class="prev" alt="slip"><input type="file" id="slipFile" accept="image/*" hidden>
     </div>
   </div>
   <div class="drawer-foot">
-    <div class="total-row"><span>Total</span><span class="amt">฿<span id="cartTotal">0</span></span></div>
-    <form id="cartForm"><button type="submit" class="btn btn-primary w100" id="verifyBtn">Verify Payment</button></form>
+    <div class="total-row"><span>ยอดรวม</span><span class="amt">฿<span id="cartTotal">0</span></span></div>
+    <form id="cartForm"><button type="submit" class="btn btn-primary w100" id="verifyBtn">ตรวจสอบการชำระเงิน</button></form>
     <div id="cartStatus"></div>
   </div>
 </aside>
@@ -411,55 +411,55 @@
 <div id="authModal" class="modal" onclick="if(event.target===this)closeModal('authModal')">
   <div class="modal-box">
     <button class="x modal-close" onclick="closeModal('authModal')">✕</button>
-    <h2 id="authTitle">Sign In</h2>
-    <div id="signUpFields" style="display:none"><div class="form-group"><label>Profile</label>
-      <input type="text" id="authUsername" placeholder="Username / Creator Name">
+    <h2 id="authTitle">เข้าสู่ระบบ</h2>
+    <div id="signUpFields" style="display:none"><div class="form-group"><label>โปรไฟล์</label>
+      <input type="text" id="authUsername" placeholder="ชื่อผู้ใช้ / ชื่อผู้สร้าง">
       <input type="text" id="authIgn" placeholder="Minecraft IGN" style="margin-top:8px"></div></div>
-    <div class="form-group"><label>Credentials</label>
-      <input type="email" id="authEmail" placeholder="Email Address">
-      <input type="password" id="authPassword" placeholder="Password" style="margin-top:8px">
-      <input type="password" id="authConfirmPassword" placeholder="Confirm Password" style="display:none;margin-top:8px"></div>
-    <button class="btn btn-primary w100" id="authSubmit" onclick="handleAuth()">Submit</button>
-    <p class="auth-toggle" id="authToggleText" onclick="toggleAuthMode()">Need an account? Sign Up</p>
+    <div class="form-group"><label>ข้อมูลเข้าสู่ระบบ</label>
+      <input type="email" id="authEmail" placeholder="ที่อยู่อีเมล">
+      <input type="password" id="authPassword" placeholder="รหัสผ่าน" style="margin-top:8px">
+      <input type="password" id="authConfirmPassword" placeholder="ยืนยันรหัสผ่าน" style="display:none;margin-top:8px"></div>
+    <button class="btn btn-primary w100" id="authSubmit" onclick="handleAuth()">ยืนยัน</button>
+    <p class="auth-toggle" id="authToggleText" onclick="toggleAuthMode()">ยังไม่มีบัญชี? สมัครสมาชิก</p>
   </div>
 </div>
 
 <div id="productModal" class="modal" onclick="if(event.target===this)closeModal('productModal')">
   <div class="modal-box">
     <button class="x modal-close" onclick="closeModal('productModal')">✕</button>
-    <h2 id="modalProductTitle">Upload Addon</h2>
+    <h2 id="modalProductTitle">อัปโหลดแอดออน</h2>
     <form id="productForm">
       <input type="hidden" id="editProductId">
-      <div class="form-group"><label>Addon Name</label><input type="text" id="pName" placeholder="e.g. Epic Swords Pack" required></div>
-      <div class="form-group"><label>Description</label>
-        <textarea id="pDesc" rows="4" placeholder="Describe your addon...&#10;&#10;- feature one&#10;- feature two"></textarea>
-        <p class="hint">Line breaks kept • start a line with "- " for bullets</p></div>
+      <div class="form-group"><label>ชื่อแอดออน</label><input type="text" id="pName" placeholder="เช่น Epic Swords Pack" required></div>
+      <div class="form-group"><label>คำอธิบาย</label>
+        <textarea id="pDesc" rows="4" placeholder="อธิบายแอดออนของคุณ...&#10;&#10;- จุดเด่นหนึ่ง&#10;- จุดเด่นสอง"></textarea>
+        <p class="hint">ขึ้นบรรทัดใหม่ได้ • เริ่มบรรทัดด้วย "- " เพื่อทำหัวข้อย่อย</p></div>
       <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label>Price (THB)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
-        <div><label>Category</label><select id="pCategory"><option>Addons</option><option>Worlds</option><option>Items</option><option>Textures</option><option>Other</option></select></div>
+        <div><label>ราคา (บาท)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
+        <div><label>หมวดหมู่</label><select id="pCategory"><option>Addons</option><option>Worlds</option><option>Items</option><option>Textures</option><option>Other</option></select></div>
       </div>
-      <div class="form-group"><label>Thumbnail</label>
+      <div class="form-group"><label>ภาพปก</label>
         <div class="file-zone" id="pThumbZone" onclick="event.stopPropagation();document.getElementById('pThumb').click()">
-          <p id="thumbHint">🖼️ Click or drop an image</p><img id="thumbPrev" class="prev" alt="thumb"></div>
-        <input type="file" id="pThumb" accept="image/*" hidden><p class="hint">Recommended 16:9 ratio</p></div>
-      <div class="form-group"><label>Addon File</label>
+          <p id="thumbHint">🖼️ คลิกหรือวางรูป</p><img id="thumbPrev" class="prev" alt="thumb"></div>
+        <input type="file" id="pThumb" accept="image/*" hidden><p class="hint">แนะนำอัตราส่วน 16:9</p></div>
+      <div class="form-group"><label>ไฟล์แอดออน</label>
         <div class="file-zone" id="pFileZone" onclick="event.stopPropagation();document.getElementById('pFile').click()">
-          <p id="fileHint">📦 Click or drop your addon file</p></div>
-        <input type="file" id="pFile" hidden><p class="hint">.mcaddon, .mcpack, .mcworld, .zip (Max 4MB)</p>
+          <p id="fileHint">📦 คลิกหรือวางไฟล์แอดออน</p></div>
+        <input type="file" id="pFile" hidden><p class="hint">.mcaddon, .mcpack, .mcworld, .zip (สูงสุด 4MB)</p>
         <p class="file-error" id="fileError"></p></div>
-      <button type="submit" class="btn btn-primary w100">Save & Publish</button>
+      <button type="submit" class="btn btn-primary w100">บันทึก & เผยแพร่</button>
     </form>
     <div class="media-manager" id="mediaManager" style="display:none">
-      <h4>📸 Preview Gallery</h4>
+      <h4>📸 ภาพตัวอย่าง</h4>
       <div class="media-grid" id="mediaGrid"></div>
       <div class="file-zone" id="previewZone" onclick="event.stopPropagation();document.getElementById('previewFiles').click()">
-        <p>🖼️ Add preview images (max 5 at once)</p></div>
+        <p>🖼️ เพิ่มรูปตัวอย่าง (สูงสุด 5 รูปต่อครั้ง)</p></div>
       <input type="file" id="previewFiles" accept="image/*" multiple hidden>
       <div class="yt-add">
-        <input type="text" id="ytUrl" placeholder="YouTube URL (paste link)">
-        <button type="button" class="btn btn-sm btn-ghost" onclick="addYouTube()">+ Video</button>
+        <input type="text" id="ytUrl" placeholder="ลิงก์ YouTube (วางลิงก์)">
+        <button type="button" class="btn btn-sm btn-ghost" onclick="addYouTube()">+ วิดีโอ</button>
       </div>
-      <p class="hint">Up to 8 total items (images + videos) per addon</p>
+      <p class="hint">สูงสุด 8 รายการต่อแอดออน (รูป + วิดีโอ)</p>
     </div>
   </div>
 </div>
@@ -486,6 +486,7 @@
 
   const MAIN_CATS = ['Addons','Worlds','Items','Textures'];
   const CATS = ['All', ...MAIN_CATS, 'Other'];
+  const CAT_LABELS = { All:'ทั้งหมด', Addons:'แอดออน', Worlds:'โลก', Items:'ไอเทม', Textures:'เทกซ์เจอร์', Other:'อื่นๆ' };
   const normCat = c => MAIN_CATS.includes(c) ? c : 'Other';
 
   let currentUser = null, isSignUp = false, allProducts = [], currentSort = 'new', currentCategory = 'All';
@@ -495,12 +496,12 @@
 
   const $ = id => document.getElementById(id);
 
-function formatPrice(value) {
-  if (!value || value === '') return '';
-  const num = parseFloat(value);
-  if (isNaN(num)) return '';
-  return num.toFixed(2);
-}
+  function formatPrice(value) {
+    if (!value || value === '') return '';
+    const num = parseFloat(value);
+    if (isNaN(num)) return '';
+    return num.toFixed(2);
+  }
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -518,7 +519,7 @@ function formatPrice(value) {
       else { close(); html += `<p>${esc(line)}</p>`; }
     }
     close();
-    return html || '<p>No description available</p>';
+    return html || '<p>ไม่มีคำอธิบาย</p>';
   }
 
   function showToast(msg, type = 'success') {
@@ -553,7 +554,7 @@ function formatPrice(value) {
   function heroCreatorClick() { currentUser ? switchView('dashboard') : openAuthModal(); }
 
   function buildChips() {
-    $('catChips').innerHTML = CATS.map(c => `<button class="chip${c === currentCategory ? ' active' : ''}" data-cat="${c}">${c === 'All' ? '✨ All' : c}</button>`).join('');
+    $('catChips').innerHTML = CATS.map(c => `<button class="chip${c === currentCategory ? ' active' : ''}" data-cat="${c}">${c === 'All' ? '✨ ' : ''}${CAT_LABELS[c] || c}</button>`).join('');
     $('catChips').querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
       currentCategory = b.dataset.cat;
       $('catChips').querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x === b));
@@ -577,7 +578,7 @@ function formatPrice(value) {
       await getUserPurchases();
       applyFilters();
     } catch (err) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch products.</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3><p>ดึงข้อมูลสินค้าไม่สำเร็จ ลองรีเฟรชหน้าดูนะ</p></div>`;
     }
   }
   function setSort(v) { currentSort = v; applyFilters(); }
@@ -610,7 +611,7 @@ function formatPrice(value) {
     const grid = $('productsGrid');
     grid.innerHTML = '';
     if (!list.length) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>No addons found</h3><p>Try a different search or category!</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>ไม่พบแอดออน</h3><p>ลองคำค้นหาอื่น หรือเปลี่ยนหมวดหมู่ดูนะ</p></div>`;
       return;
     }
     list.forEach((p, i) => {
@@ -621,20 +622,20 @@ function formatPrice(value) {
       card.innerHTML = `
         <div class="thumb">
           ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}" loading="lazy">` : `<span class="fallback">📦</span>`}
-          <div class="cat-tag">${esc(normCat(p.category))}</div>
-          <div class="thumb-badge${owned ? ' owned' : ''}">${owned ? '✓ OWNED' : `฿${parseFloat(p.price).toFixed(2)}`}</div>
+          <div class="cat-tag">${esc(CAT_LABELS[normCat(p.category)] || normCat(p.category))}</div>
+          <div class="thumb-badge${owned ? ' owned' : ''}">${owned ? '✓ มีแล้ว' : `฿${parseFloat(p.price).toFixed(2)}`}</div>
         </div>
         <div class="card-body">
           <h3>${esc(p.name)}</h3>
-          <p class="creator">${esc(p.description || 'No description')}</p>
+          <p class="creator">${esc(p.description || 'ไม่มีคำอธิบาย')}</p>
           <div class="card-foot">
             <span class="price">฿${parseFloat(p.price).toFixed(2)}</span>
-            <button class="btn ${owned ? 'btn-ghost' : 'btn-primary'} btn-sm add-btn" onclick="event.stopPropagation()">${owned ? '✓ Owned' : 'Add +'}</button>
+            <button class="btn ${owned ? 'btn-ghost' : 'btn-primary'} btn-sm add-btn" onclick="event.stopPropagation()">${owned ? '✓ มีแล้ว' : 'เพิ่ม +'}</button>
           </div>
         </div>`;
       card.querySelector('.add-btn').addEventListener('click', e => {
         e.stopPropagation();
-        if (owned) { showToast('Already in your Library', 'warn'); switchView('profile'); return; }
+        if (owned) { showToast('มีอยู่ในคลังของคุณแล้ว', 'warn'); switchView('profile'); return; }
         addToCart(p.id, p.name, parseFloat(p.price), p.thumbnail_url);
       });
       card.addEventListener('click', () => openProductDetail(p));
@@ -658,16 +659,16 @@ function formatPrice(value) {
     $('detailBody').innerHTML = `
       <div class="detail-meta">
         <span class="detail-price">฿${parseFloat(p.price).toFixed(2)}</span>
-        <span class="detail-cat">${esc(normCat(p.category))}</span>
-        ${owned ? '<span class="owned-tag">✓ Owned</span>' : ''}
+        <span class="detail-cat">${esc(CAT_LABELS[normCat(p.category)] || normCat(p.category))}</span>
+        ${owned ? '<span class="owned-tag">✓ มีแล้ว</span>' : ''}
       </div>
       <h2>${esc(p.name)}</h2>
       <div class="detail-desc">${formatDesc(p.description)}</div>
       <div class="detail-actions">
         ${owned
-          ? `<button class="btn btn-primary" onclick="secureDownload('${p.id}','${esc(p.name)}');closeModal('detailModal')">⬇️ Download</button>
-             <button class="btn btn-ghost" onclick="closeModal('detailModal');switchView('profile')">📚 Library</button>`
-          : `<button class="btn btn-primary" onclick="addToCart('${p.id}','${esc(p.name)}',${parseFloat(p.price)},'${p.thumbnail_url || ''}');closeModal('detailModal')">🛒 Add to Cart</button>`}
+          ? `<button class="btn btn-primary" onclick="secureDownload('${p.id}','${esc(p.name)}');closeModal('detailModal')">⬇️ ดาวน์โหลด</button>
+             <button class="btn btn-ghost" onclick="closeModal('detailModal');switchView('profile')">📚 คลังของฉัน</button>`
+          : `<button class="btn btn-primary" onclick="addToCart('${p.id}','${esc(p.name)}',${parseFloat(p.price)},'${p.thumbnail_url || ''}');closeModal('detailModal')">🛒 เพิ่มลงตะกร้า</button>`}
       </div>`;
     $('detailModal').classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -685,7 +686,7 @@ function formatPrice(value) {
     if (item.type === 'video') {
       main.innerHTML = `<iframe src="${item.url}?autoplay=0" allowfullscreen loading="lazy"></iframe>`;
     } else {
-      main.innerHTML = `<img src="${item.url}" alt="Preview">`;
+      main.innerHTML = `<img src="${item.url}" alt="ตัวอย่าง">`;
     }
     strip.style.display = galleryItems.length > 1 ? 'flex' : 'none';
     strip.innerHTML = galleryItems.map((g, i) => `
@@ -724,10 +725,10 @@ function formatPrice(value) {
 
   function saveCart() { localStorage.setItem('mc_cart', JSON.stringify(cart)); }
   function addToCart(id, name, price, thumb) {
-    if (isOwned(id)) { showToast('You already own this addon', 'warn'); return; }
-    if (cart.some(i => i.id === id)) { showToast('Already in cart', 'warn'); openCart(); return; }
+    if (isOwned(id)) { showToast('คุณมีแอดออนนี้แล้ว', 'warn'); return; }
+    if (cart.some(i => i.id === id)) { showToast('อยู่ในตะกร้าแล้ว', 'warn'); openCart(); return; }
     cart.push({ id, name, price, thumb }); saveCart(); renderCart(); openCart();
-    showToast(`Added "${name}" to cart`);
+    showToast(`เพิ่ม "${name}" ลงตะกร้าแล้ว`);
   }
   function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); renderCart(); }
   function renderCart() {
@@ -740,9 +741,9 @@ function formatPrice(value) {
       <div class="c-item" style="animation-delay:${idx * 0.05}s">
         <div class="c-thumb">${i.thumb ? `<img src="${i.thumb}" alt="">` : '📦'}</div>
         <div class="c-info"><b>${esc(i.name)}</b><span>฿${parseFloat(i.price).toFixed(2)}</span></div>
-        <button class="c-rm" data-id="${i.id}">Remove</button>
+        <button class="c-rm" data-id="${i.id}">ลบ</button>
       </div>`).join('')
-      : '<p style="color:var(--muted);text-align:center;padding:26px 0;font-size:.85rem">Your cart is empty</p>';
+      : '<p style="color:var(--muted);text-align:center;padding:26px 0;font-size:.85rem">ตะกร้าว่างเปล่า</p>';
     $('cartItems').querySelectorAll('.c-rm').forEach(b => b.addEventListener('click', () => removeFromCart(b.dataset.id)));
     wireThumb($('cartItems'));
   }
@@ -752,25 +753,25 @@ function formatPrice(value) {
   $('cartForm').addEventListener('submit', async e => {
     e.preventDefault();
     const status = $('cartStatus'), btn = $('verifyBtn');
-    if (!cart.length) return showToast('Cart is empty', 'warn');
-    if (!currentUser) { showToast('Please login to checkout', 'warn'); openAuthModal(); return; }
+    if (!cart.length) return showToast('ตะกร้าว่างเปล่า', 'warn');
+    if (!currentUser) { showToast('เข้าสู่ระบบเพื่อชำระเงิน', 'warn'); openAuthModal(); return; }
     const slip = $('slipFile').files[0];
-    if (!slip) return showToast('Please upload your payment slip', 'warn');
+    if (!slip) return showToast('กรุณาอัปโหลดสลิปการโอน', 'warn');
     const session = (await supabaseClient.auth.getSession()).data.session;
     const fd = new FormData(); fd.append('slip', slip); fd.append('productIds', JSON.stringify(cart.map(i => i.id)));
-    btn.disabled = true; btn.textContent = '⏳ Verifying...';
-    status.className = 'status-box pending'; status.textContent = '⏳ Verifying payment slip...';
+    btn.disabled = true; btn.textContent = '⏳ กำลังตรวจสอบ...';
+    status.className = 'status-box pending'; status.textContent = '⏳ กำลังตรวจสอบสลิป...';
     try {
       const res = await fetch('/api/verify-cart-payment', { method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd });
       const data = await res.json();
       if (data.success) {
         cart = []; saveCart(); renderCart(); _userPurchases = null;
         status.className = 'status-box success';
-        status.innerHTML = `🎉 Payment verified!<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">Go to Library →</button>`;
-        showToast('Payment successful!');
-      } else { status.className = 'status-box error'; status.textContent = data.message || 'Verification failed'; showToast(data.message || 'Failed', 'error'); }
-    } catch { status.className = 'status-box error'; status.textContent = 'Network error.'; showToast('Network error', 'error'); }
-    finally { btn.disabled = false; btn.textContent = 'Verify Payment'; }
+        status.innerHTML = `🎉 ตรวจสอบการชำระแล้ว! แอดออนอยู่ในคลังของคุณ<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">ไปที่คลัง →</button>`;
+        showToast('ชำระเงินสำเร็จ!');
+      } else { status.className = 'status-box error'; status.textContent = data.message || 'ตรวจสอบไม่ผ่าน'; showToast(data.message || 'ตรวจสอบไม่ผ่าน', 'error'); }
+    } catch { status.className = 'status-box error'; status.textContent = 'เครือข่ายขัดข้อง ลองใหม่อีกครั้ง'; showToast('เครือข่ายขัดข้อง', 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'ตรวจสอบการชำระเงิน'; }
   });
 
   function bindDropZone(zone, onFile) {
@@ -815,27 +816,27 @@ function formatPrice(value) {
       const res = await fetch('/api/creator/products', { headers: { 'Authorization': `Bearer ${session.access_token}` } });
       const products = await res.json();
       window._creatorProducts = {}; products.forEach(p => window._creatorProducts[p.id] = p);
-      if (!products.length) { box.innerHTML = `<div class="empty-state"><div class="icon">🛠️</div><h3>No addons yet</h3><p>Drop your first addon above!</p></div>`; return; }
+      if (!products.length) { box.innerHTML = `<div class="empty-state"><div class="icon">🛠️</div><h3>ยังไม่มีแอดออน</h3><p>วางแอดออนแรกของคุณด้านบนเลย!</p></div>`; return; }
       box.innerHTML = products.map((p, i) => `
         <div class="m-row reveal" style="animation-delay:${i * 0.07}s">
           <div class="m-avatar">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="">` : '📦'}</div>
-          <div class="m-info"><b>${esc(p.name)}</b><span>${esc(normCat(p.category))} • ฿${parseFloat(p.price).toFixed(2)}</span></div>
-          <span class="badge pub">Published</span>
+          <div class="m-info"><b>${esc(p.name)}</b><span>${esc(CAT_LABELS[normCat(p.category)] || normCat(p.category))} • ฿${parseFloat(p.price).toFixed(2)}</span></div>
+          <span class="badge pub">เปิดขายแล้ว</span>
           <div class="m-actions">
-            <button class="btn-edit" onclick="openEditProduct('${p.id}')">Edit</button>
-            <button class="btn-danger" onclick="deleteProduct('${p.id}')">Delete</button>
+            <button class="btn-edit" onclick="openEditProduct('${p.id}')">แก้ไข</button>
+            <button class="btn-danger" onclick="deleteProduct('${p.id}')">ลบ</button>
           </div>
         </div>`).join('');
       observeReveals(box); wireThumb(box);
-    } catch { box.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3></div>`; }
+    } catch { box.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3></div>`; }
   }
 
   function openProductModal() {
     $('editProductId').value = '';
-    $('modalProductTitle').textContent = 'Upload New Addon';
+    $('modalProductTitle').textContent = 'อัปโหลดแอดออน';
     $('productForm').reset(); $('pCategory').value = 'Addons';
-    $('fileHint').textContent = '📦 Click or drop your addon file';
-    $('thumbHint').textContent = '🖼️ Click or drop an image';
+    $('fileHint').textContent = '📦 คลิกหรือวางไฟล์แอดออน';
+    $('thumbHint').textContent = '🖼️ คลิกหรือวางรูป';
     $('thumbPrev').style.display = 'none'; $('fileError').style.display = 'none';
     $('mediaManager').style.display = 'none';
     $('productModal').classList.add('active'); document.body.style.overflow = 'hidden';
@@ -844,10 +845,10 @@ function formatPrice(value) {
   async function openEditProduct(id) {
     const p = window._creatorProducts?.[id]; if (!p) return;
     $('editProductId').value = id;
-    $('modalProductTitle').textContent = 'Edit Addon';
+    $('modalProductTitle').textContent = 'แก้ไขแอดออน';
     $('pName').value = p.name || ''; $('pDesc').value = p.description || '';
-    $('pPrice').value = p.price || ''; $('pCategory').value = normCat(p.category);
-    $('fileHint').textContent = '📦 Leave empty to keep current file';
+    $('pPrice').value = formatPrice(p.price) || ''; $('pCategory').value = normCat(p.category);
+    $('fileHint').textContent = '📦 เว้นว่างไว้เพื่อใช้ไฟล์เดิม';
     $('fileError').style.display = 'none'; $('thumbPrev').style.display = 'none';
     $('mediaManager').style.display = 'block';
     await loadMediaManager(id);
@@ -856,11 +857,11 @@ function formatPrice(value) {
 
   async function loadMediaManager(productId) {
     const grid = $('mediaGrid');
-    grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">Loading...</p>';
+    grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">กำลังโหลด...</p>';
     try {
       const res = await fetch(`/api/products/${productId}/media`);
       const media = await res.json();
-      if (!media.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">No previews yet</p>'; return; }
+      if (!media.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">ยังไม่มีภาพตัวอย่าง</p>'; return; }
       grid.innerHTML = media.map(m => `
         <div class="media-item">
           ${m.media_type === 'video'
@@ -868,7 +869,7 @@ function formatPrice(value) {
             : `<img src="${m.media_url}" alt="preview">`}
           <button class="media-del" data-mid="${m.id}" onclick="deleteMedia('${$('editProductId').value}','${m.id}')">✕</button>
         </div>`).join('');
-    } catch { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">Failed to load</p>'; }
+    } catch { grid.innerHTML = '<p style="color:var(--muted);font-size:.8rem">โหลดไม่สำเร็จ</p>'; }
   }
 
   $('previewFiles').addEventListener('change', async function () {
@@ -877,22 +878,22 @@ function formatPrice(value) {
     const session = (await supabaseClient.auth.getSession()).data.session;
     const fd = new FormData();
     for (const f of this.files) fd.append('previews', f);
-    showToast('Uploading previews...');
+    showToast('กำลังอัปโหลดรูปตัวอย่าง...');
     try {
       const res = await fetch(`/api/creator/products/${productId}/media`, {
         method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
       });
       const data = await res.json();
-      if (data.success) { showToast(`${data.added} preview(s) added!`); loadMediaManager(productId); }
-      else showToast(data.message || 'Upload failed', 'error');
-    } catch { showToast('Upload failed', 'error'); }
+      if (data.success) { showToast(`เพิ่มรูปตัวอย่าง ${data.added} รูปแล้ว!`); loadMediaManager(productId); }
+      else showToast(data.message || 'อัปโหลดไม่สำเร็จ', 'error');
+    } catch { showToast('อัปโหลดไม่สำเร็จ', 'error'); }
     this.value = '';
   });
 
   async function addYouTube() {
     const productId = $('editProductId').value;
     const url = $('ytUrl').value.trim();
-    if (!productId || !url) return showToast('Enter a YouTube URL first', 'warn');
+    if (!productId || !url) return showToast('ใส่ลิงก์ YouTube ก่อนนะ', 'warn');
     const session = (await supabaseClient.auth.getSession()).data.session;
     const fd = new FormData();
     fd.append('youtube_urls', JSON.stringify([url]));
@@ -901,22 +902,22 @@ function formatPrice(value) {
         method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
       });
       const data = await res.json();
-      if (data.success) { showToast('Video added!'); $('ytUrl').value = ''; loadMediaManager(productId); }
-      else showToast(data.message || 'Failed', 'error');
-    } catch { showToast('Failed', 'error'); }
+      if (data.success) { showToast('เพิ่มวิดีโอแล้ว!'); $('ytUrl').value = ''; loadMediaManager(productId); }
+      else showToast(data.message || 'ล้มเหลว', 'error');
+    } catch { showToast('ล้มเหลว', 'error'); }
   }
 
   async function deleteMedia(productId, mediaId) {
-    if (!confirm('Remove this preview?')) return;
+    if (!confirm('ลบรูปตัวอย่างนี้?')) return;
     const session = (await supabaseClient.auth.getSession()).data.session;
     try {
       const res = await fetch(`/api/creator/products/${productId}/media/${mediaId}`, {
         method: 'DELETE', headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
       const data = await res.json();
-      if (data.success) { showToast('Removed!'); loadMediaManager(productId); }
-      else showToast(data.message || 'Failed', 'error');
-    } catch { showToast('Failed', 'error'); }
+      if (data.success) { showToast('ลบแล้ว!'); loadMediaManager(productId); }
+      else showToast(data.message || 'ล้มเหลว', 'error');
+    } catch { showToast('ล้มเหลว', 'error'); }
   }
 
   bindDropZone($('previewZone'), f => {
@@ -932,7 +933,7 @@ function formatPrice(value) {
     $('fileHint').textContent = '📦 ' + this.files[0].name;
     const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
     const ext = this.files[0].name.slice(this.files[0].name.lastIndexOf('.')).toLowerCase();
-    if (!allowed.includes(ext)) { err.textContent = `❌ Invalid type "${ext}"`; err.style.display = 'block'; this.value = ''; $('fileHint').textContent = '📦 Click or drop your addon file'; }
+    if (!allowed.includes(ext)) { err.textContent = `❌ รองรับไฟล์ "${ext}" ไม่ได้`; err.style.display = 'block'; this.value = ''; $('fileHint').textContent = '📦 คลิกหรือวางไฟล์แอดออน'; }
     else err.style.display = 'none';
   });
   $('pThumb').addEventListener('change', function () { if (this.files[0]) previewImage(this.files[0], $('thumbPrev'), $('thumbHint')); });
@@ -940,36 +941,36 @@ function formatPrice(value) {
   $('productForm').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]'), original = btn.textContent;
-    btn.disabled = true; btn.textContent = '⏳ Saving...';
+    btn.disabled = true; btn.textContent = '⏳ กำลังบันทึก...';
     try {
       const id = $('editProductId').value;
       const session = (await supabaseClient.auth.getSession()).data.session;
-      if (!session) { showToast('Please log in', 'error'); return; }
+      if (!session) { showToast('กรุณาเข้าสู่ระบบ', 'error'); return; }
       const fd = new FormData();
       fd.append('name', $('pName').value.trim()); fd.append('description', $('pDesc').value.trim());
-      fd.append('price', formatPrice($('pPrice').value) || '0.00');  fd.append('category', $('pCategory').value);
+      fd.append('price', formatPrice($('pPrice').value) || '0.00'); fd.append('category', $('pCategory').value);
       if ($('pThumb').files[0]) fd.append('thumbnail', $('pThumb').files[0]);
       if ($('pFile').files[0]) fd.append('productFile', $('pFile').files[0]);
-      if (!id && !$('pFile').files[0]) { showToast('Upload an addon file', 'error'); return; }
+      if (!id && !$('pFile').files[0]) { showToast('กรุณาอัปโหลดไฟล์แอดออน', 'error'); return; }
       const res = await fetch(id ? `/api/creator/products/${id}` : '/api/creator/products', {
         method: id ? 'PUT' : 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
       });
       const data = await res.json();
-      if (data.success) { closeModal('productModal'); loadCreatorProducts(); loadCreatorStats(); showToast(id ? 'Updated!' : 'Published!'); }
-      else showToast(data.message || 'Failed', 'error');
-    } catch { showToast('Upload failed', 'error'); }
+      if (data.success) { closeModal('productModal'); loadCreatorProducts(); loadCreatorStats(); showToast(id ? 'อัปเดตแล้ว!' : 'เผยแพร่แล้ว!'); }
+      else showToast(data.message || 'ล้มเหลว', 'error');
+    } catch { showToast('อัปโหลดไม่สำเร็จ', 'error'); }
     finally { btn.disabled = false; btn.textContent = original; }
   });
 
   async function deleteProduct(id) {
-    if (!confirm('Delete this addon?')) return;
+    if (!confirm('ลบแอดออนนี้? การลบไม่สามารถย้อนกลับได้')) return;
     const session = (await supabaseClient.auth.getSession()).data.session;
     try {
       const res = await fetch(`/api/creator/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${session.access_token}` } });
       const data = await res.json();
-      if (data.success) { loadCreatorProducts(); loadCreatorStats(); showToast('Deleted'); }
-      else showToast(data.message || 'Failed', 'error');
-    } catch { showToast('Failed', 'error'); }
+      if (data.success) { loadCreatorProducts(); loadCreatorStats(); showToast('ลบแล้ว'); }
+      else showToast(data.message || 'ล้มเหลว', 'error');
+    } catch { showToast('ล้มเหลว', 'error'); }
   }
 
   async function loadUserLibrary() {
@@ -982,7 +983,7 @@ function formatPrice(value) {
       _userPurchases = purchases.map(p => p.products?.id || p.product_id).filter(Boolean);
       grid.innerHTML = '';
       if (!purchases.length) {
-        grid.innerHTML = `<div class="empty-state"><div class="icon">📚</div><h3>No purchases yet</h3><button class="btn btn-primary btn-sm" onclick="switchView('store')">Browse Store</button></div>`;
+        grid.innerHTML = `<div class="empty-state"><div class="icon">📚</div><h3>ยังไม่มีคำสั่งซื้อ</h3><button class="btn btn-primary btn-sm" onclick="switchView('store')">เลือกชมร้าน</button></div>`;
         return;
       }
       purchases.forEach((item, i) => {
@@ -991,52 +992,52 @@ function formatPrice(value) {
         card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
         card.innerHTML = `
           <div class="thumb">${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}">` : `<span class="fallback">📦</span>`}
-            <div class="thumb-badge" style="color:var(--muted);border-color:var(--border)">${new Date(item.created_at).toLocaleDateString()}</div></div>
-          <div class="card-body"><h3>${esc(p.name)}</h3><p class="creator">Purchased</p>
-            <div class="card-foot"><button class="btn btn-primary btn-sm w100">⬇️ Download</button></div></div>`;
+            <div class="thumb-badge" style="color:var(--muted);border-color:var(--border)">${new Date(item.created_at).toLocaleDateString('th-TH')}</div></div>
+          <div class="card-body"><h3>${esc(p.name)}</h3><p class="creator">ซื้อแล้ว พร้อมดาวน์โหลด</p>
+            <div class="card-foot"><button class="btn btn-primary btn-sm w100">⬇️ ดาวน์โหลด</button></div></div>`;
         card.querySelector('button').addEventListener('click', () => secureDownload(p.id, p.name));
         grid.appendChild(card);
       });
       observeReveals(grid); wireThumb(grid);
-    } catch { grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3></div>`; }
+    } catch { grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3></div>`; }
   }
 
   async function secureDownload(id, name) {
-    showToast(`Generating link for ${name}...`);
+    showToast(`กำลังสร้างลิงก์ดาวน์โหลด ${name}...`);
     const session = (await supabaseClient.auth.getSession()).data.session;
     try {
       const res = await fetch('/api/downloads', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` }, body: JSON.stringify({ productId: id }) });
       const data = await res.json();
-      if (data.success) { const a = document.createElement('a'); a.href = data.url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); showToast('Download started!'); }
-      else showToast(data.message || 'Failed', 'error');
-    } catch { showToast('Network error', 'error'); }
+      if (data.success) { const a = document.createElement('a'); a.href = data.url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); showToast('เริ่มดาวน์โหลด!'); }
+      else showToast(data.message || 'ดาวน์โหลดไม่สำเร็จ', 'error');
+    } catch { showToast('เครือข่ายขัดข้องขณะดาวน์โหลด', 'error'); }
   }
 
   function openAuthModal() { $('authModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
   function closeModal(id) { $(id).classList.remove('active'); document.body.style.overflow = ''; }
   function toggleAuthMode() {
     isSignUp = !isSignUp;
-    $('authTitle').textContent = isSignUp ? 'Create Account' : 'Sign In';
-    $('authToggleText').textContent = isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up';
+    $('authTitle').textContent = isSignUp ? 'สร้างบัญชี' : 'เข้าสู่ระบบ';
+    $('authToggleText').textContent = isSignUp ? 'มีบัญชีแล้ว? เข้าสู่ระบบ' : 'ยังไม่มีบัญชี? สมัครสมาชิก';
     $('signUpFields').style.display = isSignUp ? 'block' : 'none';
     $('authConfirmPassword').style.display = isSignUp ? 'block' : 'none';
   }
   async function handleAuth() {
     const email = $('authEmail').value.trim(), password = $('authPassword').value;
     const btn = $('authSubmit'), original = btn.textContent;
-    if (!email || !password) return showToast('Fill in all fields', 'error');
-    btn.disabled = true; btn.textContent = '⏳ Processing...';
+    if (!email || !password) return showToast('กรอกข้อมูลให้ครบ', 'error');
+    btn.disabled = true; btn.textContent = '⏳ กำลังดำเนินการ...';
     try {
       if (isSignUp) {
         const username = $('authUsername').value.trim(), ign = $('authIgn').value.trim(), confirm = $('authConfirmPassword').value;
-        if (!username) return showToast('Enter a username', 'error');
-        if (password !== confirm) return showToast('Passwords do not match', 'error');
-        if (password.length < 6) return showToast('Password must be 6+', 'error');
+        if (!username) return showToast('ใส่ชื่อผู้ใช้', 'error');
+        if (password !== confirm) return showToast('รหัสผ่านไม่ตรงกัน', 'error');
+        if (password.length < 6) return showToast('รหัสผ่านต้องอย่างน้อย 6 ตัว', 'error');
         const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username, minecraft_ign: ign || 'Steve' } } });
-        if (error) showToast(error.message, 'error'); else { showToast(`Welcome, ${username}!`); toggleAuthMode(); }
+        if (error) showToast(error.message, 'error'); else { showToast(`ยินดีต้อนรับ, ${username}!`); toggleAuthMode(); }
       } else {
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) showToast(error.message, 'error'); else { closeModal('authModal'); showToast('Signed in!'); }
+        if (error) showToast(error.message, 'error'); else { closeModal('authModal'); showToast('เข้าสู่ระบบแล้ว!'); }
       }
     } finally { btn.disabled = false; btn.textContent = original; }
   }
@@ -1049,14 +1050,14 @@ function formatPrice(value) {
     const btn = $('authBtn'), logged = !!currentUser;
     $('navDashboard').style.display = logged ? 'inline-block' : 'none';
     $('navProfile').style.display = logged ? 'inline-block' : 'none';
-    if (logged) { btn.textContent = '👤 ' + name; btn.classList.add('logged'); btn.onclick = () => { supabaseClient.auth.signOut(); showToast('Signed out'); }; }
-    else { btn.textContent = 'Login'; btn.classList.remove('logged'); btn.onclick = openAuthModal; }
+    if (logged) { btn.textContent = '👤 ' + name; btn.classList.add('logged'); btn.onclick = () => { supabaseClient.auth.signOut(); showToast('ออกจากระบบแล้ว'); }; }
+    else { btn.textContent = 'เข้าสู่ระบบ'; btn.classList.remove('logged'); btn.onclick = openAuthModal; }
     $('mDashboard').style.display = logged ? 'flex' : 'none';
     $('mProfile').style.display = logged ? 'flex' : 'none';
     $('mDivider').style.display = logged ? 'block' : 'none';
     const mA = $('mAuth');
-    if (logged) { mA.innerHTML = `<span>🚪</span> Logout (${esc(name)})`; mA.onclick = () => { supabaseClient.auth.signOut(); closeMenu(); showToast('Signed out'); }; }
-    else { mA.innerHTML = `<span>🔑</span> Login / Sign Up`; mA.onclick = () => { openAuthModal(); closeMenu(); }; }
+    if (logged) { mA.innerHTML = `<span>🚪</span> ออกจากระบบ (${esc(name)})`; mA.onclick = () => { supabaseClient.auth.signOut(); closeMenu(); showToast('ออกจากระบบแล้ว'); }; }
+    else { mA.innerHTML = `<span>🔑</span> เข้าสู่ระบบ / สมัครสมาชิก`; mA.onclick = () => { openAuthModal(); closeMenu(); }; }
   }
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id)); closeCart(); closeMenu(); }
@@ -1064,7 +1065,15 @@ function formatPrice(value) {
     if (e.key === 'ArrowRight' && $('detailModal').classList.contains('active')) galleryNav(1);
   });
 
-  // Auto-format price on blur   $('pPrice').addEventListener('blur', function() {     this.value = formatPrice(this.value);   });    buildChips();   observeReveals(document);   renderCart();   loadStoreProducts();
+  // จัดรูปแบบราคาอัตโนมัติเมื่อคลิกออกจากช่อง
+  $('pPrice').addEventListener('blur', function() {
+    this.value = formatPrice(this.value);
+  });
+
+  buildChips();
+  observeReveals(document);
+  renderCart();
+  loadStoreProducts();
   if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
 </script>
 </body>
