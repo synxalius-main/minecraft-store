@@ -152,7 +152,7 @@ app.post('/api/creator/products', requireAuth, upload.fields([
       name: name.trim(),
       description: (description || '').trim(),
       price: parseFloat(price),
-      category: (req.body.category || 'Items').trim(),
+            category: (req.body.category || 'Addons').trim(),
       thumbnail_url: thumbnailUrl,
       file_path: addonFileName // Save path, NOT URL
     }]).select('id, name, description, price, thumbnail_url');
