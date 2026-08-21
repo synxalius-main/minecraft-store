@@ -84,23 +84,24 @@
   .view.active{display:block}
   @keyframes enter{from{opacity:0}to{opacity:1}}
 
-  .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;overflow:hidden;position:relative;
-    background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);padding:44px 42px;margin-bottom:26px;backdrop-filter:blur(14px)}
-  .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(50% 60% at 78% 50%,rgba(0,230,118,.12),transparent 70%);pointer-events:none}
-  .hero-tag{display:inline-flex;gap:6px;align-items:center;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.35);padding:6px 14px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em}
-  .hero h1{font-size:clamp(1.55rem,5.5vw,2.6rem);font-weight:900;letter-spacing:-.03em;line-height:1.2;margin:16px 0 12px}
-  .grad{background:linear-gradient(90deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .hero p{color:var(--muted);max-width:440px;line-height:1.7;margin:0 0 22px}
-  .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
-  .hero-actions .btn{flex:1 1 auto;justify-content:center}
-  .hero-stats{margin-top:22px;color:var(--muted);font-size:.8rem;display:flex;gap:14px 18px;flex-wrap:wrap}
-  .hero-stats b{color:var(--text)}
-  .hero-art{position:relative;height:230px}
-  .vox{position:absolute;width:88px;height:88px;border-radius:16px;box-shadow:0 0 45px rgba(0,230,118,.3),inset 0 -16px 26px rgba(0,0,0,.4);animation:float 6s ease-in-out infinite}
-  .vox.grass{left:6%;top:22%;background:linear-gradient(180deg,#4ade80 0 34%,#7c4a21 34%)}
-  .vox.emerald{left:40%;top:6%;width:74px;height:74px;background:linear-gradient(135deg,#c7fbe3,#10b981);transform:rotate(45deg);animation-delay:1.2s;box-shadow:0 0 55px rgba(16,185,129,.5)}
-  .vox.tnt{right:4%;top:30%;background:linear-gradient(180deg,#ef4444 0 32%,#7f1d1d 32%);animation-delay:2.1s;box-shadow:0 0 45px rgba(239,68,68,.35),inset 0 -16px 26px rgba(0,0,0,.4)}
-  @keyframes float{0%,100%{translate:0 0}50%{translate:0 -14px}}
+  /* ============ LANDING (หน้าเกริ่นนำ) ============ */
+  .landing{min-height:calc(100dvh - 90px);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;position:relative;overflow:hidden;padding:40px 20px 80px;will-change:transform,opacity}
+  .landing-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:orb 12s ease-in-out infinite;pointer-events:none}
+  .orb1{width:360px;height:360px;background:var(--primary);top:-100px;left:-100px}
+  .orb2{width:320px;height:320px;background:var(--accent);bottom:-80px;right:-80px;animation-delay:4s}
+  @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,26px) scale(1.1)}}
+  .landing-logo{font-size:4.2rem;filter:drop-shadow(0 0 30px rgba(0,230,118,.4));animation:float 5s ease-in-out infinite}
+  .landing h1{font-family:'Press Start 2P';font-size:clamp(1.3rem,6vw,2.6rem);margin:20px 0 12px;letter-spacing:2px;
+    background:linear-gradient(90deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .landing-tag{color:var(--muted);max-width:560px;line-height:1.8;margin:0 auto}
+  .landing-cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+  .landing-feats{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap;justify-content:center}
+  .feat-pill{background:var(--glass);border:1px solid var(--border);border-radius:100px;padding:8px 16px;font-size:.78rem;color:var(--muted);font-weight:600}
+  .scroll-hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:.78rem;
+    display:flex;flex-direction:column;align-items:center;gap:6px}
+  .scroll-hint .arrow{color:var(--primary);animation:bounce 1.6s infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
 
   .btn{border:none;border-radius:14px;font-weight:700;font-size:.9rem;padding:13px 22px;transition:.25s;display:inline-flex;align-items:center;gap:8px;justify-content:center}
   .btn-primary{background:linear-gradient(135deg,var(--primary),#00b359);color:#00160a;box-shadow:0 6px 22px rgba(0,230,118,.3)}
@@ -224,6 +225,33 @@
   .detail-actions .btn{flex:1}
   .owned-tag{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3);padding:5px 14px;border-radius:100px;font-size:.75rem;font-weight:800}
 
+  /* ============ PROFILE ============ */
+  .profile-card{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:var(--r);padding:22px;backdrop-filter:blur(14px);margin-bottom:16px}
+  .p-head{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  .p-avatar{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font-size:1.8rem;font-weight:900;color:#071018;flex-shrink:0}
+  .p-head h3{margin:0 0 6px;font-size:1.2rem;font-weight:900}
+  .role-badge{padding:5px 14px;border-radius:100px;font-size:.72rem;font-weight:800}
+  .role-badge.creator{background:var(--primary-dim);color:var(--primary);border:1px solid rgba(0,230,118,.3)}
+  .role-badge.member{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(167,139,250,.3)}
+  .p-rows{display:flex;flex-direction:column;border-top:1px solid var(--border);margin-bottom:18px}
+  .p-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+  .p-row span{color:var(--muted);flex-shrink:0}
+  .p-row b{font-weight:700;text-align:right;word-break:break-all}
+  .p-row b.ok{color:var(--primary)}
+  .upgrade-card{background:linear-gradient(180deg,var(--accent-dim),var(--glass));border:1px solid rgba(167,139,250,.3);border-radius:var(--r);padding:22px;text-align:center}
+  .upgrade-card h3{margin:0 0 8px;font-weight:900}
+  .upgrade-card p{color:var(--muted);font-size:.88rem;margin:0 0 16px}
+
+  .role-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .role-opt{border:1px solid var(--border);background:var(--glass);color:var(--muted);padding:12px;border-radius:12px;font-weight:700;font-size:.85rem;transition:.25s}
+  .role-opt.active{border-color:var(--border-glow);color:var(--primary);background:var(--primary-dim)}
+  .terms-check{display:flex;align-items:flex-start;gap:10px;font-size:.82rem;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-top:4px}
+  .terms-check input{width:auto;margin-top:2px;accent-color:var(--primary)}
+  .terms-check a{color:var(--accent);cursor:pointer;text-decoration:underline}
+  .terms-body{color:var(--muted);font-size:.88rem;line-height:1.8}
+  .terms-body h4{color:var(--text);margin:14px 0 6px}
+  .terms-body p{margin:0 0 8px}
+
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.35s;z-index:90}
   .overlay.show{opacity:1;pointer-events:auto}
   .drawer{position:fixed;top:0;right:0;height:100%;width:min(430px,100%);z-index:100;display:flex;flex-direction:column;
@@ -303,12 +331,13 @@
   .thumb.img-loaded::before{animation:none;opacity:0;transition:opacity .4s}
   .thumb img.loaded,.c-thumb img.loaded,.m-avatar img.loaded{opacity:1}
   .card:hover .thumb img.loaded{transform:scale(1.08)}
+  @keyframes float{0%,100%{translate:0 0}50%{translate:0 -14px}}
 
   @media(max-width:820px){
     nav{display:none}.auth-btn{display:none}.caret{display:inline-block}
     header{padding:12px 14px;padding-top:calc(12px + var(--safe-top));gap:8px}
     .logo{font-size:.68rem;padding:4px 6px;gap:9px}.logo-tile{width:34px;height:34px;font-size:1rem}
-    main{padding:18px 14px 80px}.hero{padding:28px 20px;margin-bottom:20px}.hero-art{display:none}
+    main{padding:18px 14px 80px}.landing{min-height:calc(100dvh - 70px)}
     .cart-btn{padding:10px 14px}input,textarea,select{font-size:16px}.grid{gap:14px}
     .toasts{left:12px;right:12px}
     .gallery{aspect-ratio:16/10}
@@ -325,6 +354,7 @@
       <button onclick="switchView('store');closeMenu()"><span>🧭</span> สำรวจ</button>
       <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>🛠️</span> สตูดิโอผู้สร้าง</button>
       <button id="mProfile" style="display:none" onclick="switchView('profile');closeMenu()"><span>📚</span> คลังของฉัน</button>
+      <button id="mAccount" style="display:none" onclick="switchView('account');closeMenu()"><span>👤</span> โปรไฟล์</button>
       <div class="dd-divider" id="mDivider" style="display:none"></div>
       <button id="mAuth" onclick="openAuthModal();closeMenu()"><span>🔑</span> เข้าสู่ระบบ / สมัครสมาชิก</button>
     </div>
@@ -333,6 +363,7 @@
     <button data-view="store" class="active" onclick="switchView('store',this)">สำรวจ</button>
     <button data-view="dashboard" id="navDashboard" style="display:none" onclick="switchView('dashboard',this)">สตูดิโอ</button>
     <button data-view="profile" id="navProfile" style="display:none" onclick="switchView('profile',this)">คลัง</button>
+    <button data-view="account" id="navAccount" style="display:none" onclick="switchView('account',this)">โปรไฟล์</button>
   </nav>
   <div class="header-right">
     <button class="auth-btn" id="authBtn" onclick="openAuthModal()">เข้าสู่ระบบ</button>
@@ -341,21 +372,26 @@
 </header>
 
 <main>
+  <!-- ================= STORE (Landing + Explore) ================= -->
   <section id="storeView" class="view active">
-    <div class="hero">
-      <div>
-        <span class="hero-tag fade-up d1">✦ สินค้าแนะนำ</span>
-        <h1 class="fade-up d2">อัปเกรดโลก <span class="grad">Minecraft</span> ของคุณ</h1>
-        <p class="fade-up d3">แอดออน เทกซ์เจอร์ และโลก สร้างด้วยใจจากคอมมูนิตี้ จ่ายด้วย PromptPay ดาวน์โหลดได้ทันที</p>
-        <div class="hero-actions fade-up d4">
-          <button class="btn btn-primary" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">เลือกชมแอดออน</button>
-          <button class="btn btn-ghost" onclick="heroCreatorClick()">สมัครเป็นผู้สร้าง</button>
-        </div>
-        <div class="hero-stats fade-up d5"><span><b>100%</b> ผู้สร้างยืนยันตัวตน</span><span><b>ดาวน์โหลด</b> ทันที</span><span><b>PromptPay</b> ปลอดภัย</span></div>
+    <section id="landing" class="landing">
+      <div class="landing-orb orb1"></div><div class="landing-orb orb2"></div>
+      <div class="landing-logo fade-up d1">⛏️</div>
+      <h1 class="fade-up d2">MC STORE</h1>
+      <p class="landing-tag fade-up d3">แหล่งรวมแอดออน Minecraft จากคอมมูนิตี้ เพื่อคอมมูนิตี้ — ซื้อ-ขายปลอดภัย จ่ายผ่าน PromptPay ดาวน์โหลดได้ทันที</p>
+      <div class="landing-cta fade-up d4">
+        <button class="btn btn-primary" onclick="scrollToExplore()">🧭 เริ่มสำรวจ</button>
+        <button class="btn btn-ghost" onclick="heroCreatorClick()">🛠️ เป็นผู้สร้าง</button>
       </div>
-      <div class="hero-art fade-up d4"><div class="vox grass"></div><div class="vox emerald"></div><div class="vox tnt"></div></div>
-    </div>
-    <div class="toolbar reveal">
+      <div class="landing-feats fade-up d5">
+        <span class="feat-pill">✅ ผู้สร้างยืนยันตัวตน</span>
+        <span class="feat-pill">⚡ ดาวน์โหลดทันที</span>
+        <span class="feat-pill">🔒 PromptPay ปลอดภัย</span>
+      </div>
+      <div class="scroll-hint">เลื่อนลงเพื่อสำรวจ<span class="arrow">▼</span></div>
+    </section>
+
+    <div id="exploreTop" class="toolbar reveal">
       <div class="search">
         <input id="searchInput" placeholder="ค้นหาแอดออน..." oninput="applyFilters()">
         <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
@@ -368,6 +404,7 @@
     <div id="productsGrid" class="grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
 
+  <!-- ================= STUDIO ================= -->
   <section id="dashboardView" class="view">
     <div class="stats">
       <div class="stat reveal"><div class="label">รายได้รวม</div><div class="num" id="statRevenue">฿0</div><div class="delta">รายได้สะสมทั้งหมด</div>
@@ -384,12 +421,21 @@
     <div class="manage" id="creatorList"></div>
   </section>
 
+  <!-- ================= LIBRARY ================= -->
   <section id="profileView" class="view">
     <div class="studio-head reveal"><h2>แอดออนที่ซื้อแล้ว</h2></div>
     <div id="libraryGrid" class="grid"></div>
   </section>
+
+  <!-- ================= ACCOUNT / PROFILE ================= -->
+  <section id="accountView" class="view">
+    <div class="studio-head reveal"><h2>โปรไฟล์ของฉัน</h2></div>
+    <div class="profile-card reveal" id="profileCard"></div>
+    <div id="roleSection"></div>
+  </section>
 </main>
 
+<!-- ================= CART DRAWER ================= -->
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>ตะกร้าของคุณ 🛒</h2><button class="x" onclick="closeCart()">✕</button></div>
@@ -408,13 +454,26 @@
   </div>
 </aside>
 
+<!-- ================= AUTH MODAL ================= -->
 <div id="authModal" class="modal" onclick="if(event.target===this)closeModal('authModal')">
   <div class="modal-box">
     <button class="x modal-close" onclick="closeModal('authModal')">✕</button>
     <h2 id="authTitle">เข้าสู่ระบบ</h2>
-    <div id="signUpFields" style="display:none"><div class="form-group"><label>โปรไฟล์</label>
-      <input type="text" id="authUsername" placeholder="ชื่อผู้ใช้ / ชื่อผู้สร้าง">
-      <input type="text" id="authIgn" placeholder="Minecraft IGN" style="margin-top:8px"></div></div>
+    <div id="signUpFields" style="display:none">
+      <div class="form-group"><label>โปรไฟล์</label>
+        <input type="text" id="authUsername" placeholder="ชื่อผู้ใช้ / ชื่อผู้สร้าง">
+        <input type="text" id="authIgn" placeholder="Minecraft IGN" style="margin-top:8px">
+        <input type="tel" id="authPhone" placeholder="เบอร์โทรศัพท์ (เช่น 0812345678)" style="margin-top:8px" inputmode="tel"></div>
+      <div class="form-group"><label>ประเภทบัญชี</label>
+        <div class="role-pick">
+          <button type="button" class="role-opt active" data-role="member" onclick="pickRole('member')">👤 สมาชิก</button>
+          <button type="button" class="role-opt" data-role="creator" onclick="pickRole('creator')">🛠️ ผู้สร้าง</button>
+        </div>
+        <p class="hint">ผู้สร้างสามารถอัปโหลดและขายแอดออนได้</p></div>
+      <div class="form-group">
+        <label class="terms-check"><input type="checkbox" id="authTerms"> <span>ฉันอ่านและยอมรับ <a onclick="event.stopPropagation();openTermsModal()">ข้อตกลงการใช้งาน</a> และนโยบายความเป็นส่วนตัว</span></label>
+      </div>
+    </div>
     <div class="form-group"><label>ข้อมูลเข้าสู่ระบบ</label>
       <input type="email" id="authEmail" placeholder="ที่อยู่อีเมล">
       <input type="password" id="authPassword" placeholder="รหัสผ่าน" style="margin-top:8px">
@@ -424,6 +483,41 @@
   </div>
 </div>
 
+<!-- ================= TERMS MODAL ================= -->
+<div id="termsModal" class="modal" onclick="if(event.target===this)closeModal('termsModal')">
+  <div class="modal-box">
+    <button class="x modal-close" onclick="closeModal('termsModal')">✕</button>
+    <h2>📜 ข้อตกลงการใช้งาน</h2>
+    <div class="terms-body">
+      <p>ยินดีต้อนรับสู่ MC Store การใช้งานเว็บไซต์นี้ถือว่าคุณยอมรับข้อตกลงต่อไปนี้</p>
+      <h4>1. การซื้อและดาวน์โหลด</h4>
+      <p>สินค้าที่ซื้อแล้วจะอยู่ในคลังของคุณเพื่อการใช้งานส่วนตัว ห้ามแจกจ่ายหรือขายต่อไฟล์แอดออนโดยไม่ได้รับอนุญาตจากเจ้าของผลงาน</p>
+      <h4>2. การชำระเงิน</h4>
+      <p>การชำระเงินดำเนินการผ่าน PromptPay และตรวจสอบด้วยสลิปการโอน ยอดเงินต้องตรงกับราคาสินค้า</p>
+      <h4>3. ผู้สร้างและเนื้อหา</h4>
+      <p>ผู้สร้างต้องเป็นเจ้าของลิขสิทธิ์ในเนื้อหาที่อัปโหลด ทีมงานขอสงวนสิทธิ์นำเนื้อหาที่ละเมิดลิขสิทธิ์ออกจากระบบ</p>
+      <h4>4. บัญชีผู้ใช้</h4>
+      <p>คุณรับผิดชอบในการเก็บรักษารหัสผ่านและข้อมูลบัญชีของตนเอง รวมถึงเบอร์โทรศัพท์ที่ลงทะเบียนไว้</p>
+      <h4>5. การคืนเงิน</h4>
+      <p>สินค้าเป็นเนื้อหาดิจิทัล ไม่สามารถขอคืนเงินได้หลังจากดาวน์โหลดแล้ว ยกเว้นกรณีที่ไฟล์เสียหายหรือไม่ตรงกับคำอธิบาย</p>
+    </div>
+    <button class="btn btn-primary w100" style="margin-top:16px" onclick="closeModal('termsModal')">เข้าใจแล้ว ✓</button>
+  </div>
+</div>
+
+<!-- ================= EDIT PROFILE MODAL ================= -->
+<div id="editProfileModal" class="modal" onclick="if(event.target===this)closeModal('editProfileModal')">
+  <div class="modal-box">
+    <button class="x modal-close" onclick="closeModal('editProfileModal')">✕</button>
+    <h2>✏️ แก้ไขโปรไฟล์</h2>
+    <div class="form-group"><label>ชื่อผู้ใช้</label><input type="text" id="epUsername"></div>
+    <div class="form-group"><label>Minecraft IGN</label><input type="text" id="epIgn"></div>
+    <div class="form-group"><label>เบอร์โทรศัพท์</label><input type="tel" id="epPhone" inputmode="tel"></div>
+    <button class="btn btn-primary w100" onclick="saveProfile()">บันทึก</button>
+  </div>
+</div>
+
+<!-- ================= PRODUCT MODAL ================= -->
 <div id="productModal" class="modal" onclick="if(event.target===this)closeModal('productModal')">
   <div class="modal-box">
     <button class="x modal-close" onclick="closeModal('productModal')">✕</button>
@@ -464,6 +558,7 @@
   </div>
 </div>
 
+<!-- ================= DETAIL MODAL ================= -->
 <div id="detailModal" class="modal detail-modal" onclick="if(event.target===this)closeModal('detailModal')">
   <div class="modal-box">
     <button class="x modal-close" style="top:10px;right:10px;z-index:10;position:absolute" onclick="closeModal('detailModal')">✕</button>
@@ -493,6 +588,7 @@
   let cart = JSON.parse(localStorage.getItem('mc_cart') || '[]');
   let galleryItems = [], galleryIdx = 0;
   let _userPurchases = null;
+  let selectedRole = 'member';
 
   const $ = id => document.getElementById(id);
 
@@ -536,6 +632,16 @@
   }, { threshold: .1, rootMargin: '0px 0px -30px 0px' }) : null;
   function observeReveals(root) { (root || document).querySelectorAll('.reveal:not(.visible)').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); }); }
 
+  /* ---------- LANDING PARALLAX ---------- */
+  window.addEventListener('scroll', () => {
+    const l = $('landing');
+    if (!l || !$('storeView').classList.contains('active')) return;
+    const p = Math.min(window.scrollY / (l.offsetHeight * 0.9), 1);
+    l.style.opacity = String(1 - p * 0.85);
+    l.style.transform = `translateY(${window.scrollY * 0.22}px)`;
+  }, { passive: true });
+  function scrollToExplore() { $('exploreTop').scrollIntoView({ behavior: 'smooth' }); }
+
   function toggleMenu(e) { e.stopPropagation(); const o = $('logoMenu').classList.contains('active'); closeMenu(); if (!o) { $('logoMenu').classList.add('active'); $('logoBtn').classList.add('open'); } }
   function closeMenu() { $('logoMenu').classList.remove('active'); $('logoBtn').classList.remove('open'); }
   document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) closeMenu(); });
@@ -548,10 +654,83 @@
     if (name === 'store') loadStoreProducts();
     if (name === 'dashboard') { loadCreatorProducts(); loadCreatorStats(); }
     if (name === 'profile') loadUserLibrary();
+    if (name === 'account') loadProfile();
     observeReveals($(name + 'View'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  function heroCreatorClick() { currentUser ? switchView('dashboard') : openAuthModal(); }
+  function heroCreatorClick() {
+    if (!currentUser) return openAuthModal();
+    isCreator() ? switchView('dashboard') : switchView('account');
+  }
+
+  /* ---------- ROLE ---------- */
+  function isCreator() {
+    if (!currentUser) return false;
+    if (currentUser.user_metadata?.role === 'creator') return true;
+    return Object.keys(window._creatorProducts || {}).length > 0;
+  }
+  function pickRole(r) {
+    selectedRole = r;
+    document.querySelectorAll('.role-opt').forEach(b => b.classList.toggle('active', b.dataset.role === r));
+  }
+  async function becomeCreator() {
+    const { error } = await supabaseClient.auth.updateUser({ data: { role: 'creator' } });
+    if (error) return showToast(error.message, 'error');
+    const { data } = await supabaseClient.auth.getSession();
+    currentUser = data.session?.user || currentUser;
+    updateAuthUI(); loadProfile();
+    showToast('🎉 คุณเป็นผู้สร้างแล้ว!');
+    switchView('dashboard');
+  }
+
+  /* ---------- PROFILE ---------- */
+  function loadProfile() {
+    if (!currentUser) return;
+    const m = currentUser.user_metadata || {};
+    const creator = isCreator();
+    $('profileCard').innerHTML = `
+      <div class="p-head">
+        <div class="p-avatar">${esc((m.username || currentUser.email || 'U').charAt(0).toUpperCase())}</div>
+        <div>
+          <h3>${esc(m.username || currentUser.email.split('@')[0])}</h3>
+          <span class="role-badge ${creator ? 'creator' : 'member'}">${creator ? '🛠️ ผู้สร้าง (Creator)' : '👤 สมาชิก (Member)'}</span>
+        </div>
+      </div>
+      <div class="p-rows">
+        <div class="p-row"><span>อีเมล</span><b>${esc(currentUser.email)}</b></div>
+        <div class="p-row"><span>เบอร์โทร</span><b>${esc(m.phone || 'ยังไม่ระบุ')}</b></div>
+        <div class="p-row"><span>Minecraft IGN</span><b>${esc(m.minecraft_ign || '-')}</b></div>
+        <div class="p-row"><span>ข้อตกลงการใช้งาน</span><b class="ok">✓ ยอมรับแล้ว</b></div>
+        <div class="p-row"><span>สมัครเมื่อ</span><b>${new Date(currentUser.created_at).toLocaleDateString('th-TH')}</b></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-ghost" onclick="openEditProfile()">✏️ แก้ไขโปรไฟล์</button>
+        <button class="btn btn-danger" onclick="supabaseClient.auth.signOut();showToast('ออกจากระบบแล้ว')">🚪 ออกจากระบบ</button>
+      </div>`;
+    $('roleSection').innerHTML = creator
+      ? `<div class="upgrade-card"><h3>🛠️ โหมดผู้สร้างเปิดใช้งาน</h3><p>คุณสามารถอัปโหลดและขายแอดออนได้ในสตูดิโอ</p><button class="btn btn-primary btn-sm" onclick="switchView('dashboard')">ไปที่สตูดิโอ →</button></div>`
+      : `<div class="upgrade-card"><h3>อยากขายแอดออนไหม?</h3><p>อัปเกรดบัญชีเป็นผู้สร้างเพื่ออัปโหลดและขายแอดออนของคุณเอง</p><button class="btn btn-primary btn-sm" onclick="becomeCreator()">🛠️ อัปเกรดเป็นผู้สร้าง</button></div>`;
+  }
+  function openEditProfile() {
+    const m = currentUser?.user_metadata || {};
+    $('epUsername').value = m.username || '';
+    $('epIgn').value = m.minecraft_ign || '';
+    $('epPhone').value = m.phone || '';
+    $('editProfileModal').classList.add('active'); document.body.style.overflow = 'hidden';
+  }
+  async function saveProfile() {
+    const username = $('epUsername').value.trim();
+    if (!username) return showToast('ใส่ชื่อผู้ใช้', 'error');
+    const phone = $('epPhone').value.trim();
+    if (phone && !/^0\d{8,9}$/.test(phone)) return showToast('เบอร์โทรไม่ถูกต้อง', 'error');
+    const { error } = await supabaseClient.auth.updateUser({ data: { username, minecraft_ign: $('epIgn').value.trim() || 'Steve', phone } });
+    if (error) return showToast(error.message, 'error');
+    const { data } = await supabaseClient.auth.getSession();
+    currentUser = data.session?.user || currentUser;
+    closeModal('editProfileModal'); updateAuthUI(); loadProfile();
+    showToast('บันทึกโปรไฟล์แล้ว!');
+  }
+  function openTermsModal() { $('termsModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
 
   function buildChips() {
     $('catChips').innerHTML = CATS.map(c => `<button class="chip${c === currentCategory ? ' active' : ''}" data-cat="${c}">${c === 'All' ? '✨ ' : ''}${CAT_LABELS[c] || c}</button>`).join('');
@@ -850,6 +1029,7 @@
       const res = await fetch('/api/creator/products', { headers: { 'Authorization': `Bearer ${session.access_token}` } });
       const products = await res.json();
       window._creatorProducts = {}; products.forEach(p => window._creatorProducts[p.id] = p);
+      updateAuthUI();
       if (!products.length) { box.innerHTML = `<div class="empty-state"><div class="icon">🛠️</div><h3>ยังไม่มีแอดออน</h3><p>วางแอดออนแรกของคุณด้านบนเลย!</p></div>`; return; }
       box.innerHTML = products.map((p, i) => `
         <div class="m-row reveal" style="animation-delay:${i * 0.07}s">
@@ -1064,10 +1244,16 @@
     try {
       if (isSignUp) {
         const username = $('authUsername').value.trim(), ign = $('authIgn').value.trim(), confirm = $('authConfirmPassword').value;
+        const phone = $('authPhone').value.trim();
         if (!username) return showToast('ใส่ชื่อผู้ใช้', 'error');
+        if (!phone || !/^0\d{8,9}$/.test(phone)) return showToast('กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)', 'error');
+        if (!$('authTerms').checked) return showToast('กรุณายอมรับข้อตกลงการใช้งาน', 'error');
         if (password !== confirm) return showToast('รหัสผ่านไม่ตรงกัน', 'error');
         if (password.length < 6) return showToast('รหัสผ่านต้องอย่างน้อย 6 ตัว', 'error');
-        const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username, minecraft_ign: ign || 'Steve' } } });
+        const { error } = await supabaseClient.auth.signUp({
+          email, password,
+          options: { data: { username, minecraft_ign: ign || 'Steve', phone, role: selectedRole, terms_accepted: true } }
+        });
         if (error) showToast(error.message, 'error'); else { showToast(`ยินดีต้อนรับ, ${username}!`); toggleAuthMode(); }
       } else {
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -1081,13 +1267,15 @@
   });
   function updateAuthUI() {
     const name = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'User';
-    const btn = $('authBtn'), logged = !!currentUser;
-    $('navDashboard').style.display = logged ? 'inline-block' : 'none';
+    const btn = $('authBtn'), logged = !!currentUser, creator = isCreator();
+    $('navDashboard').style.display = logged && creator ? 'inline-block' : 'none';
     $('navProfile').style.display = logged ? 'inline-block' : 'none';
+    $('navAccount').style.display = logged ? 'inline-block' : 'none';
     if (logged) { btn.textContent = '👤 ' + name; btn.classList.add('logged'); btn.onclick = () => { supabaseClient.auth.signOut(); showToast('ออกจากระบบแล้ว'); }; }
     else { btn.textContent = 'เข้าสู่ระบบ'; btn.classList.remove('logged'); btn.onclick = openAuthModal; }
-    $('mDashboard').style.display = logged ? 'flex' : 'none';
+    $('mDashboard').style.display = logged && creator ? 'flex' : 'none';
     $('mProfile').style.display = logged ? 'flex' : 'none';
+    $('mAccount').style.display = logged ? 'flex' : 'none';
     $('mDivider').style.display = logged ? 'block' : 'none';
     const mA = $('mAuth');
     if (logged) { mA.innerHTML = `<span>🚪</span> ออกจากระบบ (${esc(name)})`; mA.onclick = () => { supabaseClient.auth.signOut(); closeMenu(); showToast('ออกจากระบบแล้ว'); }; }
@@ -1099,7 +1287,6 @@
     if (e.key === 'ArrowRight' && $('detailModal').classList.contains('active')) galleryNav(1);
   });
 
-  // จัดรูปแบบราคาอัตโนมัติเมื่อคลิกออกจากช่อง
   $('pPrice').addEventListener('blur', function() {
     this.value = formatPrice(this.value);
   });
