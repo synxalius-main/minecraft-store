@@ -820,6 +820,13 @@ applyFilters();
       grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load</h3><p>Could not fetch products. Please refresh.</p></div>`;
     }
   }
+  
+    if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+
 
   function setSort(v) { currentSort = v; applyFilters(); }
 
