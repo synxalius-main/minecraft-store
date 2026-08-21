@@ -159,7 +159,7 @@ app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews'
       });
     }
 
-    for (const url of youtube.Urls) {
+    for (const url of youtubeUrls) {
       const videoId = extractYouTubeId(url);
       if (!videoId) continue;
       inserts.push({
@@ -176,7 +176,7 @@ app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews'
     }
 
     res.json({ success: true, added: inserts.length, skipped });
-  } catch (err) { Find
+    } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -195,9 +195,9 @@ app.delete('/api/creator/products/:id/media/:mediaId', requireAuth, async (req, 
       .from('product_media').select('*').eq('id', req.params.mediaId).single();
     if (!media) return res.status(404).json({ success: false, message: 'Not found' });
 
-    if (media.media_type === 'image' && media.media_url.includes('/previews/')) {
-      const path = media.media_url.split('/addons/')[1];
-      if (path) await supabase.storage.from('addons').remove([decodeURIComponent(path)]);
+        if (media.media_type === 'image' && media.media_url.includes('/previews/')) {
+      const path = media.media_url.split('/thumbnails/')[1];
+      if (path) await supabase.storage.from('thumbnails').remove([decodeURIComponent(path)]);
     }
 
     const { error } = await supabase.from('product_media').delete().eq('id', req.params.mediaId);
