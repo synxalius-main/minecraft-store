@@ -75,7 +75,7 @@ app.get('/api/products', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('products')
-      .select('id, name, description, price, thumbnail_url, created_at')
+      .select('id, name, description, price, thumbnail_url, created_at, category')
       .order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
@@ -152,6 +152,7 @@ app.post('/api/creator/products', requireAuth, upload.fields([
       name: name.trim(),
       description: (description || '').trim(),
       price: parseFloat(price),
+      category: (req.body.category || 'Items').trim(),
       thumbnail_url: thumbnailUrl,
       file_path: addonFileName // Save path, NOT URL
     }]).select('id, name, description, price, thumbnail_url');
