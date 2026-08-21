@@ -435,6 +435,18 @@
   }
 }
 
+/* ============ SEARCH CLEAR BUTTON ============ */
+.search-clear{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%) scale(.8);
+  width:28px;height:28px;border-radius:50%;
+  background:var(--glass2);border:1px solid var(--border);color:var(--muted);
+  font-size:.72rem;display:grid;place-items:center;
+  opacity:0;pointer-events:none;transition:.25s;z-index:2;
+}
+.search-clear:hover{color:var(--danger);border-color:rgba(255,92,92,.4);transform:translateY(-50%) scale(1.1)}
+.search.has-text .search-clear{opacity:1;pointer-events:auto;transform:translateY(-50%) scale(1)}
+.search.has-text input{padding-right:46px}
+
 /* ============ EXPANDING SEARCH ============ */
 .search{transition:flex .5s cubic-bezier(.16,1,.3,1)}
 .sort-select{transition:all .45s cubic-bezier(.16,1,.3,1)}
@@ -496,7 +508,10 @@
     </div>
 
     <div class="toolbar reveal">
-      <div class="search"><input id="searchInput" placeholder="Search addons..." oninput="applyFilters()"></div>
+      <div class="search">
+  <input id="searchInput" placeholder="Search addons..." oninput="applyFilters()">
+  <button class="search-clear" id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
+</div>
       <select id="sortSelect" class="sort-select" onchange="setSort(this.value)">
         <option value="new">Newest</option>
         <option value="priceAsc">Price ↑</option>
@@ -722,13 +737,20 @@ async function refreshOwnedIds() {
   }
   function heroCreatorClick() { currentUser ? switchView('dashboard') : openAuthModal(); }
 
-/* ---------- EXPANDING SEARCH ---------- */
+/* ---------- EXPANDING SEARCH + CLEAR ---------- */
 function updateSearchState() {
-  const active = document.activeElement === $('searchInput') || $('searchInput').value.trim().length > 0;
+  const hasText = $('searchInput').value.trim().length > 0;
+  const active = document.activeElement === $('searchInput') || hasText;
   document.querySelector('.toolbar').classList.toggle('searching', active);
+  document.querySelector('.search').classList.toggle('has-text', hasText);
+}
+function clearSearch() {
+  $('searchInput').value = '';
+  applyFilters();
+  updateSearchState();
+  $('searchInput').focus();
 }
 ['focus', 'blur', 'input'].forEach(ev => $('searchInput').addEventListener(ev, updateSearchState));
-
 
   /* ---------- CATEGORY CHIPS ---------- */
   function buildChips() {
