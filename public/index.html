@@ -446,7 +446,7 @@
         <div><label>Price (THB)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
         <div><label>Category</label>
           <select id="pCategory">
-            <option>Items</option><option>Worlds</option><option>Mobs</option><option>Textures</option><option>Other</option>
+            <option>Items</option><option>Add-ons</option><option>Worlds</option><option>Textures</option>
           </select></div>
       </div>
       <div class="form-group">
@@ -479,7 +479,7 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_2vycFL8nvwoEpWCW3oEYBQ_RqEnIIJF';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const MAIN_CATS = ['Worlds', 'Mobs', 'Items', 'Textures'];
+  const MAIN_CATS = ['Add-ons', 'Worlds', 'Textures'];
   const CATS = ['All', ...MAIN_CATS, 'Other'];
   const normCat = c => MAIN_CATS.includes(c) ? c : 'Other';
 
