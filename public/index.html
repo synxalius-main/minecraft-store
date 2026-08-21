@@ -459,6 +459,13 @@
   box-shadow:0 0 0 3px var(--primary-dim),0 10px 30px rgba(0,230,118,.12);
 }
 
+/* ============ FORMATTED DESCRIPTION ============ */
+.detail-desc p{margin:0 0 10px}
+.detail-desc p:last-child{margin-bottom:0}
+.desc-list{margin:0 0 10px;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.desc-list li{color:var(--muted);font-size:.9rem;line-height:1.55}
+.desc-list li::marker{color:var(--primary)}
+
 
 </style>
 </head>
@@ -606,7 +613,11 @@
     <form id="productForm">
       <input type="hidden" id="editProductId">
       <div class="form-group"><label>Addon Name</label><input type="text" id="pName" placeholder="e.g. Epic Swords Pack" required></div>
-      <div class="form-group"><label>Description</label><textarea id="pDesc" rows="3" placeholder="Describe your addon..."></textarea></div>
+            <div class="form-group">
+        <label>Description</label>
+        <textarea id="pDesc" rows="4" placeholder="Describe your addon...&#10;&#10;- feature one&#10;- feature two"></textarea>
+        <p class="hint">Line breaks are kept • start a line with "- " for bullet points</p>
+      </div>
       <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div><label>Price (THB)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
         <div><label>Category</label>
@@ -661,6 +672,28 @@
 
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function formatDesc(text) {
+    const lines = String(text ?? '').split(/\r?\n/);
+    let html = '', inList = false;
+    const close = () => { if (inList) { html += '</ul>'; inList = false; } };
+    for (const raw of lines) {
+      const line = raw.trim();
+      const bullet = line.match(/^[-*]\s+(.*)$/);
+      if (bullet) {
+        if (!inList) { html += '<ul class="desc-list">'; inList = true; }
+        html += `<li>${esc(bullet[1])}</li>`;
+      } else if (line === '') {
+        close();
+      } else {
+        close();
+        html += `<p>${esc(line)}</p>`;
+      }
+    }
+    close();
+    return html || '<p>No description available</p>';
+  }
+
 
   function showToast(msg, type = 'success') {
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
@@ -866,7 +899,7 @@ applyFilters();
         </div>
 
         <h2>${esc(p.name)}</h2>
-        <p class="detail-desc">${esc(p.description || 'No description available')}</p>
+                <div class="detail-desc">${formatDesc(p.description)}</div>
 
         <div class="detail-price">฿${price.toFixed(2)}</div>
 
