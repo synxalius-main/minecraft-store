@@ -16,7 +16,6 @@ app.use(express.json());
 
 // --- ENVIRONMENT CHECK ---
 const supabaseUrl = process.env.SUPABASE_URL;
-// Support either variable name just in case
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
@@ -25,12 +24,10 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
-// ... rest of the code ...
-
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 4 * 1024 * 1024 } // 4MB limit for Vercel serverless safety
+  limits: { fileSize: 4 * 1024 * 1024 }
 });
 
 // --- AUTH MIDDLEWARE ---
@@ -63,14 +60,13 @@ async function optionalAuth(req, res, next) {
   next();
 }
 
-// Helper: Secure filename sanitization
 const sanitizeFilename = (name) => name.replace(/[^a-zA-Z0-9.\-_]+/g, '_');
 
 // ==========================================
 // ROUTES
 // ==========================================
 
-// GET STORE (Public, NO file paths or URLs exposed)
+// GET STORE (Public)
 app.get('/api/products', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -85,8 +81,6 @@ app.get('/api/products', async (req, res) => {
 });
 
 // ========== PRODUCT MEDIA (PREVIEW GALLERY) ==========
-
-// GET media for a product (public)
 app.get('/api/products/:id/media', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -101,7 +95,6 @@ app.get('/api/products/:id/media', async (req, res) => {
   }
 });
 
-// POST — upload preview images (up to 5)
 app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews', 5), async (req, res) => {
   try {
     const productId = req.params.id;
@@ -116,10 +109,9 @@ app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews'
       ? (typeof req.body.youtube_urls === 'string' ? JSON.parse(req.body.youtube_urls) : req.body.youtube_urls)
       : [];
 
-    // Vercel caps total request at ~4.5MB — guard against huge phone photos
     const totalBytes = files.reduce((s, f) => s + f.size, 0);
     if (totalBytes > 4 * 1024 * 1024) {
-      return res.status(400).json({ success: false, message: 'Images too large. Keep total under 4MB (use smaller screenshots).' });
+      return res.status(400).json({ success: false, message: 'Images too large. Keep total under 4MB.' });
     }
 
     const { count } = await supabase
@@ -140,34 +132,20 @@ app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews'
 
     for (const file of files) {
       if (!allowed.includes(file.mimetype)) continue;
-
       const ext = file.originalname.split('.').pop().toLowerCase();
       const fileName = `previews/${productId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-
-      // ✅ PUBLIC 'thumbnails' bucket so previews actually display
       const { error: upErr } = await supabase.storage
         .from('thumbnails')
         .upload(fileName, file.buffer, { contentType: file.mimetype });
       if (upErr) throw upErr;
-
       const { data: pub } = supabase.storage.from('thumbnails').getPublicUrl(fileName);
-      inserts.push({
-        product_id: productId,
-        media_url: pub.publicUrl,
-        media_type: 'image',
-        sort_order: sortBase++
-      });
+      inserts.push({ product_id: productId, media_url: pub.publicUrl, media_type: 'image', sort_order: sortBase++ });
     }
 
     for (const url of youtubeUrls) {
       const videoId = extractYouTubeId(url);
       if (!videoId) continue;
-      inserts.push({
-        product_id: productId,
-        media_url: `https://www.youtube.com/embed/${videoId}`,
-        media_type: 'video',
-        sort_order: sortBase++
-      });
+      inserts.push({ product_id: productId, media_url: `https://www.youtube.com/embed/${videoId}`, media_type: 'video', sort_order: sortBase++ });
     }
 
     if (inserts.length > 0) {
@@ -176,12 +154,11 @@ app.post('/api/creator/products/:id/media', requireAuth, upload.array('previews'
     }
 
     res.json({ success: true, added: inserts.length, skipped });
-    } catch (err) {
+  } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// DELETE a single media item
 app.delete('/api/creator/products/:id/media/:mediaId', requireAuth, async (req, res) => {
   try {
     const { data: product } = await supabase
@@ -189,20 +166,17 @@ app.delete('/api/creator/products/:id/media/:mediaId', requireAuth, async (req, 
     if (!product || product.creator_id !== req.user.id) {
       return res.status(403).json({ success: false, message: 'Not your product' });
     }
-
-    // Get media to delete storage file if image
     const { data: media } = await supabase
       .from('product_media').select('*').eq('id', req.params.mediaId).single();
     if (!media) return res.status(404).json({ success: false, message: 'Not found' });
 
-        if (media.media_type === 'image' && media.media_url.includes('/previews/')) {
-      const path = media.media_url.split('/thumbnails/')[1];
-      if (path) await supabase.storage.from('thumbnails').remove([decodeURIComponent(path)]);
+    if (media.media_type === 'image' && media.media_url.includes('/previews/')) {
+      const p = media.media_url.split('/thumbnails/')[1];
+      if (p) await supabase.storage.from('thumbnails').remove([decodeURIComponent(p)]);
     }
 
     const { error } = await supabase.from('product_media').delete().eq('id', req.params.mediaId);
     if (error) throw error;
-
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -219,13 +193,42 @@ function extractYouTubeId(url) {
   return null;
 }
 
+// ========== CLAIM FREE ADDON (ราคา 0) ==========
+app.post('/api/claim-free', requireAuth, async (req, res) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) return res.status(400).json({ success: false, message: 'ไม่พบสินค้า' });
 
-// GET CREATOR DASHBOARD (Includes file_path for management)
+    const { data: product, error: pErr } = await supabase
+      .from('products').select('id, price, name').eq('id', productId).single();
+    if (pErr || !product) return res.status(404).json({ success: false, message: 'ไม่พบสินค้านี้' });
+    if (parseFloat(product.price) !== 0) return res.status(400).json({ success: false, message: 'สินค้านี้ไม่ใช่ของฟรี' });
+
+    const { data: owned } = await supabase.from('purchases')
+      .select('id').eq('user_id', req.user.id).eq('product_id', productId).maybeSingle();
+    if (owned) return res.json({ success: true, already: true });
+
+    const { error } = await supabase.from('purchases').insert([{
+      user_id: req.user.id,
+      product_id: productId,
+      trans_ref: `FREE-${req.user.id}-${productId}`,
+      amount_paid: 0
+    }]);
+    if (error) {
+      if (error.code === '23505') return res.json({ success: true, already: true });
+      throw error;
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ========== CREATOR ==========
 app.get('/api/creator/products', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('products')
-      .select('*')
+      .from('products').select('*')
       .eq('creator_id', req.user.id)
       .order('created_at', { ascending: false });
     if (error) throw error;
@@ -235,7 +238,6 @@ app.get('/api/creator/products', requireAuth, async (req, res) => {
   }
 });
 
-// UPLOAD PRODUCT
 app.post('/api/creator/products', requireAuth, upload.fields([
   { name: 'productFile', maxCount: 1 },
   { name: 'thumbnail', maxCount: 1 }
@@ -258,20 +260,16 @@ app.post('/api/creator/products', requireAuth, upload.fields([
       return res.status(400).json({ success: false, message: `Invalid file type "${ext}".` });
     }
 
-    // Restrict thumbnail to images only
     if (thumbnailFile && !['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(thumbnailFile.mimetype)) {
       return res.status(400).json({ success: false, message: 'Thumbnail must be an image.' });
     }
 
-    // Upload Addon to Private Storage
     const addonFileName = `${req.user.id}/${Date.now()}-${sanitizeFilename(productFile.originalname)}`;
     const { error: fileErr } = await supabase.storage
       .from('addons')
       .upload(addonFileName, productFile.buffer, { contentType: productFile.mimetype || 'application/octet-stream' });
-
     if (fileErr) throw new Error('Failed to upload addon: ' + fileErr.message);
 
-    // Upload Thumbnail to Public Storage
     let thumbnailUrl = '';
     if (thumbnailFile) {
       const thumbName = `thumbnails/${Date.now()}-${sanitizeFilename(thumbnailFile.originalname)}`;
@@ -288,20 +286,17 @@ app.post('/api/creator/products', requireAuth, upload.fields([
       name: name.trim(),
       description: (description || '').trim(),
       price: parseFloat(price),
-            category: (req.body.category || 'Addons').trim(),
+      category: (req.body.category || 'Addons').trim(),
       thumbnail_url: thumbnailUrl,
-      file_path: addonFileName // Save path, NOT URL
+      file_path: addonFileName
     }]).select('id, name, description, price, thumbnail_url');
-
     if (error) throw error;
     res.json({ success: true, product: data[0] });
-
   } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Server error.' });
   }
 });
 
-// UPDATE PRODUCT
 app.put('/api/creator/products/:id', requireAuth, upload.fields([
   { name: 'productFile', maxCount: 1 },
   { name: 'thumbnail', maxCount: 1 }
@@ -323,15 +318,11 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
       category: req.body.category ? req.body.category.trim() : existing.category
     };
 
-
     if (productFile) {
       const allowed = ['.mcaddon', '.mcpack', '.mcworld', '.zip'];
       const ext = path.extname(productFile.originalname || '').toLowerCase();
       if (!allowed.includes(ext)) return res.status(400).json({ success: false, message: 'Invalid file type' });
-
-      // Delete old file from storage
       if (existing.file_path) await supabase.storage.from('addons').remove([existing.file_path]);
-
       const addonFileName = `${req.user.id}/${Date.now()}-${sanitizeFilename(productFile.originalname)}`;
       const { error } = await supabase.storage.from('addons').upload(addonFileName, productFile.buffer, { contentType: productFile.mimetype });
       if (error) throw error;
@@ -347,13 +338,11 @@ app.put('/api/creator/products/:id', requireAuth, upload.fields([
     const { data, error } = await supabase.from('products').update(updates).eq('id', id).select('id, name, description, price, thumbnail_url');
     if (error) throw error;
     res.json({ success: true, product: data[0] });
-
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// CREATOR STATS (revenue, downloads, 7-day activity)
 app.get('/api/creator/stats', requireAuth, async (req, res) => {
   try {
     const { data: purchases, error } = await supabase
@@ -383,14 +372,10 @@ app.get('/api/creator/stats', requireAuth, async (req, res) => {
   }
 });
 
-
-// DELETE PRODUCT
 app.delete('/api/creator/products/:id', requireAuth, async (req, res) => {
   try {
     const { data: existing } = await supabase.from('products').select('file_path').eq('id', req.params.id).eq('creator_id', req.user.id).single();
-    if (existing?.file_path) {
-      await supabase.storage.from('addons').remove([existing.file_path]); // Clean up storage
-    }
+    if (existing?.file_path) await supabase.storage.from('addons').remove([existing.file_path]);
     const { error } = await supabase.from('products').delete().eq('id', req.params.id).eq('creator_id', req.user.id);
     if (error) throw error;
     res.json({ success: true, message: 'Product deleted.' });
@@ -399,7 +384,7 @@ app.delete('/api/creator/products/:id', requireAuth, async (req, res) => {
   }
 });
 
-// VERIFY PAYMENT (SlipOK)
+// ========== PAYMENT ==========
 app.post('/api/verify-cart-payment', requireAuth, upload.single('slip'), async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ success: false, message: 'Login required to checkout.' });
@@ -428,7 +413,6 @@ app.post('/api/verify-cart-payment', requireAuth, upload.single('slip'), async (
       return res.status(400).json({ success: false, message: result?.message || 'Slip verification failed.' });
     }
 
-    // SECURITY: Verify amount matches and prevent replay
     const detectedAmount = parseFloat(result.data.amount);
     if (Math.abs(detectedAmount - totalPrice) > 0.01) {
       return res.status(400).json({ success: false, message: 'Payment amount mismatch.' });
@@ -437,7 +421,7 @@ app.post('/api/verify-cart-payment', requireAuth, upload.single('slip'), async (
     const purchases = cartItems.map(item => ({
       user_id: req.user.id,
       product_id: item.id,
-      trans_ref: result.data.transRef, // Unique constraint in DB prevents replays
+      trans_ref: result.data.transRef,
       amount_paid: item.price
     }));
 
@@ -445,13 +429,12 @@ app.post('/api/verify-cart-payment', requireAuth, upload.single('slip'), async (
     if (insErr) throw new Error('Database error saving purchase: ' + insErr.message);
 
     res.json({ success: true, message: 'Payment verified!', count: cartItems.length });
-
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server verification error.' });
   }
 });
 
-// GET USER LIBRARY (Only IDs, no direct download links)
+// ========== LIBRARY & DOWNLOADS ==========
 app.get('/api/user/library', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -466,22 +449,17 @@ app.get('/api/user/library', requireAuth, async (req, res) => {
   }
 });
 
-// SECURE DOWNLOAD ENDPOINT (Issues 1-hour signed URL)
 app.post('/api/downloads', requireAuth, async (req, res) => {
   try {
     const { productId } = req.body;
-    
-    // 1. Verify user actually owns this product
     const { data: owned } = await supabase.from('purchases')
       .select('id').eq('user_id', req.user.id).eq('product_id', productId).maybeSingle();
     if (!owned) return res.status(403).json({ success: false, message: 'Purchase not found.' });
 
-    // 2. Get file path
     const { data: product } = await supabase.from('products')
       .select('file_path, name').eq('id', productId).single();
     if (!product?.file_path) return res.status(404).json({ success: false, message: 'File missing.' });
 
-    // 3. Generate Signed URL (Valid for 1 hour)
     const { data: signed, error } = await supabase.storage
       .from('addons').createSignedUrl(product.file_path, 3600);
     if (error) throw error;
