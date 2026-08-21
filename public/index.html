@@ -7,12 +7,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&family=Noto+Sans+Thai:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#07090d">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MC Store">
 <style>
   :root{
     --bg:#07090d; --glass:rgba(255,255,255,.05); --glass2:rgba(255,255,255,.08);
@@ -426,14 +420,61 @@
 
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.35s;z-index:90}
   .overlay.show{opacity:1;pointer-events:auto}
+  
+  /* --- REDESIGNED CART DRAWER --- */
   .drawer{position:fixed;top:0;right:0;height:100%;width:min(430px,100%);z-index:100;display:flex;flex-direction:column;
-    background:rgba(10,13,18,.92);backdrop-filter:blur(24px);border-left:1px solid var(--border);transform:translateX(105%);transition:.5s cubic-bezier(.16,1,.3,1)}
+    background:rgba(10,13,18,.96);backdrop-filter:blur(24px);border-left:1px solid var(--border);transform:translateX(105%);transition:.5s cubic-bezier(.16,1,.3,1)}
   .drawer.open{transform:translateX(0)}
   .drawer-head{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;padding-top:calc(20px + var(--safe-top));border-bottom:1px solid var(--border)}
   .drawer-head h2{margin:0;font-size:1.15rem;font-weight:900}
   .x{background:var(--glass);border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:50%;font-size:.95rem;transition:.2s}
   .x:hover{color:var(--text);border-color:var(--border-glow)}
+  
+  /* Checkout Steps */
+  .checkout-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 20px;
+    background: rgba(10,13,18,.5);
+    border-bottom: 1px solid var(--border);
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: .4;
+    transition: .3s;
+  }
+  .step.active { opacity: 1; }
+  .step.completed .step-num { background: var(--primary); color: #071018; border-color: var(--primary); }
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--glass);
+    border: 2px solid var(--border);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: .8rem;
+    transition: .3s;
+  }
+  .step.active .step-num { border-color: var(--border-glow); box-shadow: 0 0 12px rgba(0,230,118,.3); }
+  .step span { font-size: .7rem; font-weight: 700; color: var(--muted); }
+  .step.active span { color: var(--text); }
+  .step-line { width: 30px; height: 2px; background: var(--border); margin: 0 6px; }
+
   .drawer-body{flex:1;overflow-y:auto;padding:18px 22px}
+  
+  /* Checkout Panels */
+  .checkout-panel { display: none; animation: fadeIn .4s ease; }
+  .checkout-panel.active { display: block; }
+  .footer-panel { display: none; }
+  .footer-panel.active { display: block; }
+
+  /* Cart Items in Drawer */
   .c-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);animation:slideIn .35s ease backwards}
   @keyframes slideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
   .c-thumb{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0;overflow:hidden;background:linear-gradient(160deg,#122036,#0a1220)}
@@ -442,14 +483,76 @@
   .c-info span{color:var(--primary);font-weight:800;font-size:.8rem}
   .c-rm{background:transparent;border:none;color:var(--muted);font-size:.73rem;font-weight:700;text-decoration:underline}
   .c-rm:hover{color:var(--danger)}
-  .qr-box{margin:16px 0;padding:14px;border:1px solid var(--border);border-radius:16px;background:var(--glass);display:flex;gap:14px;align-items:center}
-  .qr-box img{width:88px;height:88px;background:#fff;border-radius:10px;object-fit:contain;padding:6px;flex-shrink:0}
-  .qr-box p{margin:0;font-size:.78rem;color:var(--muted);line-height:1.5}
-  .qr-box b{color:var(--text)}
-  .slip-zone{border:1.5px dashed rgba(255,255,255,.22);border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:.3s;margin-bottom:14px}
-  .slip-zone.drag{border-color:var(--primary);background:var(--primary-dim)}
-  .slip-zone p{margin:0;color:var(--muted);font-size:.8rem;font-weight:600}
-  .slip-zone img.prev{display:none;max-width:100%;max-height:140px;border-radius:10px;margin-top:10px;border:1px solid var(--border)}
+
+  .empty-cart-cta { text-align: center; padding: 40px 20px; }
+  .empty-cart-cta .icon { font-size: 3rem; margin-bottom: 12px; opacity: .5; }
+  .empty-cart-cta p { color: var(--muted); margin: 0 0 16px; }
+
+  /* Payment Summary */
+  .payment-summary {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+  .payment-summary h3 { margin: 0 0 14px; font-size: 1rem; font-weight: 800; }
+  .summary-items { max-height: 150px; overflow-y: auto; margin-bottom: 14px; padding-right: 4px; }
+  .summary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: .88rem; }
+  .summary-item:last-child { border-bottom: none; }
+  .summary-total { display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 2px solid var(--border); font-weight: 800; }
+  .summary-total .amount { color: var(--primary); font-size: 1.2rem; font-weight: 900; }
+
+  /* QR & Upload */
+  .qr-container {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .qr-code { width: 120px; height: 120px; object-fit: contain; flex-shrink: 0; }
+  .qr-info { flex: 1; }
+  .qr-amount { margin: 0 0 6px; font-size: .9rem; color: #1a1a1a; }
+  .qr-amount b { color: #00b359; font-size: 1.2rem; font-weight: 900; }
+  .qr-hint { margin: 0; font-size: .75rem; color: #666; }
+
+  .upload-area {
+    border: 2px dashed rgba(255,255,255,.2);
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    transition: .3s;
+    background: var(--glass);
+    cursor: pointer;
+  }
+  .upload-area:hover, .upload-area.dragover { border-color: var(--border-glow); background: var(--primary-dim); }
+  .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+  .upload-area p { margin: 0 0 4px; font-weight: 700; font-size: .9rem; }
+  .upload-hint { color: var(--muted); font-size: .75rem; }
+
+  .slip-preview { position: relative; margin-top: 12px; border-radius: 12px; overflow: hidden; border: 2px solid var(--border-glow); }
+  .slip-preview img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
+  .remove-slip {
+    position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,0,0,.7); border: 1px solid var(--danger); color: var(--danger);
+    font-size: .8rem; display: grid; place-items: center; transition: .2s;
+  }
+  .remove-slip:hover { background: var(--danger); color: #fff; }
+
+  /* Success Animation */
+  .success-animation { text-align: center; padding: 30px 10px; }
+  .check-circle { width: 70px; height: 70px; margin: 0 auto 20px; animation: scaleIn .5s cubic-bezier(.16,1,.3,1); }
+  .check-circle svg { width: 100%; height: 100%; }
+  .check-circle polyline { stroke-dasharray: 50; stroke-dashoffset: 50; animation: drawCheck .6s .3s forwards; }
+  @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+  .success-animation h3 { margin: 0 0 10px; font-size: 1.3rem; font-weight: 900; }
+  .success-animation p { color: var(--muted); font-size: .9rem; line-height: 1.5; margin: 0; }
+  .success-actions { padding: 0 10px 10px; }
+
   .drawer-foot{padding:18px 22px;padding-bottom:calc(18px + var(--safe-bottom));border-top:1px solid var(--border)}
   .total-row{display:flex;justify-content:space-between;margin-bottom:14px;font-weight:700;color:var(--muted)}
   .total-row .amt{font-size:1.3rem;font-weight:900;color:var(--primary)}
@@ -527,6 +630,9 @@
     .section-title h2{font-size:1.6rem}
     .feature-card{padding:24px}
     .step-card{padding:30px 20px}
+    
+    .qr-container { flex-direction: column; text-align: center; }
+    .qr-code { width: 160px; height: 160px; }
   }
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -759,20 +865,148 @@
 </main>
 
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+<!-- REDESIGNED CART DRAWER -->
 <aside class="drawer" id="drawer">
-  <div class="drawer-head"><h2>ตะกร้าของคุณ 🛒</h2><button class="x" onclick="closeCart()">✕</button></div>
-  <div class="drawer-body">
-    <div id="cartItems"></div>
-    <div class="qr-box"><img src="/qrcode.jpg" alt="QR"><p><b>สแกนจ่ายด้วย PromptPay</b><br>โอนให้ตรงยอด (<b>฿<span id="cartTotalInline">0</span></b>) แล้วอัปโหลดสลิปด้านล่าง</p></div>
-    <div class="slip-zone" id="slipZone" onclick="document.getElementById('slipFile').click()">
-      <p id="slipHint">📄 ลาก&วางสลิปโอนเงินที่นี่</p>
-      <img id="slipPrev" class="prev" alt="slip"><input type="file" id="slipFile" accept="image/*" hidden>
+  <div class="drawer-head">
+    <h2>ตะกร้าของคุณ 🛒</h2>
+    <button class="x" onclick="closeCart()">✕</button>
+  </div>
+  
+  <!-- Checkout Steps Indicator -->
+  <div class="checkout-steps" id="checkoutSteps">
+    <div class="step active" data-step="1">
+      <div class="step-num">1</div>
+      <span>สินค้า</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step" data-step="2">
+      <div class="step-num">2</div>
+      <span>ชำระเงิน</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step" data-step="3">
+      <div class="step-num">3</div>
+      <span>เสร็จสิ้น</span>
     </div>
   </div>
+
+  <div class="drawer-body">
+    <!-- Step 1: Cart Items -->
+    <div class="checkout-panel active" id="panelItems">
+      <div id="cartItems"></div>
+      
+      <div class="empty-cart-cta" id="emptyCartCta" style="display:none">
+        <div class="icon">🛍️</div>
+        <p>ตะกร้าว่างเปล่า</p>
+        <button class="btn btn-primary btn-sm" onclick="closeCart();switchView('store')">ไปช้อปปิ้ง →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Payment -->
+    <div class="checkout-panel" id="panelPayment">
+      <div class="payment-summary">
+        <h3>สรุปคำสั่งซื้อ</h3>
+        <div class="summary-items" id="summaryItems"></div>
+        <div class="summary-total">
+          <span>ยอดรวมทั้งหมด</span>
+          <span class="amount">฿<span id="summaryTotal">0</span></span>
+        </div>
+      </div>
+
+      <div class="payment-method">
+        <h4 style="margin:0 0 12px;font-size:.95rem;font-weight:800">💳 วิธีการชำระเงิน</h4>
+        <div class="method-card active" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--glass);border:2px solid var(--border-glow);border-radius:14px;">
+          <div style="font-size:2rem">📱</div>
+          <div style="flex:1">
+            <b style="display:block;font-size:.95rem;margin-bottom:4px">PromptPay QR Code</b>
+            <span style="color:var(--muted);font-size:.78rem">สแกนและโอนผ่านแอปธนาคาร</span>
+          </div>
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:#071018;display:grid;place-items:center;font-weight:900">✓</div>
+        </div>
+      </div>
+
+      <div class="qr-section" style="margin-top:20px">
+        <div class="qr-container">
+          <img src="/qrcode.jpg" alt="PromptPay QR" class="qr-code">
+          <div class="qr-info">
+            <p class="qr-amount" style="margin:0 0 6px;font-size:.9rem;color:#1a1a1a">ยอดที่ต้องโอน: <b style="color:#00b359;font-size:1.2rem;font-weight:900">฿<span id="qrAmount">0</span></b></p>
+            <p class="qr-hint" style="margin:0;font-size:.75rem;color:#666">⏱️ กรุณาโอนให้ตรงยอดภายใน 15 นาที</p>
+          </div>
+        </div>
+        
+        <div class="upload-slip">
+          <label class="slip-upload-label" style="cursor:pointer;display:block">
+            <input type="file" id="slipFile" accept="image/*" hidden onchange="handleSlipUpload(this)">
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">📤</div>
+              <p>อัปโหลดสลิปการโอนเงิน</p>
+              <span class="upload-hint">คลิกหรือลากไฟล์มาวางที่นี่</span>
+            </div>
+          </label>
+          <div class="slip-preview" id="slipPreview" style="display:none">
+            <img id="slipImg" alt="Slip">
+            <button class="remove-slip" onclick="removeSlip()">✕ ลบ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div class="checkout-panel" id="panelSuccess">
+      <div class="success-animation">
+        <div class="check-circle">
+          <svg viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="25" fill="none" stroke="#00e676" stroke-width="2"/>
+            <polyline points="16,26 22,32 36,18" fill="none" stroke="#00e676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>ชำระเงินสำเร็จ! 🎉</h3>
+        <p>ระบบกำลังตรวจสอบสลิปการโอน<br>แอดออนจะปรากฏในคลังของคุณทันที</p>
+      </div>
+      
+      <div class="success-actions">
+        <button class="btn btn-primary w100" onclick="closeCart();switchView('profile')">
+          📚 ไปที่คลังของฉัน
+        </button>
+        <button class="btn btn-ghost w100" onclick="closeCart();switchView('store')" style="margin-top:10px">
+          🛍️ ซื้อเพิ่ม
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="drawer-foot">
-    <div class="total-row"><span>ยอดรวม</span><span class="amt">฿<span id="cartTotal">0</span></span></div>
-    <form id="cartForm"><button type="submit" class="btn btn-primary w100" id="verifyBtn">ตรวจสอบการชำระเงิน</button></form>
-    <div id="cartStatus"></div>
+    <!-- Step 1 Footer -->
+    <div class="footer-panel active" id="footerItems">
+      <div class="total-row">
+        <span>ยอดรวม (<span id="itemCount">0</span> รายการ)</span>
+        <span class="amt">฿<span id="cartTotal">0</span></span>
+      </div>
+      <button class="btn btn-primary w100" id="proceedBtn" onclick="goToPayment()">
+        ดำเนินการชำระเงิน →
+      </button>
+    </div>
+
+    <!-- Step 2 Footer -->
+    <div class="footer-panel" id="footerPayment">
+      <button class="btn btn-ghost w100" onclick="backToItems()" style="margin-bottom:10px">
+        ← กลับไปแก้ไข
+      </button>
+      <form id="cartForm">
+        <button type="submit" class="btn btn-primary w100" id="verifyBtn" disabled>
+          ยืนยันการชำระเงิน ✓
+        </button>
+      </form>
+      <div id="cartStatus"></div>
+    </div>
+
+    <!-- Step 3 Footer -->
+    <div class="footer-panel" id="footerSuccess">
+      <p style="text-align:center;color:var(--muted);font-size:.85rem;margin:0">
+        ขอบคุณที่ใช้บริการ MC Store ❤️
+      </p>
+    </div>
   </div>
 </aside>
 
@@ -907,6 +1141,10 @@
   let _userPurchases = null;
   let selectedRole = 'member';
   let pendingPreviews = [], pendingYouTube = [];
+
+  // Checkout Flow State
+  let currentCheckoutStep = 1;
+  let uploadedSlip = null;
 
   // Intro page functions
   function showStore() {
@@ -1052,7 +1290,6 @@
       if (en.isIntersecting) { 
         en.target.classList.add('visible'); 
         io.unobserve(en.target);
-        // Trigger stats animation when stats section is visible
         if (en.target.querySelector('.stat-value')) {
           animateStats();
         }
@@ -1223,7 +1460,6 @@
 
   function isOwned(id) { return Array.isArray(_userPurchases) && _userPurchases.includes(id); }
 
-  // --- UPDATED APPLY FILTERS FUNCTION WITH LIST VIEW ---
   function applyFilters() {
     const q = $('searchInput').value.toLowerCase();
     let list = allProducts.filter(p => (p.name + ' ' + (p.description || '')).toLowerCase().includes(q));
@@ -1246,7 +1482,6 @@
       card.className = 'card reveal';
       card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
       
-      // FIXED LIST VIEW CARD TEMPLATE
       card.innerHTML = `
         <div class="thumb">
           ${p.thumbnail_url 
@@ -1282,7 +1517,6 @@
     observeReveals(grid);
     wireThumb(grid);
   }
-  // ------------------------------------
 
   async function openProductDetail(p) {
     galleryItems = []; galleryIdx = 0;
@@ -1405,48 +1639,226 @@
   }
 
   function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); renderCart(); }
+  
+  // --- REDESIGNED CART FUNCTIONS ---
   function renderCart() {
-    const count = cart.length, badge = $('cartCount');
-    badge.style.display = count ? 'flex' : 'none'; badge.textContent = count;
+    const count = cart.length;
+    const badge = $('cartCount');
+    
+    badge.style.display = count ? 'flex' : 'none';
+    badge.textContent = count;
+    
     const total = cart.reduce((s, i) => s + parseFloat(i.price), 0);
     $('cartTotal').textContent = total.toFixed(2);
-    $('cartTotalInline').textContent = total.toFixed(2);
-    $('cartItems').innerHTML = count ? cart.map((i, idx) => `
-      <div class="c-item" style="animation-delay:${idx * 0.05}s">
-        <div class="c-thumb">${i.thumb ? `<img src="${i.thumb}" alt="">` : '📦'}</div>
-        <div class="c-info"><b>${esc(i.name)}</b><span>฿${parseFloat(i.price).toFixed(2)}</span></div>
-        <button class="c-rm" data-id="${i.id}">ลบ</button>
-      </div>`).join('')
-      : '<p style="color:var(--muted);text-align:center;padding:26px 0;font-size:.85rem">ตะกร้าว่างเปล่า</p>';
-    $('cartItems').querySelectorAll('.c-rm').forEach(b => b.addEventListener('click', () => removeFromCart(b.dataset.id)));
-    wireThumb($('cartItems'));
+    $('itemCount').textContent = count;
+    
+    const cartItems = $('cartItems');
+    const emptyCta = $('emptyCartCta');
+    const proceedBtn = $('proceedBtn');
+    
+    if (!count) {
+      cartItems.innerHTML = '';
+      emptyCta.style.display = 'block';
+      proceedBtn.disabled = true;
+      proceedBtn.style.opacity = '.5';
+    } else {
+      emptyCta.style.display = 'none';
+      proceedBtn.disabled = false;
+      proceedBtn.style.opacity = '1';
+      
+      cartItems.innerHTML = cart.map((i, idx) => `
+        <div class="c-item" style="animation-delay:${idx * 0.05}s">
+          <div class="c-thumb">${i.thumb ? `<img src="${i.thumb}" alt="">` : '📦'}</div>
+          <div class="c-info"><b>${esc(i.name)}</b><span>฿${parseFloat(i.price).toFixed(2)}</span></div>
+          <button class="c-rm" data-id="${i.id}">ลบ</button>
+        </div>`).join('');
+        
+      $('cartItems').querySelectorAll('.c-rm').forEach(b => b.addEventListener('click', () => removeFromCart(b.dataset.id)));
+      wireThumb($('cartItems'));
+    }
   }
-  function openCart() { $('drawer').classList.add('open'); $('overlay').classList.add('show'); document.body.style.overflow = 'hidden'; }
-  function closeCart() { $('drawer').classList.remove('open'); $('overlay').classList.remove('show'); document.body.style.overflow = ''; }
+
+  function goToPayment() {
+    if (!cart.length) return showToast('ตะกร้าว่างเปล่า', 'warn');
+    if (!currentUser) {
+      showToast('เข้าสู่ระบบเพื่อชำระเงิน', 'warn');
+      openAuthModal();
+      return;
+    }
+    
+    currentCheckoutStep = 2;
+    updateCheckoutUI();
+    renderPaymentSummary();
+  }
+
+  function backToItems() {
+    currentCheckoutStep = 1;
+    updateCheckoutUI();
+  }
+
+  function updateCheckoutUI() {
+    // Update steps
+    document.querySelectorAll('.checkout-steps .step').forEach((step, idx) => {
+      step.classList.remove('active', 'completed');
+      if (idx + 1 === currentCheckoutStep) step.classList.add('active');
+      else if (idx + 1 < currentCheckoutStep) step.classList.add('completed');
+    });
+    
+    // Update panels
+    document.querySelectorAll('.checkout-panel').forEach(p => p.classList.remove('active'));
+    $(`panel${getPanelName(currentCheckoutStep)}`).classList.add('active');
+    
+    // Update footers
+    document.querySelectorAll('.footer-panel').forEach(f => f.classList.remove('active'));
+    $(`footer${getPanelName(currentCheckoutStep)}`).classList.add('active');
+  }
+
+  function getPanelName(step) {
+    return ['Items', 'Payment', 'Success'][step - 1];
+  }
+
+  function renderPaymentSummary() {
+    const summaryItems = $('summaryItems');
+    const total = cart.reduce((s, i) => s + parseFloat(i.price), 0);
+    
+    summaryItems.innerHTML = cart.map(item => `
+      <div class="summary-item">
+        <b>${esc(item.name)}</b>
+        <span>฿${parseFloat(item.price).toFixed(2)}</span>
+      </div>
+    `).join('');
+    
+    $('summaryTotal').textContent = total.toFixed(2);
+    $('qrAmount').textContent = total.toFixed(2);
+  }
+
+  function handleSlipUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      showToast('กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น', 'error');
+      return;
+    }
+    
+    uploadedSlip = file;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      $('slipImg').src = e.target.result;
+      $('slipPreview').style.display = 'block';
+      $('uploadArea').style.display = 'none';
+      $('verifyBtn').disabled = false;
+    };
+    reader.readAsDataURL(file);
+    
+    showToast('อัปโหลดสลิปสำเร็จ ✓');
+  }
+
+  function removeSlip() {
+    uploadedSlip = null;
+    $('slipFile').value = '';
+    $('slipPreview').style.display = 'none';
+    $('uploadArea').style.display = 'block';
+    $('verifyBtn').disabled = true;
+  }
+
+  // Drag and drop for upload area
+  const uploadArea = $('uploadArea');
+  if (uploadArea) {
+    ['dragenter', 'dragover'].forEach(ev => 
+      uploadArea.addEventListener(ev, e => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+      })
+    );
+    
+    ['dragleave', 'drop'].forEach(ev => 
+      uploadArea.addEventListener(ev, e => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+      })
+    );
+    
+    uploadArea.addEventListener('drop', e => {
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        $('slipFile').files = dt.files;
+        handleSlipUpload($('slipFile'));
+      }
+    });
+  }
+
+  function openCart() { 
+    $('drawer').classList.add('open'); 
+    $('overlay').classList.add('show'); 
+    document.body.style.overflow = 'hidden';
+    currentCheckoutStep = 1;
+    updateCheckoutUI();
+    renderCart();
+  }
+  
+  function closeCart() { 
+    $('drawer').classList.remove('open'); 
+    $('overlay').classList.remove('show'); 
+    document.body.style.overflow = ''; 
+    // Reset slip upload state when closing
+    removeSlip();
+  }
 
   $('cartForm').addEventListener('submit', async e => {
     e.preventDefault();
+    
     const status = $('cartStatus'), btn = $('verifyBtn');
-    if (!cart.length) return showToast('ตะกร้าว่างเปล่า', 'warn');
-    if (!currentUser) { showToast('เข้าสู่ระบบเพื่อชำระเงิน', 'warn'); openAuthModal(); return; }
-    const slip = $('slipFile').files[0];
-    if (!slip) return showToast('กรุณาอัปโหลดสลิปการโอน', 'warn');
+    if (!uploadedSlip) return showToast('กรุณาอัปโหลดสลิปการโอน', 'warn');
+    
     const session = await ensureSession();
     if (!session) return;
-    const fd = new FormData(); fd.append('slip', slip); fd.append('productIds', JSON.stringify(cart.map(i => i.id)));
-    btn.disabled = true; btn.textContent = ' กำลังตรวจสอบ...';
-    status.className = 'status-box pending'; status.textContent = '⏳ กำลังตรวจสอบสลิป...';
+    
+    const fd = new FormData();
+    fd.append('slip', uploadedSlip);
+    fd.append('productIds', JSON.stringify(cart.map(i => i.id)));
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ กำลังตรวจสอบ...';
+    status.className = 'status-box pending';
+    status.textContent = 'กำลังตรวจสอบสลิป...';
+    
     try {
-      const res = await fetch('/api/verify-cart-payment', { method: 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd });
+      const res = await fetch('/api/verify-cart-payment', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
+        body: fd
+      });
+      
       const data = await res.json();
+      
       if (data.success) {
-        cart = []; saveCart(); renderCart(); _userPurchases = null;
-        status.className = 'status-box success';
-        status.innerHTML = `🎉 ตรวจสอบการชำระแล้ว! แอดออนอยู่ในคลังของคุณ<br><br><button class="btn btn-primary btn-sm" onclick="closeCart();switchView('profile')">ไปที่คลัง →</button>`;
-        showToast('ชำระเงินสำเร็จ!');
-      } else { status.className = 'status-box error'; status.textContent = data.message || 'ตรวจสอบไม่ผ่าน'; showToast(data.message || 'ตรวจสอบไม่ผ่าน', 'error'); }
-    } catch { status.className = 'status-box error'; status.textContent = 'เครือข่ายขัดข้อง ลองใหม่อีกครั้ง'; showToast('เครือข่ายขัดข้อง', 'error'); }
-    finally { btn.disabled = false; btn.textContent = 'ตรวจสอบการชำระเงิน'; }
+        cart = [];
+        saveCart();
+        renderCart();
+        _userPurchases = null;
+        
+        currentCheckoutStep = 3;
+        updateCheckoutUI();
+        
+        showToast('ชำระเงินสำเร็จ! 🎉');
+      } else {
+        status.className = 'status-box error';
+        status.textContent = data.message || 'ตรวจสอบไม่ผ่าน';
+        showToast(data.message || 'ตรวจสอบไม่ผ่าน', 'error');
+        btn.disabled = false;
+        btn.textContent = 'ยืนยันการชำระเงิน ✓';
+      }
+    } catch {
+      status.className = 'status-box error';
+      status.textContent = 'เครือข่ายขัดข้อง ลองใหม่อีกครั้ง';
+      showToast('เครือข่ายขัดข้อง', 'error');
+      btn.disabled = false;
+      btn.textContent = 'ยืนยันการชำระเงิน ✓';
+    }
   });
 
   function bindDropZone(zone, onFile) {
@@ -1672,7 +2084,6 @@
         const p = item.products || item;
         const card = document.createElement('div'); card.className = 'card reveal';
         card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
-        // --- UPDATED LIST VIEW CARD TEMPLATE FOR LIBRARY ---
         card.innerHTML = `
           <div class="thumb">
             ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}">` : `<span class="fallback">📦</span>`}
