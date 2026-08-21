@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MC Store">
+  <meta name="apple-mobile-web-fapp-title" content="MC Store">
 <style>
   :root{
     --bg:#07090d; --glass:rgba(255,255,255,.05); --glass2:rgba(255,255,255,.08);
@@ -491,7 +491,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <div class="logo-tile">⛏️</div>MC STORE<span class="caret">▼</span>
     </button>
     <div class="dropdown" id="logoMenu">
-      <button <button onclick="switchView('store');closeMenu()"><span>🧭</span> Explore</button>
+      <button onclick="switchView('store');closeMenu()"><span>🧭</span> Explore</button>
       <button id="mDashboard" style="display:none" onclick="switchView('dashboard');closeMenu()"><span>🛠️</span> Creator Studio</button>
       <button id="mProfile" style="display:none" onclick="switchView('profile');closeMenu()"><span>📚</span> My Library</button>
       <div class="dd-divider" id="mDivider" style="display:none"></div>
@@ -636,8 +636,13 @@ html,body{max-width:100%;overflow-x:hidden}
         <div><label>Price (THB)</label><input type="number" step="0.01" id="pPrice" placeholder="0.00" required></div>
         <div><label>Category</label>
           <select id="pCategory">
-            <option>Items</option><option>Add-ons</option><option>Worlds</option><option>Textures</option><option>Others<option>
-          </select></div>
+  <option>Addons</option>
+  <option>Worlds</option>
+  <option>Items</option>
+  <option>Textures</option>
+  <option>Others</option>
+</select>
+</div>
       </div>
       <div class="form-group">
         <label>Thumbnail</label>
@@ -677,12 +682,18 @@ html,body{max-width:100%;overflow-x:hidden}
   const SUPABASE_ANON_KEY = 'sb_publishable_2vycFL8nvwoEpWCW3oEYBQ_RqEnIIJF';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const MAIN_CATS = ['Add-ons', 'Worlds', 'Textures'];
+    const MAIN_CATS = ['Addons', 'Worlds', 'Textures', 'Items'];
   const CATS = ['All', ...MAIN_CATS, 'Other'];
-  const normCat = c => MAIN_CATS.includes(c) ? c : 'Other';
+  const normCat = c => {
+    if (!c) return 'Other';
+    if (c === 'Add-ons') return 'Addons';
+    return MAIN_CATS.includes(c) ? c : 'Other';
+  };
 
   let currentUser = null, isSignUp = false, allProducts = [], currentSort = 'new', currentCategory = 'All';
   let cart = JSON.parse(localStorage.getItem('mc_cart') || '[]');
+  let ownedProductIds = new Set();
+  let _userPurchases = null;
 
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -718,30 +729,47 @@ html,body{max-width:100%;overflow-x:hidden}
     setTimeout(() => t.remove(), 2800);
   }
 
-async function refreshOwnedIds() {
-  ownedProductIds = new Set();
+  async function refreshOwnedIds() {
+    ownedProductIds = new Set();
+    _userPurchases = null;
 
-  const session = (await supabaseClient.auth.getSession()).data.session;
-  if (!session) return;
+    if (!currentUser) return;
 
-  try {
-    const res = await fetch('/api/user/library', {
-      headers: { 'Authorization': `Bearer ${session.access_token}` }
-    });
+    const session = (await supabaseClient.auth.getSession()).data.session;
+    if (!session) return;
 
-    const purchases = await res.json();
-    if (!Array.isArray(purchases)) return;
+    try {
+      const res = await fetch('/api/user/library', {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
 
-    ownedProductIds = new Set(
-      purchases
-        .map(item => item.products?.id)
-        .filter(Boolean)
-        .map(String)
-    );
-  } catch (err) {
-    console.warn('Could not refresh owned products:', err);
+      const purchases = await res.json();
+      if (!Array.isArray(purchases)) return;
+
+      _userPurchases = purchases.map(item => item.products?.id || item.product_id).filter(Boolean);
+      ownedProductIds = new Set(_userPurchases.map(String));
+    } catch (err) {
+      console.warn('Could not refresh owned products:', err);
+    }
   }
-}
+
+  async function getUserPurchases() {
+    if (_userPurchases !== null) return _userPurchases;
+    if (!currentUser) return [];
+    try {
+      const session = (await supabaseClient.auth.getSession()).data.session;
+      const res = await fetch('/api/user/library', {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      const purchases = await res.json();
+      _userPurchases = purchases.map(item => item.products?.id || item.product_id).filter(Boolean);
+      ownedProductIds = new Set(_userPurchases.map(String));
+      return _userPurchases;
+    } catch (err) {
+      console.warn('Could not fetch purchases:', err);
+      return [];
+    }
+  }
 
   /* ---------- SCROLL REVEAL ---------- */
   const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
