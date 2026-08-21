@@ -88,12 +88,6 @@
     text-align:center;overflow:hidden;padding:40px 20px 80px;padding-top:calc(64px + var(--safe-top));
     pointer-events:none;will-change:opacity}
   .landing-spacer{height:70dvh}
-  .store-content{
-  position:relative;
-  z-index:2;
-  background:var(--bg);
-  min-height:60vh;
-}
   #storeView{position:relative;z-index:1}
   .landing-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:orb 12s ease-in-out infinite;pointer-events:none}
   .orb1{width:360px;height:360px;background:var(--primary);top:-100px;left:-100px}
@@ -402,7 +396,6 @@
     </section>
     <div class="landing-spacer"></div>
 
-<<<<<<< HEAD
     <div class="store-content">
       <div id="exploreTop" class="toolbar reveal">
         <div class="search">
@@ -412,23 +405,10 @@
         <select id="sortSelect" class="sort-select" onchange="setSort(this.value)">
           <option value="new">ใหม่ล่าสุด</option><option value="priceAsc">ราคา ↑</option><option value="priceDesc">ราคา ↓</option>
         </select>
-=======
-  <div class="store-content">
-    <div id="exploreTop" class="toolbar reveal">
-      <div class="search">
-        <input id="searchInput" placeholder="ค้นหาแอดออน..." oninput="applyFilters()">
-        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
->>>>>>> 1c2202d0e7233faa417e4585e68090ed26cac615
       </div>
-<<<<<<< HEAD
       <div class="chips reveal" id="catChips"></div>
       <div id="productsGrid" class="grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
     </div>
-=======
-        <div class="chips reveal" id="catChips"></div>
-        <div id="productsGrid" class="grid">...</div>
-        </div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
->>>>>>> 1c2202d0e7233faa417e4585e68090ed26cac615
   </section>
 
   <section id="dashboardView" class="view">
