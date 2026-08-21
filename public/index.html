@@ -842,41 +842,33 @@ function clearSearch() {
       grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>No addons found</h3><p>Try a different search or category, or be the first creator to upload one!</p></div>`;
       return;
     }
-    list.forEach((p, i) => {
-  const owned = isOwned(p.id);
-  const price = parseFloat(p.price || 0);
-
-  const card = document.createElement('div');
-  card.className = 'card reveal';
-  card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
-
-  card.innerHTML = `
-    <div class="thumb clickable">
-      ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}" loading="lazy">` : `<span class="fallback">📦</span>`}
-      <div class="cat-tag">${esc(normCat(p.category))}</div>
-      <div class="thumb-badge ${owned ? 'owned' : ''}">
-        ${owned ? 'OWNED' : `฿${price.toFixed(2)}`}
-      </div>
-    </div>
-
-    <div class="card-body">
-      <h3>${esc(p.name)}</h3>
-      <p class="creator">${esc(p.description || 'No description available')}</p>
-
-      <div class="card-foot">
-        <span class="price">฿${price.toFixed(2)}</span>
-        <button class="btn ${owned ? 'btn-ghost' : 'btn-primary'} btn-sm">
-          ${owned ? 'Owned' : 'Details'}
-        </button>
-      </div>
-    </div>
-  `;
-
-  card.querySelector('.thumb').addEventListener('click', () => openProductDetail(p));
-  card.querySelector('.btn-sm').addEventListener('click', () => openProductDetail(p));
-
-  grid.appendChild(card);
-});
+        list.forEach((p, i) => {
+      const owned = isOwned(p.id);
+      const card = document.createElement('div');
+      card.className = 'card reveal';
+      card.style.animationDelay = `${Math.min(i, 8) * 0.07}s`;
+      card.innerHTML = `
+        <div class="thumb">
+          ${p.thumbnail_url ? `<img src="${p.thumbnail_url}" alt="${esc(p.name)}" loading="lazy">` : `<span class="fallback">📦</span>`}
+          <div class="cat-tag">${esc(normCat(p.category))}</div>
+          <div class="thumb-badge${owned ? ' owned' : ''}">${owned ? '✓ OWNED' : `฿${parseFloat(p.price).toFixed(2)}`}</div>
+        </div>
+        <div class="card-body">
+          <h3>${esc(p.name)}</h3>
+          <p class="creator">${esc(p.description || 'No description')}</p>
+          <div class="card-foot">
+            <span class="price">฿${parseFloat(p.price).toFixed(2)}</span>
+            <button class="btn ${owned ? 'btn-ghost' : 'btn-primary'} btn-sm add-btn" onclick="event.stopPropagation()">${owned ? '✓ Owned' : 'Add +'}</button>
+          </div>
+        </div>`;
+      card.querySelector('.add-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        if (owned) { showToast('Already in your Library', 'warn'); switchView('profile'); return; }
+        addToCart(p.id, p.name, parseFloat(p.price), p.thumbnail_url);
+      });
+      card.addEventListener('click', () => openProductDetail(p));
+      grid.appendChild(card);
+    });
     observeReveals(grid);
     wireThumb(grid);
   }
