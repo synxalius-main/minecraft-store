@@ -1208,51 +1208,41 @@
   // 3. Ensure Row Level Security (RLS) policies allow read access to these channels.
   // ==========================================
   function setupRealtime() {
-    // 1. Listen for Product changes (Add, Edit, Delete)
-    supabaseClient
-      .channel('realtime_products')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async payload => {
-        console.log('🔄 Realtime: Product table changed', payload);
-        // Reload products to reflect changes immediately without manual refresh
-        await loadStoreProducts();
-      })
-      .subscribe(status => {
-        if (status === 'SUBSCRIBED') console.log('✅ Realtime: Subscribed to products');
-      });
+  console.log("🔄 กำลังตั้งค่า Realtime...");
 
-    // 2. Listen for New Orders/Purchases (Updates "Owned" status & User Library)
-    supabaseClient
-      .channel('realtime_orders')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async payload => {
-        console.log('🔄 Realtime: New order detected', payload);
-        // Invalidate purchase cache so it fetches fresh data
-        _userPurchases = null;
-        await getUserPurchases();
-        applyFilters(); // Instantly update "มีแล้ว" (Owned) badges in store
-        
-        // If user is on their library page, refresh it
-        if ($('profileView') && $('profileView').classList.contains('active')) {
-          await loadUserLibrary();
-        }
-      })
-      .subscribe(status => {
-        if (status === 'SUBSCRIBED') console.log('✅ Realtime: Subscribed to orders');
-      });
+  // 1. ฟังการเปลี่ยนแปลงของตาราง products
+  supabaseClient
+    .channel('realtime_products')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async (payload) => {
+      // 🔥 จุดเช็กสำคัญ: ถ้าเห็นข้อความนี้แปลว่า Realtime ทำงานสมบูรณ์!
+      console.log('🚨 REALTIME EVENT RECEIVED!', payload); 
+      console.log('🔄 กำลังโหลดข้อมูลสินค้าใหม่จาก API...');
+      
+      await loadStoreProducts();
 
-    // 3. For Creators: Auto-refresh dashboard stats when a new order comes in
-    if (isCreator()) {
-      supabaseClient
-        .channel('realtime_creator_stats')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async payload => {
-          console.log('🔄 Realtime: Creator received new order');
-          if ($('dashboardView') && $('dashboardView').classList.contains('active')) {
-            await loadCreatorStats();
-            await loadCreatorProducts();
-          }
-        })
-        .subscribe();
-    }
-  }
+      // ถ้ากำลังเปิดหน้า Dashboard อยู่ ให้รีโหลดข้อมูลผู้สร้างด้วย
+      if ($('dashboardView') && $('dashboardView').classList.contains('active')) {
+        await loadCreatorProducts();
+        await loadCreatorStats();
+      }
+    })
+    .subscribe((status) => {
+      console.log('📡 Products Realtime Status:', status);
+    });
+
+  // 2. ฟังการเปลี่ยนแปลงของตาราง orders (เมื่อมีการซื้อของ)
+  supabaseClient
+    .channel('realtime_orders')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async (payload) => {
+      console.log('🚨 NEW ORDER DETECTED!', payload);
+      _userPurchases = null; // ล้าง cache การซื้อ
+      await getUserPurchases();
+      applyFilters(); // อัปเดตปุ่ม "มีแล้ว" ทันที
+    })
+    .subscribe((status) => {
+      console.log('📡 Orders Realtime Status:', status);
+    });
+}
   // -------------------------------
 
   // Intro page functions
@@ -1550,19 +1540,30 @@
   function clearSearch() { $('searchInput').value = ''; applyFilters(); updateSearchState(); $('searchInput').focus(); }
 
   async function loadStoreProducts() {
-    const grid = $('productsGrid');
+  const grid = $('productsGrid');
+  
+  // แสดง skeleton เฉพาะตอนโหลดครั้งแรกเท่านั้น (ป้องกันหน้าจอกระพริบตอน Realtime อัปเดต)
+  if (allProducts.length === 0) {
     grid.innerHTML = '<div class="skeleton"></div>'.repeat(4);
-    try {
-      const res = await fetch('/api/products');
-      if (!res.ok) throw new Error('API Error');
-      allProducts = await res.json();
-      await getUserPurchases();
-      applyFilters();
-    } catch (err) {
-      console.error(err);
-      grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3><p>ดึงข้อมูลสินค้าไม่สำเร็จ ลองรีเฟรชหน้าดูนะ</p></div>`;
+  }
+  
+  try {
+    // 🔥 สำคัญมาก: เพิ่ม ?t=Date.now() เพื่อบังคับให้ API ดึงข้อมูลใหม่ล่าสุด (Bust Cache)
+    const res = await fetch(`/api/products?t=${Date.now()}`);
+    if (!res.ok) throw new Error('API Error');
+    
+    allProducts = await res.json();
+    await getUserPurchases();
+    applyFilters();
+    
+    console.log('✅ โหลดสินค้าล่าสุดเรียบร้อยแล้ว จำนวน:', allProducts.length);
+  } catch (err) {
+    console.error("โหลดสินค้าไม่สำเร็จ:", err);
+    if (allProducts.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>โหลดไม่สำเร็จ</h3><p>ดึงข้อมูลสินค้าไม่สำเร็จ</p></div>`;
     }
   }
+}
   function setSort(v) { currentSort = v; applyFilters(); }
 
   async function getUserPurchases() {
