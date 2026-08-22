@@ -1959,14 +1959,21 @@
       });
       const data = await res.json();
       if (data.success) {
-        const pid = id || data.product?.id;
-        if (pid && (pendingPreviews.length || pendingYouTube.length)) {
-          await uploadPreviewsNow(pid, pendingPreviews, pendingYouTube);
-        }
-        pendingPreviews = []; pendingYouTube = [];
-        closeModal('productModal'); loadCreatorProducts(); loadCreatorStats();
-        showToast(id ? (currentLang === 'th' ? 'อัปเดตแล้ว!' : 'Updated!') : (currentLang === 'th' ? 'เผยแพร่แล้ว!' : 'Published!'));
-      }
+  const pid = id || data.product?.id;
+  if (pid && (pendingPreviews.length || pendingYouTube.length)) {
+    await uploadPreviewsNow(pid, pendingPreviews, pendingYouTube);
+  }
+  pendingPreviews = []; pendingYouTube = [];
+  closeModal('productModal');
+  loadCreatorProducts();
+  loadCreatorStats();
+
+  // ✅ NEW: Refresh the public store view so detail & cards show updated data
+  await refreshStoreProducts();
+
+  showToast(id ? (currentLang === 'th' ? 'อัปเดตแล้ว!' : 'Updated!') 
+               : (currentLang === 'th' ? 'เผยแพร่แล้ว!' : 'Published!'));
+}
       else showToast(data.message || (currentLang === 'th' ? 'ล้มเหลว' : 'Failed'), 'error');
     } catch { showToast(currentLang === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed', 'error'); }
     finally { btn.disabled = false; btn.textContent = original; }
