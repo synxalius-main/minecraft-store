@@ -431,6 +431,86 @@
     .qr-code { width: 160px; height: 160px; }
   }
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  
+  /* อนิเมชันพื้นหลัง gradient เลื่อนไปมา */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* ปุ่มหลักมีแสงวิ่ง */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s;
+}
+.btn-primary:hover::after {
+  left: 100%;
+}
+
+/* การ์ดสินค้าขยับเบา ๆ เมื่อ hover */
+.card {
+  transition: transform .35s cubic-bezier(.16,1,.3,1), border-color .3s, box-shadow .3s;
+}
+.card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: var(--cyan);
+  box-shadow: 0 22px 44px rgba(0,0,0,.5), 0 0 32px rgba(34,211,238,.2);
+}
+
+/* ไอคอน feature เด้งเมื่อ hover */
+.feature-card:hover .feature-icon {
+  animation: iconBounce 0.5s ease;
+}
+@keyframes iconBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* โลโก้หมุนช้า ๆ */
+.logo-tile {
+  animation: slowSpin 8s linear infinite;
+}
+@keyframes slowSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* แถบ step ในตะกร้าเรืองแสงขึ้น */
+.step.active .step-num {
+  animation: pulseGlow 1.5s ease infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,230,118,0.3); }
+  50% { box-shadow: 0 0 20px rgba(0,230,118,0.6); }
+}
+
+/* ปุ่ม hero มีเงาเป็นสีรุ้ง */
+.btn-hero-primary {
+  background: linear-gradient(135deg, var(--primary), var(--accent), var(--pink), var(--cyan));
+  background-size: 300% 300%;
+  animation: rainbowGlow 6s ease infinite;
+}
+@keyframes rainbowGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 </style>
 </head>
 <body>
@@ -1898,13 +1978,24 @@
     $('mediaManager').style.display = 'block';
     $('productModal').classList.add('active'); document.body.style.overflow = 'hidden';
   }
+  
+  const priceInput = $('pPrice');
+if (priceInput) {
+  // ตอนออกจากช่องกรอก ให้เติม .00 ถ้ายังไม่มีทศนิยม
+  priceInput.addEventListener('blur', function() {
+    this.value = formatPriceField(this.value);
+  });
+
+  // ตอนกด submit ให้ format อีกครั้ง (กันลืม)
+  // (ใน productForm submit มีอยู่แล้ว แต่เพิ่มตรงนี้ก็ได้)
+}
 
   async function openEditProduct(id) {
     const p = window._creatorProducts?.[id]; if (!p) return;
     $('editProductId').value = id;
     $('modalProductTitle').textContent = currentLang === 'th' ? 'แก้ไขแอดออน' : 'Edit Addon';
     $('pName').value = p.name || ''; $('pDesc').value = p.description || '';
-    $('pPrice').value = formatPrice(p.price) || ''; $('pCategory').value = normCat(p.category);
+    $('pPrice').value = formatPriceField(p.price); // ← เปลี่ยนบรรทัดนี้
     $('fileHint').textContent = currentLang === 'th' ? '📦 เว้นว่างไว้เพื่อใช้ไฟล์เดิม' : '📦 Leave blank to keep existing file';
     $('fileError').style.display = 'none'; $('thumbPrev').style.display = 'none';
     pendingPreviews = []; pendingYouTube = [];
