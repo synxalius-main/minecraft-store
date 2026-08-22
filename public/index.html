@@ -1462,6 +1462,18 @@
     observeReveals(grid);
     wireThumb(grid);
   }
+  
+  async function refreshStoreProducts() {
+  try {
+    const res = await fetch('/api/products');
+    if (res.ok) {
+      allProducts = await res.json();
+      applyFilters(); // re-render the store grid with fresh data
+    }
+  } catch (e) {
+    console.warn('Failed to refresh store:', e);
+  }
+}
 
   async function openProductDetail(p) {
     galleryItems = []; galleryIdx = 0;
