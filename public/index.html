@@ -1463,17 +1463,18 @@
     wireThumb(grid);
   }
   
-  async function refreshStoreProducts() {
-  try {
-    const res = await fetch('/api/products');
-    if (res.ok) {
-      allProducts = await res.json();
-      applyFilters(); // re-render the store grid with fresh data
+    async function refreshStoreProducts() {
+    try {
+      // 🚀 FIX: Added ?t=Date.now() and { cache: 'no-store' } to force bypass cache
+      const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
+      if (res.ok) {
+        allProducts = await res.json();
+        applyFilters(); // re-render the store grid with fresh data
+      }
+    } catch (e) {
+      console.warn('Failed to refresh store:', e);
     }
-  } catch (e) {
-    console.warn('Failed to refresh store:', e);
   }
-}
 
   async function openProductDetail(p) {
     galleryItems = []; galleryIdx = 0;
@@ -1957,36 +1958,41 @@
       const res = await fetch(id ? `/api/creator/products/${id}` : '/api/creator/products', {
         method: id ? 'PUT' : 'POST', headers: { 'Authorization': `Bearer ${session.access_token}` }, body: fd
       });
-      const data = await res.json();
+            const data = await res.json();
       if (data.success) {
-  const pid = id || data.product?.id;
-  if (pid && (pendingPreviews.length || pendingYouTube.length)) {
-    await uploadPreviewsNow(pid, pendingPreviews, pendingYouTube);
-  }
-  pendingPreviews = []; pendingYouTube = [];
-  closeModal('productModal');
-  loadCreatorProducts();
-  loadCreatorStats();
+        const pid = id || data.product?.id;
+        if (pid && (pendingPreviews.length || pendingYouTube.length)) {
+          await uploadPreviewsNow(pid, pendingPreviews, pendingYouTube);
+        }
+        pendingPreviews = []; pendingYouTube = [];
+        closeModal('productModal');
+        loadCreatorProducts();
+        loadCreatorStats();
 
-  // ✅ NEW: Refresh the public store view so detail & cards show updated data
-  await refreshStoreProducts();
+        // ✅ NEW: Refresh the public store view so detail & cards show updated data
+        await refreshStoreProducts();
 
-  showToast(id ? (currentLang === 'th' ? 'อัปเดตแล้ว!' : 'Updated!') 
-               : (currentLang === 'th' ? 'เผยแพร่แล้ว!' : 'Published!'));
-}
+        showToast(id ? (currentLang === 'th' ? 'อัปเดตแล้ว!' : 'Updated!') 
+                     : (currentLang === 'th' ? 'เผยแพร่แล้ว!' : 'Published!'));
+      }
       else showToast(data.message || (currentLang === 'th' ? 'ล้มเหลว' : 'Failed'), 'error');
     } catch { showToast(currentLang === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed', 'error'); }
     finally { btn.disabled = false; btn.textContent = original; }
   });
 
-  async function deleteProduct(id) {
+    async function deleteProduct(id) {
     if (!confirm(currentLang === 'th' ? 'ลบแอดออนนี้? การลบไม่สามารถย้อนกลับได้' : 'Delete this addon? This action cannot be undone.')) return;
     const session = await ensureSession();
     if (!session) return;
     try {
       const res = await fetch(`/api/creator/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${session.access_token}` } });
       const data = await res.json();
-      if (data.success) { loadCreatorProducts(); loadCreatorStats(); showToast(currentLang === 'th' ? 'ลบแล้ว' : 'Deleted'); }
+      if (data.success) { 
+        loadCreatorProducts(); 
+        loadCreatorStats(); 
+        await refreshStoreProducts(); // 🚀 FIX: Now updates the store view too
+        showToast(currentLang === 'th' ? 'ลบแล้ว' : 'Deleted'); 
+      }
       else showToast(data.message || (currentLang === 'th' ? 'ล้มเหลว' : 'Failed'), 'error');
     } catch { showToast(currentLang === 'th' ? 'ล้มเหลว' : 'Failed', 'error'); }
   }
