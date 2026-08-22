@@ -281,6 +281,24 @@
     white-space: nowrap;
     flex-shrink: 0;
   }
+  .fallback {
+    font-size: 2.5rem;
+    opacity: 0.5;
+  }
+  .cat-tag {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: var(--primary-dim);
+    color: var(--primary);
+    border: 1px solid var(--border-glow);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    z-index: 2;
+  }
+
 
   .card .btn {
     flex-shrink: 0;
@@ -302,7 +320,7 @@
   .search input{width:100%;padding:12px 16px 12px 42px;background:var(--glass);border:1px solid var(--border);border-radius:14px;
     color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.25s}
   .search input:focus{border-color:var(--border-glow);box-shadow:0 0 0 3px var(--primary-dim)}
-  .search::before{content:'';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.6}
+  .search::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.6}
   .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%) scale(.8);width:28px;height:28px;border-radius:50%;
     background:var(--glass2);border:1px solid var(--border);color:var(--muted);font-size:.72rem;display:grid;place-items:center;
     opacity:0;pointer-events:none;transition:.25s;z-index:2}
@@ -636,6 +654,7 @@
   }
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -1116,7 +1135,7 @@
     <div class="gallery" id="detailGallery">
       <div class="gallery-main" id="galleryMain"></div>
       <button class="gallery-nav prev" onclick="galleryNav(-1)">◂</button>
-      <button class="gallery-nav next" onclick="galleryNav(1)"></button>
+      <button class="gallery-nav next" onclick="galleryNav(1)">▸</button>
     </div>
     <div class="gallery-strip" id="galleryStrip"></div>
     <div class="detail-body" id="detailBody"></div>
@@ -1136,7 +1155,7 @@
   const normCat = c => MAIN_CATS.includes(c) ? c : 'Other';
 
   let currentUser = null, isSignUp = false, allProducts = [], currentSort = 'new', currentCategory = 'All';
-  let cart = JSON.parse(localStorage.getItem('mc_cart') || '[]');
+  let cart = (() => { try { return JSON.parse(localStorage.getItem('mc_cart') || '[]'); } catch { return []; } })();
   let galleryItems = [], galleryIdx = 0;
   let _userPurchases = null;
   let selectedRole = 'member';
@@ -1393,14 +1412,19 @@
     return session;
   }
   async function becomeCreator() {
-    const session = await ensureSession();
-    if (!session) return;
-    const { error } = await supabaseClient.auth.updateUser({ data: { role: 'creator' } });
-    if (error) return showToast(error.message, 'error');
-    currentUser = session.user;
-    updateAuthUI(); loadProfile();
-    showToast('🎉 คุณเป็นผู้สร้างแล้ว!');
-    switchView('dashboard');
+    try {
+      const session = await ensureSession();
+      if (!session) return;
+      const { error } = await supabaseClient.auth.updateUser({ data: { role: 'creator' } });
+      if (error) { showToast(error.message, 'error'); return; }
+      currentUser = session.user;
+      updateAuthUI(); loadProfile();
+      showToast('🎉 คุณเป็นผู้สร้างแล้ว!');
+      switchView('dashboard');
+    } catch (err) {
+      console.error('becomeCreator error:', err);
+      showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+    }
   }
 
   function loadProfile() {
@@ -1438,17 +1462,22 @@
     $('editProfileModal').classList.add('active'); document.body.style.overflow = 'hidden';
   }
   async function saveProfile() {
-    const username = $('epUsername').value.trim();
-    if (!username) return showToast('ใส่ชื่อผู้ใช้', 'error');
-    const phone = $('epPhone').value.trim();
-    if (phone && !/^0\d{8,9}$/.test(phone)) return showToast('เบอร์โทรไม่ถูกต้อง', 'error');
-    const session = await ensureSession();
-    if (!session) return;
-    const { error } = await supabaseClient.auth.updateUser({ data: { username, minecraft_ign: $('epIgn').value.trim() || 'Steve', phone } });
-    if (error) return showToast(error.message, 'error');
-    currentUser = session.user;
-    closeModal('editProfileModal'); updateAuthUI(); loadProfile();
-    showToast('บันทึกโปรไฟล์แล้ว!');
+    try {
+      const username = $('epUsername').value.trim();
+      if (!username) { showToast('ใส่ชื่อผู้ใช้', 'error'); return; }
+      const phone = $('epPhone').value.trim();
+      if (phone && !/^0\d{8,9}$/.test(phone)) { showToast('เบอร์โทรไม่ถูกต้อง', 'error'); return; }
+      const session = await ensureSession();
+      if (!session) return;
+      const { error } = await supabaseClient.auth.updateUser({ data: { username, minecraft_ign: $('epIgn').value.trim() || 'Steve', phone } });
+      if (error) { showToast(error.message, 'error'); return; }
+      currentUser = session.user;
+      closeModal('editProfileModal'); updateAuthUI(); loadProfile();
+      showToast('บันทึกโปรไฟล์แล้ว!');
+    } catch (err) {
+      console.error('saveProfile error:', err);
+      showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+    }
   }
   function openTermsModal() { $('termsModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
 
@@ -1466,7 +1495,7 @@
     document.querySelector('.search').classList.toggle('has-text', hasText);
   }
   function clearSearch() { $('searchInput').value = ''; applyFilters(); updateSearchState(); $('searchInput').focus(); }
-  ['focus', 'blur', 'input'].forEach(ev => $('searchInput').addEventListener(ev, updateSearchState));
+    // Search events moved to DOMContentLoaded
 
   async function loadStoreProducts() {
     const grid = $('productsGrid');
@@ -1916,8 +1945,7 @@
   }
   function assignFile(input, file) { const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files; input.dispatchEvent(new Event('change')); }
 
-  bindDropZone($('slipZone'), f => { assignFile($('slipFile'), f); previewImage(f, $('slipPrev'), $('slipHint')); });
-  $('slipFile').addEventListener('change', function () { if (this.files[0]) previewImage(this.files[0], $('slipPrev'), $('slipHint')); });
+  // Removed: slipZone/slipPrev/slipHint references (elements don't exist)
 
   bindDropZone($('dz'), f => { openProductModal(); assignFile($('pFile'), f); });
   $('dzFile').addEventListener('change', function () { if (this.files[0]) { openProductModal(); assignFile($('pFile'), this.files[0]); this.value = ''; } });
@@ -2148,15 +2176,18 @@
   }
 
   async function secureDownload(id, name) {
-    showToast(`กำลังสร้างลิงก์ดาวน์โหลด ${name}...`);
-    const session = await ensureSession();
-    if (!session) return;
     try {
+      showToast(`กำลังสร้างลิงก์ดาวน์โหลด ${name}...`);
+      const session = await ensureSession();
+      if (!session) return;
       const res = await fetch('/api/downloads', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` }, body: JSON.stringify({ productId: id }) });
       const data = await res.json();
       if (data.success) { const a = document.createElement('a'); a.href = data.url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); showToast('เริ่มดาวน์โหลด!'); }
       else showToast(data.message || 'ดาวน์โหลดไม่สำเร็จ', 'error');
-    } catch { showToast('เครือข่ายขัดข้องขณะดาวน์โหลด', 'error'); }
+    } catch (err) {
+      console.error('secureDownload error:', err);
+      showToast('เครือข่ายขัดข้องขณะดาวน์โหลด', 'error');
+    }
   }
 
   function openAuthModal() { $('authModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
@@ -2171,18 +2202,18 @@
   async function handleAuth() {
   const email = $('authEmail').value.trim(), password = $('authPassword').value;
   const btn = $('authSubmit'), original = btn.textContent;
-  if (!email || !password) return showToast('กรอกข้อมูลให้ครบ', 'error');
+  if (!email || !password) { showToast('กรอกข้อมูลให้ครบ', 'error'); return; }
   btn.disabled = true; btn.textContent = '⏳ กำลังดำเนินการ...';
   try {
     if (isSignUp) {
       // ... sign-up logic stays the same ...
       const username = $('authUsername').value.trim(), ign = $('authIgn').value.trim(), confirm = $('authConfirmPassword').value;
       const phone = $('authPhone').value.trim();
-      if (!username) return showToast('ใส่ชื่อผู้ใช้', 'error');
-      if (!phone || !/^0\d{8,9}$/.test(phone)) return showToast('กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)', 'error');
-      if (!$('authTerms').checked) return showToast('กรุณายอมรับข้อตกลงการใช้งาน', 'error');
-      if (password !== confirm) return showToast('รหัสผ่านไม่ตรงกัน', 'error');
-      if (password.length < 6) return showToast('รหัสผ่านต้องอย่างน้อย 6 ตัว', 'error');
+      if (!username) { showToast('ใส่ชื่อผู้ใช้', 'error'); return; }
+      if (!phone || !/^0\d{8,9}$/.test(phone)) { showToast('กรอกเบอร์โทรให้ถูกต้อง (เช่น 0812345678)', 'error'); return; }
+      if (!$('authTerms').checked) { showToast('กรุณายอมรับข้อตกลงการใช้งาน', 'error'); return; }
+      if (password !== confirm) { showToast('รหัสผ่านไม่ตรงกัน', 'error'); return; }
+      if (password.length < 6) { showToast('รหัสผ่านต้องอย่างน้อย 6 ตัว', 'error'); return; }
       const { error } = await supabaseClient.auth.signUp({
         email, password,
         options: { data: { username, minecraft_ign: ign || 'Steve', phone, role: selectedRole, terms_accepted: true } }
@@ -2251,9 +2282,7 @@
     if (e.key === 'ArrowRight' && $('detailModal').classList.contains('active')) galleryNav(1);
   });
 
-  $('pPrice').addEventListener('blur', function() {
-    this.value = formatPrice(this.value);
-  });
+  // pPrice blur moved to DOMContentLoaded
 
   // Initialize
   buildChips();
