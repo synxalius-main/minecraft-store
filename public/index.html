@@ -1198,6 +1198,61 @@
       }
     });
   }
+
+  // ==========================================
+  // REALTIME UPDATES (Supabase Realtime)
+  // ==========================================
+  // ⚠️ IMPORTANT: You must enable "Realtime" for your tables in the Supabase Dashboard:
+  // 1. Go to Database -> Replication
+  // 2. Toggle 'products' and 'orders' (or your actual table names) to ON.
+  // 3. Ensure Row Level Security (RLS) policies allow read access to these channels.
+  // ==========================================
+  function setupRealtime() {
+    // 1. Listen for Product changes (Add, Edit, Delete)
+    supabaseClient
+      .channel('realtime_products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async payload => {
+        console.log('🔄 Realtime: Product table changed', payload);
+        // Reload products to reflect changes immediately without manual refresh
+        await loadStoreProducts();
+      })
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED') console.log('✅ Realtime: Subscribed to products');
+      });
+
+    // 2. Listen for New Orders/Purchases (Updates "Owned" status & User Library)
+    supabaseClient
+      .channel('realtime_orders')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async payload => {
+        console.log('🔄 Realtime: New order detected', payload);
+        // Invalidate purchase cache so it fetches fresh data
+        _userPurchases = null;
+        await getUserPurchases();
+        applyFilters(); // Instantly update "มีแล้ว" (Owned) badges in store
+        
+        // If user is on their library page, refresh it
+        if ($('profileView') && $('profileView').classList.contains('active')) {
+          await loadUserLibrary();
+        }
+      })
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED') console.log('✅ Realtime: Subscribed to orders');
+      });
+
+    // 3. For Creators: Auto-refresh dashboard stats when a new order comes in
+    if (isCreator()) {
+      supabaseClient
+        .channel('realtime_creator_stats')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async payload => {
+          console.log('🔄 Realtime: Creator received new order');
+          if ($('dashboardView') && $('dashboardView').classList.contains('active')) {
+            await loadCreatorStats();
+            await loadCreatorProducts();
+          }
+        })
+        .subscribe();
+    }
+  }
   // -------------------------------
 
   // Intro page functions
@@ -1238,8 +1293,6 @@
   // Load featured preview
   async function loadFeaturedPreview() {
     try {
-      // Note: This will fail if you don't have a backend running at /api/products
-      // For demo purposes, we might want to mock this or handle the error gracefully
       const res = await fetch('/api/products');
       if (!res.ok) throw new Error('API not available');
       const products = await res.json();
@@ -1495,7 +1548,6 @@
     document.querySelector('.search').classList.toggle('has-text', hasText);
   }
   function clearSearch() { $('searchInput').value = ''; applyFilters(); updateSearchState(); $('searchInput').focus(); }
-    // Search events moved to DOMContentLoaded
 
   async function loadStoreProducts() {
     const grid = $('productsGrid');
@@ -1945,8 +1997,6 @@
   }
   function assignFile(input, file) { const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files; input.dispatchEvent(new Event('change')); }
 
-  // Removed: slipZone/slipPrev/slipHint references (elements don't exist)
-
   bindDropZone($('dz'), f => { openProductModal(); assignFile($('pFile'), f); });
   $('dzFile').addEventListener('change', function () { if (this.files[0]) { openProductModal(); assignFile($('pFile'), this.files[0]); this.value = ''; } });
 
@@ -2206,7 +2256,6 @@
   btn.disabled = true; btn.textContent = '⏳ กำลังดำเนินการ...';
   try {
     if (isSignUp) {
-      // ... sign-up logic stays the same ...
       const username = $('authUsername').value.trim(), ign = $('authIgn').value.trim(), confirm = $('authConfirmPassword').value;
       const phone = $('authPhone').value.trim();
       if (!username) { showToast('ใส่ชื่อผู้ใช้', 'error'); return; }
@@ -2220,17 +2269,14 @@
       });
       if (error) showToast(error.message, 'error'); else { showToast(`ยินดีต้อนรับ, ${username}!`); toggleAuthMode(); }
     } else {
-      // FIX: Capture the session data directly from the response
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         showToast(error.message, 'error');
       } else {
-        // FIX: Immediately set currentUser and update UI — don't wait for onAuthStateChange
         currentUser = data.user;
         updateAuthUI();
         closeModal('authModal');
         showToast('เข้าสู่ระบบแล้ว!');
-        // FIX: Also load protected data immediately
         loadCreatorProducts();
         loadUserLibrary();
       }
@@ -2242,7 +2288,6 @@
     const name = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'User';
     const btn = $('authBtn'), logged = !!currentUser, creator = isCreator();
     
-    // Safety check if elements exist
     if(!btn) return;
 
     $('navDashboard').style.display = logged && creator ? 'inline-block' : 'none';
@@ -2282,16 +2327,17 @@
     if (e.key === 'ArrowRight' && $('detailModal').classList.contains('active')) galleryNav(1);
   });
 
-  // pPrice blur moved to DOMContentLoaded
-
   // Initialize
   buildChips();
   observeReveals(document);
   renderCart();
   loadFeaturedPreview();
   
-  // START AUTH CHECK
-  initAuth();
+  // START AUTH CHECK & REALTIME
+  (async () => {
+    await initAuth();
+    setupRealtime();
+  })();
   
   if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
 </script>
